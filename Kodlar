@@ -1,5 +1,4 @@
 const [expandedRows, setExpandedRows] = useState([]);
-    
 
   // Satır açma/kapama işlevi
   const toggleRow = (id, parentId = '') => {
@@ -10,6 +9,25 @@ const [expandedRows, setExpandedRows] = useState([]);
         : [...prevState, key]
     );
   };
+
+  // Helper function to get all the rows recursively for the initial state
+  const getAllRows = (rows, parentId = '') => {
+    let result = [];
+    rows.forEach((row) => {
+      const key = parentId ? `${parentId}-${row.id}` : `${row.id}`;
+      result.push(key);
+      if (row.children.length > 0) {
+        result = result.concat(getAllRows(row.children, key));  // Rekürsif olarak alt satırlara gidiyoruz
+      }
+    });
+    return result;
+  };
+
+  // useEffect hook to set initial state for expanded rows (all rows expanded)
+  useEffect(() => {
+    const initialExpandedRows = getAllRows(data);
+    setExpandedRows(initialExpandedRows);
+  }, []); // Boş dependency array ile sadece ilk renderda çalışır
 
   // Satır render fonksiyonu
   const renderRow = (item, parentId = '') => (
