@@ -1,122 +1,19 @@
-import React from 'react'
-import { useEffect, useState } from 'react';
-import { getObjectData,getObjectPivotTableData } from '@/util/qlikConnection';
-
-
-export default function TableComponent({app, objectId}) {
-    // const [data, setData] = useState([]);
-
-    function renderTable() {
-        if (app) {
-            getObjectPivotTableData(app, objectId).then((response) => {
-                console.log(response)
-                // const incomingData = response.map(item => ({
-                //     value: parseFloat(item[0].qText),
-                //     name: item[1].qText
-                // }));
-                // setData(incomingData)
-            });
-        } else {
-            // console.error('Qlik Sense app is not loaded yet');
-        }
-    }
-
-    useEffect(() => {
-        renderTable();
-    }, [app, objectId]);
-
-    const data = [
-        {
-          id: 1,
-          name: 'DataOps',
-          data: [1.23, 4.56, 7.89, 0.12, 3.45, 6.78, 9.01],
-          children: [
-            {
-              name: 'DQ Skoru',
-              data: [1.11, 2.22, 3.33, 4.44, 5.55, 6.66, 7.77],
-              children: [
-                { 
-                  name: 'DQ Technical', 
-                  data: [0.98, 1.23, 3.45, 5.67, 7.89, 0.12, 4.56],
-                  children: [] 
-                },
-                { 
-                  name: 'Last Check', 
-                  data: [0.98, 1.23, 3.45, 5.67, 7.89, 0.12, 4.56],
-                  children: [] 
-                }
-              ]
-            },
-            {
-              name: 'Veri Envanteri Skoru',
-              data: [8.45, 6.78, 9.01, 2.34, 5.67, 8.90, 1.23],
-              children: [
-                { 
-                  name: 'Errors', 
-                  data: [0.98, 1.23, 3.45, 5.67, 7.89, 0.12, 4.56],
-                  children: [] 
-                },
-                { 
-                  name: 'Errors 1', 
-                  data: [0.98, 1.23, 3.45, 5.67, 7.89, 0.12, 4.56],
-                  children: [] 
-                },
-                { 
-                  name: 'Errors 2' , 
-                  data: [0.98, 1.23, 3.45, 5.67, 7.89, 0.12, 4.56],
-                  children: [] 
-                }
-              ]
-            },
-            {
-              name: 'DENEME',
-              data: [8.45, 6.78, 9.01, 2.34, 5.67, 8.90, 1.23],
-              children: []
-            }
-          ]
-        },
-        {
-          id: 2,
-          name: 'METADATA HUB',
-          data: [2.34, 5.67, 8.90, 1.23, 4.56, 7.89, 0.12, 9.01],
-          children: [
-            {
-              name: 'Aylık Toplam Search Adedi',
-              data: [3.45, 6.78, 9.01, 2.34, 5.67, 8.90, 1.23],
-              children: [  
-                { 
-                  name: 'Search 1' , 
-                  data: [0.98, 1.23, 3.45, 5.67, 7.89, 0.12, 4.56],
-                  children: [] 
-                }
-              ]
-            },
-            {
-              name: 'Aylık Toplam Lineage',
-              data: [3.45, 2.67, 9.01, 4.6, 8.67, 8.90, 8.21],
-              children: []
-            }
-          ]
-        }
-      ];
-    
-      const [expandedRows, setExpandedRows] = useState([]);
-    
+const [expandedRows, setExpandedRows] = useState([]);
 
   // Satır açma/kapama işlevi
   const toggleRow = (id, parentId = '') => {
     const key = parentId ? `${parentId}-${id}` : `${id}`;
-    setExpandedRows(prevState =>
+    setExpandedRows((prevState) =>
       prevState.includes(key)
-        ? prevState.filter(rowId => rowId !== key)
-        : [...prevState, key]
+        ? prevState.filter((rowId) => rowId !== key) // Eğer satır açıksa, kapatıyoruz
+        : [...prevState, key] // Eğer kapalıysa, açıyoruz
     );
   };
 
-  // Satır render fonksiyonu
+  // Alt satırları kontrol eden yardımcı fonksiyon
   const renderRow = (item, parentId = '') => (
     <React.Fragment key={item.id}>
-      <tr key={item.id}>
+      <tr>
         <td>
           {item.children.length > 0 && (
             <button
@@ -133,9 +30,9 @@ export default function TableComponent({app, objectId}) {
           <td key={index}>{value}</td>
         ))}
       </tr>
-      {item.children.length > 0 && expandedRows.includes(`${parentId ? parentId + '-' : ''}${item.id}`) && (
-        item.children.map((child, index) => renderRow(child, `${parentId}-${item.id}-${index}`)) // Her child'a benzersiz key
-      )}
+      {item.children.length > 0 &&
+        expandedRows.includes(`${parentId ? parentId + '-' : ''}${item.id}`) &&
+        item.children.map((child, index) => renderRow(child, `${parentId}-${item.id}-${index}`))} {/* Alt satırları render et */}
     </React.Fragment>
   );
 
@@ -159,7 +56,7 @@ export default function TableComponent({app, objectId}) {
                 </tr>
               </thead>
               <tbody>
-                {data.map(item => renderRow(item))}
+                {data.map((item) => renderRow(item))}
               </tbody>
             </table>
           </div>
@@ -167,4 +64,4 @@ export default function TableComponent({app, objectId}) {
       </div>
     </div>
   );
-};
+}
