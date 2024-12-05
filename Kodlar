@@ -11,3 +11,25 @@
     // Alt satırlar için sadece alt satırları açıyoruz
     setExpandedRows(newExpandedRows);
   }
+
+const toggleRow = (id, parentId = '') => {
+  const key = parentId ? `${parentId}-${id}` : `${id}`;
+  
+  // Eğer satır zaten açıksa, kapatıyoruz; eğer kapalıysa açıyoruz
+  const newExpandedRows = expandedRows.includes(key)
+    ? expandedRows.filter((rowId) => rowId !== key)
+    : [...expandedRows, key];
+
+  // Eğer ana satır kapatılıyorsa, altındaki tüm alt satırları da kapatıyoruz
+  if (parentId === '') {
+    // Ana satır kapandığında, altındaki tüm alt satırların kapatılmasını sağlıyoruz
+    setExpandedRows(
+      newExpandedRows.filter(
+        (rowId) => !rowId.startsWith(`${key}-`) // Ana satır ve tüm alt satırlarını çıkarıyoruz
+      )
+    );
+  } else {
+    // Alt satırlar için sadece alt satırları açıyoruz
+    setExpandedRows(newExpandedRows);
+  }
+};
