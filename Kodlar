@@ -41,33 +41,33 @@
     );
   };
 
-  // Satır render fonksiyonu
-  const renderRow = (item, parentId = '', level = 0) => (
-    <React.Fragment key={item.id}>
-      <tr key={item.id}>
-        <td>
-          {item.children.length > 0 && (
-            <button
-              className="btn btn-info btn-sm ms-2"
-              type="button"
-              onClick={() => toggleRow(item.id, parentId)}
-            >
-              {expandedRows.includes(`${parentId ? parentId + '-' : ''}${item.id}`) ? '-' : '+'}
-            </button>
-          )}
-          {item.name}
-        </td>
-        {item.data.map((value, index) => (
-          <td key={index}>{value}</td>
-        ))}
-      </tr>
-      {item.children.length > 0 &&
-        expandedRows.includes(`${parentId ? parentId + '-' : ''}${item.id}`) &&
-        item.children.map((child) =>
-          renderRow(child, `${parentId ? parentId + '-' : ''}${item.id}`, level + 1) // Seviye arttıkça padding ekle
+ const renderRow = (item, parentId = '', level = 0) => (
+  <React.Fragment key={item.id}>
+    <tr key={item.id} className={level > 0 ? 'child-row' : ''} style={{ paddingLeft: `${level * 20}px` }}>
+      <td>
+        {item.children.length > 0 && (
+          <button
+            className="btn btn-info btn-sm ms-2"
+            type="button"
+            onClick={() => toggleRow(item.id, parentId)}
+          >
+            {expandedRows.includes(`${parentId ? parentId + '-' : ''}${item.id}`) ? '-' : '+'}
+          </button>
         )}
-    </React.Fragment>
-  );
+        {item.name}
+      </td>
+      {item.data.map((value, index) => (
+        <td key={index}>{value}</td>
+      ))}
+    </tr>
+    {item.children.length > 0 &&
+      expandedRows.includes(`${parentId ? parentId + '-' : ''}${item.id}`) &&
+      item.children.map((child) =>
+        renderRow(child, `${parentId ? parentId + '-' : ''}${item.id}`, level + 1) // Seviye arttıkça padding ekle
+      )}
+  </React.Fragment>
+);
+
 
   return (
     <div className="container mt-5">
