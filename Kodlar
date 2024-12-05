@@ -1,20 +1,6 @@
-  // Eğer ana satır kapatılıyorsa, altındaki tüm alt satırları da kapatıyoruz
-  if (parentId === '') {
-    // Ana satır kapandığında, tüm alt satırların kapatılmasını sağlıyoruz
-    // Bu, o ana satırın ve ona bağlı tüm alt satırların (ve alt alt satırlarının) kapatılması anlamına gelir.
-    setExpandedRows(
-      newExpandedRows.filter(
-        (rowId) => !rowId.startsWith(`${key}-`) // Ana satır ve tüm alt satırlarını çıkarıyoruz
-      )
-    );
-  } else {
-    // Alt satırlar için sadece alt satırları açıyoruz
-    setExpandedRows(newExpandedRows);
-  }
-
 const toggleRow = (id, parentId = '') => {
   const key = parentId ? `${parentId}-${id}` : `${id}`;
-  
+
   // Eğer satır zaten açıksa, kapatıyoruz; eğer kapalıysa açıyoruz
   const newExpandedRows = expandedRows.includes(key)
     ? expandedRows.filter((rowId) => rowId !== key)
@@ -22,14 +8,39 @@ const toggleRow = (id, parentId = '') => {
 
   // Eğer ana satır kapatılıyorsa, altındaki tüm alt satırları da kapatıyoruz
   if (parentId === '') {
-    // Ana satır kapandığında, altındaki tüm alt satırların kapatılmasını sağlıyoruz
+    // Ana satır kapandığında, altındaki tüm alt satırları ve alt satırların altındaki satırları da kapatıyoruz
     setExpandedRows(
       newExpandedRows.filter(
         (rowId) => !rowId.startsWith(`${key}-`) // Ana satır ve tüm alt satırlarını çıkarıyoruz
       )
     );
   } else {
-    // Alt satırlar için sadece alt satırları açıyoruz
+    // Alt satırların alt satırlarını kapatmıyoruz, sadece alt satırları açıyoruz
     setExpandedRows(newExpandedRows);
   }
 };
+
+const renderRow = (item, parentId = '') => (
+  <React.Fragment key={item.id}>
+    <tr key={item.id}>
+      <td>
+        {item.children.length > 0 && (
+          <button
+            className="btn btn-info btn-sm ms-2"
+            type="button"
+            onClick={() => toggleRow(item.id, parentId)}
+          >
+            {expandedRows.includes(`${parentId ? parentId + '-' : ''}${item.id}`) ? '-' : '+'}
+          </button>
+        )}
+        {item.name}
+      </td>
+      {item.data.map((value, index) => (
+        <td key={index}>{value}</td>
+      ))}
+    </tr>
+    {item.children.length > 0 && expandedRows.includes(`${parentId ? parentId + '-' : ''}${item.id}`) && (
+      item.children.map((child, index) => renderRow(child, `${parentId}-${item.id}-${index}`)) // Her child'a benzersiz key
+    )}
+  </React.Fragment>
+);
