@@ -1,4 +1,37 @@
-/* parent-row sınıfına sahip tr etiketine özel stil */
-table tr.parent-row {
-  background-color: #f0f0f0 !important; /* !important kullanarak diğer stilleri geçersiz kılabiliriz */
-}
+ const addIdsToData = (data) => {
+    return data.map((item, index) => {
+      const newItem = { ...item, id: item.id || `row-${index}` };
+      if (newItem.children && newItem.children.length > 0) {
+        newItem.children = addIdsToData(newItem.children); // Alt öğeleri işliyoruz
+      }
+      return newItem;
+    });
+  };
+
+  const updatedData = addIdsToData(data);
+
+  const collectAllRowKeys = (items, parentKey = '') => {
+    let keys = [];
+    items.forEach((item) => {
+      const currentKey = parentKey ? `${parentKey}-${item.id}` : `${item.id}`;
+      keys.push(currentKey);
+      if (item.children.length > 0) {
+        keys = [...keys, ...collectAllRowKeys(item.children, currentKey)];
+      }
+    });
+    return keys;
+  };
+
+  useEffect(() => {
+    const allRowKeys = collectAllRowKeys(updatedData);
+    setExpandedRows(allRowKeys); // İlk açılışta tüm satırları açıyoruz
+  }, []);
+
+  const toggleRow = (id, parentId = '') => {
+    const key = parentId ? `${parentId}-${id}` : `${id}`;
+    setExpandedRows((prevState) =>
+      prevState.includes(key)
+        ? prevState.filter((rowId) => rowId !== key)
+        : [...prevState, key]
+    );
+  };
