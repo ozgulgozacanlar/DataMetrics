@@ -5,14 +5,21 @@ const getAllRows = (rows, parentId = '') => {
     const key = parentId ? `${parentId}-${row.id}` : `${row.id}`;
     result.push(key); // Ana satır ekleniyor
     
-    // Eğer children varsa, onları da kontrol et
+    // Eğer çocuk varsa, alt satırları açalım
     if (row.children && row.children.length > 0) {
       result = result.concat(getAllRows(row.children, key));  // Alt satırlar için recursive çağrı
 
-      // Eğer alt satırların çocukları varsa (row.children.children), onları da kontrol et
+      // Alt satırların alt satırlarını (children.children) da açalım
       row.children.forEach(child => {
         if (child.children && child.children.length > 0) {
-          result = result.concat(getAllRows(child.children, `${key}-${child.id}`));
+          result = result.concat(getAllRows(child.children, `${key}-${child.id}`)); // Alt satırların alt satırları
+          
+          // Burada child.children içinde daha derin seviyeler için yine aynı işlemi yapıyoruz
+          child.children.forEach(grandchild => {
+            if (grandchild.children && grandchild.children.length > 0) {
+              result = result.concat(getAllRows(grandchild.children, `${key}-${child.id}-${grandchild.id}`)); // 3. seviye
+            }
+          });
         }
       });
     }
