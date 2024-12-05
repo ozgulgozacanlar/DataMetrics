@@ -1,67 +1,15 @@
-const [expandedRows, setExpandedRows] = useState([]);
-
-  // Satır açma/kapama işlevi
-  const toggleRow = (id, parentId = '') => {
+const toggleRow = (id, parentId = '') => {
     const key = parentId ? `${parentId}-${id}` : `${id}`;
-    setExpandedRows((prevState) =>
-      prevState.includes(key)
-        ? prevState.filter((rowId) => rowId !== key) // Eğer satır açıksa, kapatıyoruz
-        : [...prevState, key] // Eğer kapalıysa, açıyoruz
-    );
+    const newExpandedRows = expandedRows.includes(key)
+      ? expandedRows.filter((rowId) => rowId !== key) // Eğer satır zaten açıksa, kapatıyoruz
+      : [...expandedRows, key]; // Eğer kapalıysa, açıyoruz
+
+    // Eğer ana satır kapatılıyorsa, altındaki tüm alt satırları da kapatıyoruz
+    if (parentId === '') {
+      // Ana satırın kendisi kapatılıyor
+      setExpandedRows(newExpandedRows.filter((rowId) => !rowId.startsWith(`${key}-`))); // Ana satır ve alt satırları kapatıyoruz
+    } else {
+      // Alt satırların durumunu değiştirmiyoruz, sadece ana satırın durumuna göre işlem yapıyoruz
+      setExpandedRows(newExpandedRows);
+    }
   };
-
-  // Alt satırları kontrol eden yardımcı fonksiyon
-  const renderRow = (item, parentId = '') => (
-    <React.Fragment key={item.id}>
-      <tr>
-        <td>
-          {item.children.length > 0 && (
-            <button
-              className="btn btn-info btn-sm ms-2"
-              type="button"
-              onClick={() => toggleRow(item.id, parentId)}
-            >
-              {expandedRows.includes(`${parentId ? parentId + '-' : ''}${item.id}`) ? '-' : '+'}
-            </button>
-          )}
-          {item.name}
-        </td>
-        {item.data.map((value, index) => (
-          <td key={index}>{value}</td>
-        ))}
-      </tr>
-      {item.children.length > 0 &&
-        expandedRows.includes(`${parentId ? parentId + '-' : ''}${item.id}`) &&
-        item.children.map((child, index) => renderRow(child, `${parentId}-${item.id}-${index}`))} {/* Alt satırları render et */}
-    </React.Fragment>
-  );
-
-  return (
-    <div className="container mt-5">
-      <div className="col-md-12">
-        <div className="panel panel-default">
-          <div className="panel-heading">Datametrics Table</div>
-          <div className="panel-body">
-            <table className="table table-condensed table-striped">
-              <thead>
-                <tr>
-                  <th></th>
-                  <th></th>
-                  <th>Son 6 Ay Trend</th>
-                  <th>2023 Aralık</th>
-                  <th>2024 Ağustos</th>
-                  <th>2024 Eylül</th>
-                  <th>2024 Ekim</th>
-                  <th>2024 Kasım</th>
-                </tr>
-              </thead>
-              <tbody>
-                {data.map((item) => renderRow(item))}
-              </tbody>
-            </table>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-}
