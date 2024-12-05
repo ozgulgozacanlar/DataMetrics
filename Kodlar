@@ -1,84 +1,15 @@
-  // Helper function to get all rows recursively
-  const getAllRows = (rows, parentId = '') => {
-    let result = [];
-    rows.forEach((row) => {
-      const key = parentId ? `${parentId}-${row.id}` : `${row.id}`;
-      result.push(key); // Ana satır ekleniyor
-      if (row.children.length > 0) {
-        result = result.concat(getAllRows(row.children, key));  // Alt satırlar için recursive çağrı
-      }
-    });
-    return result;
-  };
+const getAllRows = (rows, parentId = '') => {
+  let result = [];
+  
+  rows.forEach((row) => {
+    const key = parentId ? `${parentId}-${row.id}` : `${row.id}`;
+    result.push(key); // Ana satır ekleniyor
+    
+    if (row.children && row.children.length > 0) {
+      // Eğer çocuk varsa, alt satırları ve onların alt satırlarını da açmak için recursive çağrı
+      result = result.concat(getAllRows(row.children, key));
+    }
+  });
 
-  useEffect(() => {
-    // Başlangıçta tüm satırlar ve alt satırları açmak
-    const initialExpandedRows = getAllRows(data);
-    setExpandedRows(initialExpandedRows);
-  }, []);
-
-  // Satır açma/kapama işlevi
-  const toggleRow = (id, parentId = '') => {
-    const key = parentId ? `${parentId}-${id}` : `${id}`;
-    setExpandedRows(prevState =>
-      prevState.includes(key)
-        ? prevState.filter(rowId => rowId !== key)
-        : [...prevState, key]
-    );
-  };
-
-  // Satır render fonksiyonu
-  const renderRow = (item, parentId = '') => (
-    <React.Fragment key={item.id}>
-      <tr key={item.id}>
-        <td>
-          {item.children.length > 0 && (
-            <button
-              className="btn btn-info btn-sm ms-2"
-              type="button"
-              onClick={() => toggleRow(item.id, parentId)}
-            >
-              {expandedRows.includes(`${parentId ? parentId + '-' : ''}${item.id}`) ? '-' : '+'}
-            </button>
-          )}
-          {item.name}
-        </td>
-        {item.data.map((value, index) => (
-          <td key={index}>{value}</td>
-        ))}
-      </tr>
-      {item.children.length > 0 && expandedRows.includes(`${parentId ? parentId + '-' : ''}${item.id}`) && (
-        item.children.map((child, index) => renderRow(child, `${parentId}-${item.id}-${index}`)) // Alt satırları render et
-      )}
-    </React.Fragment>
-  );
-
-  return (
-    <div className="container mt-5">
-      <div className="col-md-12">
-        <div className="panel panel-default">
-          <div className="panel-heading">Datametrics Table</div>
-          <div className="panel-body">
-            <table className="table table-condensed table-striped">
-              <thead>
-                <tr>
-                  <th></th>
-                  <th></th>
-                  <th>Son 6 Ay Trend</th>
-                  <th>2023 Aralık</th>
-                  <th>2024 Ağustos</th>
-                  <th>2024 Eylül</th>
-                  <th>2024 Ekim</th>
-                  <th>2024 Kasım</th>
-                </tr>
-              </thead>
-              <tbody>
-                {data.map(item => renderRow(item))}
-              </tbody>
-            </table>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
+  return result;
 };
