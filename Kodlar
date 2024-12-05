@@ -1,16 +1,34 @@
- // Benzersiz id eklemek için veri yapısını düzenleyebiliriz
+  // Benzersiz id'ler ekleyerek her veriye işlem yapıyoruz
   const addIdsToData = (data) => {
     return data.map((item, index) => {
-      // Eğer item'da id yoksa, benzersiz bir id oluşturuyoruz
       const newItem = { ...item, id: item.id || `row-${index}` };
       if (newItem.children && newItem.children.length > 0) {
-        newItem.children = addIdsToData(newItem.children); // Alt öğeler için de aynı işlemi yapıyoruz
+        newItem.children = addIdsToData(newItem.children); // Alt öğeleri de aynı şekilde işliyoruz
       }
       return newItem;
     });
   };
 
-  const updatedData = addIdsToData(data); // Veriye id'leri ekliyoruz
+  const updatedData = addIdsToData(data);
+
+  // Tüm satırları açmak için recursive olarak alt öğeleri topluyoruz
+  const collectAllRowKeys = (items, parentKey = '') => {
+    let keys = [];
+    items.forEach((item) => {
+      const currentKey = parentKey ? `${parentKey}-${item.id}` : `${item.id}`;
+      keys.push(currentKey); // Şu anki satırın id'sini ekliyoruz
+      if (item.children.length > 0) {
+        keys = [...keys, ...collectAllRowKeys(item.children, currentKey)]; // Alt öğeler için de aynı işlemi yapıyoruz
+      }
+    });
+    return keys;
+  };
+
+  // useEffect sadece ilk renderda çalışacak şekilde tüm satırları açmak için kullanılıyor
+  useEffect(() => {
+    const allRowKeys = collectAllRowKeys(updatedData); // Tüm satırların key'lerini alıyoruz
+    setExpandedRows(allRowKeys); // İlk açılışta tüm satırları açıyoruz
+  }, []); // İlk renderda çalışacak şekilde
 
   // Satır açma/kapama işlevi
   const toggleRow = (id, parentId = '') => {
@@ -44,30 +62,11 @@
       </tr>
       {item.children.length > 0 &&
         expandedRows.includes(`${parentId ? parentId + '-' : ''}${item.id}`) &&
-        item.children.map((child, index) =>
-          renderRow(child, `${parentId}-${item.id}-${index}`)
+        item.children.map((child) =>
+          renderRow(child, `${parentId ? parentId + '-' : ''}${item.id}`)
         )}
     </React.Fragment>
   );
-
-  // İlk renderda tüm satırları açıyoruz
-  useEffect(() => {
-    const allRowKeys = [];
-
-    // Tüm ana veriler için key'leri alıyoruz
-    const collectKeys = (items, parentKey = '') => {
-      items.forEach((item) => {
-        const currentKey = parentKey ? `${parentKey}-${item.id}` : `${item.id}`;
-        allRowKeys.push(currentKey);
-        if (item.children.length > 0) {
-          collectKeys(item.children, currentKey); // Alt öğeler için aynı işlemi tekrar ediyoruz
-        }
-      });
-    };
-
-    collectKeys(updatedData); // Ana data üzerinden key'leri alıyoruz
-    setExpandedRows(allRowKeys); // İlk açılışta tüm satırları açıyoruz
-  }, []); // Bu useEffect yalnızca bileşen ilk kez render edildiğinde çalışır
 
   return (
     <div className="container mt-5">
