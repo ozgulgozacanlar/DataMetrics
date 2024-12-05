@@ -1,9 +1,13 @@
-  // Benzersiz id'ler ekleyerek her veriye işlem yapıyoruz
-  const addIdsToData = (data) => {
+/* Bu CSS'i global stil dosyanıza veya component'e özel stil dosyanıza ekleyebilirsiniz */
+.child-row {
+  padding-left: 20px; /* Alt satırlara 20px sol iç boşluk */
+}
+
+ const addIdsToData = (data) => {
     return data.map((item, index) => {
       const newItem = { ...item, id: item.id || `row-${index}` };
       if (newItem.children && newItem.children.length > 0) {
-        newItem.children = addIdsToData(newItem.children); // Alt öğeleri de aynı şekilde işliyoruz
+        newItem.children = addIdsToData(newItem.children); // Alt öğeleri işliyoruz
       }
       return newItem;
     });
@@ -11,26 +15,23 @@
 
   const updatedData = addIdsToData(data);
 
-  // Tüm satırları açmak için recursive olarak alt öğeleri topluyoruz
   const collectAllRowKeys = (items, parentKey = '') => {
     let keys = [];
     items.forEach((item) => {
       const currentKey = parentKey ? `${parentKey}-${item.id}` : `${item.id}`;
-      keys.push(currentKey); // Şu anki satırın id'sini ekliyoruz
+      keys.push(currentKey);
       if (item.children.length > 0) {
-        keys = [...keys, ...collectAllRowKeys(item.children, currentKey)]; // Alt öğeler için de aynı işlemi yapıyoruz
+        keys = [...keys, ...collectAllRowKeys(item.children, currentKey)];
       }
     });
     return keys;
   };
 
-  // useEffect sadece ilk renderda çalışacak şekilde tüm satırları açmak için kullanılıyor
   useEffect(() => {
-    const allRowKeys = collectAllRowKeys(updatedData); // Tüm satırların key'lerini alıyoruz
+    const allRowKeys = collectAllRowKeys(updatedData);
     setExpandedRows(allRowKeys); // İlk açılışta tüm satırları açıyoruz
-  }, []); // İlk renderda çalışacak şekilde
+  }, []);
 
-  // Satır açma/kapama işlevi
   const toggleRow = (id, parentId = '') => {
     const key = parentId ? `${parentId}-${id}` : `${id}`;
     setExpandedRows((prevState) =>
@@ -41,7 +42,7 @@
   };
 
   // Satır render fonksiyonu
-  const renderRow = (item, parentId = '') => (
+  const renderRow = (item, parentId = '', level = 0) => (
     <React.Fragment key={item.id}>
       <tr key={item.id}>
         <td>
@@ -63,7 +64,7 @@
       {item.children.length > 0 &&
         expandedRows.includes(`${parentId ? parentId + '-' : ''}${item.id}`) &&
         item.children.map((child) =>
-          renderRow(child, `${parentId ? parentId + '-' : ''}${item.id}`)
+          renderRow(child, `${parentId ? parentId + '-' : ''}${item.id}`, level + 1) // Seviye arttıkça padding ekle
         )}
     </React.Fragment>
   );
@@ -87,7 +88,9 @@
                   <th>2024 Kasım</th>
                 </tr>
               </thead>
-              <tbody>{updatedData.map((item) => renderRow(item))}</tbody>
+              <tbody>
+                {updatedData.map((item) => renderRow(item, '', 0))}
+              </tbody>
             </table>
           </div>
         </div>
