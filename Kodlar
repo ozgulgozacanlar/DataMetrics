@@ -1,70 +1,145 @@
-import { useEffect } from 'react';
-import './TableChart.css';
+import React, { useState } from 'react';
+import 'bootstrap/dist/css/bootstrap.min.css';
 
-export default function TableChart({tableData}) {
+const DynamicEmployeeTable = () => {
+  const data = [
+    {
+      id: 1,
+      name: 'DataOps',
+      data: [1.23, 4.56, 7.89, 0.12, 3.45, 6.78, 9.01],
+      children: [
+        {
+          name: 'DQ Skoru',
+          data: [1.11, 2.22, 3.33, 4.44, 5.55, 6.66, 7.77],
+          children: [
+            { 
+              name: 'DQ Technical', 
+              data: [0.98, 1.23, 3.45, 5.67, 7.89, 0.12, 4.56],
+              children: [] 
+            },
+            { 
+              name: 'Last Check', 
+              data: [0.98, 1.23, 3.45, 5.67, 7.89, 0.12, 4.56],
+              children: [] 
+            }
+          ]
+        },
+        {
+          name: 'Veri Envanteri Skoru',
+          data: [8.45, 6.78, 9.01, 2.34, 5.67, 8.90, 1.23],
+          children: [
+            { 
+              name: 'Errors', 
+              data: [0.98, 1.23, 3.45, 5.67, 7.89, 0.12, 4.56],
+              children: [] 
+            },
+            { 
+              name: 'Errors 1', 
+              data: [0.98, 1.23, 3.45, 5.67, 7.89, 0.12, 4.56],
+              children: [] 
+            },
+            { 
+              name: 'Errors 2' , 
+              data: [0.98, 1.23, 3.45, 5.67, 7.89, 0.12, 4.56],
+              children: [] 
+            }
+          ]
+        },
+        {
+          name: 'DENEME',
+          data: [8.45, 6.78, 9.01, 2.34, 5.67, 8.90, 1.23],
+          children: []
+        }
+      ]
+    },
+    {
+      id: 2,
+      name: 'METADATA HUB',
+      data: [2.34, 5.67, 8.90, 1.23, 4.56, 7.89, 0.12, 9.01],
+      children: [
+        {
+          name: 'Aylık Toplam Search Adedi',
+          data: [3.45, 6.78, 9.01, 2.34, 5.67, 8.90, 1.23],
+          children: [  
+            { 
+              name: 'Search 1' , 
+              data: [0.98, 1.23, 3.45, 5.67, 7.89, 0.12, 4.56],
+              children: [] 
+            }
+          ]
+        },
+        {
+          name: 'Aylık Toplam Lineage',
+          data: [3.45, 2.67, 9.01, 4.6, 8.67, 8.90, 8.21],
+          children: []
+        }
+      ]
+    }
+  ];
 
-    const getCircleColor = (value) => {
-        // Sayıyı noktadan temizleyip tam sayıya dönüştür
-        const numericValue = parseInt(value.replace(/\./g, ''), 10);
-       console.log(numericValue)
-        // 500.000'den büyükse yeşil, küçükse kırmızı yuvarlak
-        return numericValue > 500000 ? 'green' : 'red';
-      };
-useEffect(() => {
-    console.log(tableData)
-}, [tableData]);
-  return (
-    <table className="table table-striped" style={{marginTop:'2.5rem'}}>
-    <thead>
+  const [expandedRows, setExpandedRows] = useState([]);
+
+  const toggleRow = (id) => {
+    setExpandedRows(prevState =>
+      prevState.includes(id)
+        ? prevState.filter(rowId => rowId !== id)
+        : [...prevState, id]
+    );
+  };
+
+  const renderRow = (item, parentId = '') => (
+    <React.Fragment key={item.id}>
       <tr>
-        {/* headers array'ini map ile döndürüp <th> öğelerine dönüştürüyoruz */}
-        {tableData && tableData.headers.map((header, index) => (
-          <th scope="col" key={index}>
-            {header}
-          </th>
+        <td>
+          {item.children.length > 0 && (
+            <button
+              className="btn btn-info btn-sm ms-2"
+              type="button"
+              onClick={() => toggleRow(item.id)}
+            >
+              {expandedRows.includes(item.id) ? '-' : '+'}
+            </button>
+          )}
+          {item.name}
+        </td>
+        {item.data.map((value, index) => (
+          <td key={index}>{value}</td>
         ))}
       </tr>
-    </thead>
-    <tbody>
-      {tableData.data.map((row, rowIndex) => (
-        <tr key={rowIndex}>
-          {row.map((cell, cellIndex) => {
-            // Eğer hücre boşsa, aynı başlıktaki diğer hücreyi kontrol et
-            if (cell === '') {
-              const header = tableData.headers[cellIndex]; // Oca.24, Şub.24, Mar.24 vb.
+      {item.children.length > 0 && expandedRows.includes(item.id) && (
+        item.children.map((child, index) => renderRow(child, `${parentId}-${index}`))
+      )}
+    </React.Fragment>
+  );
 
-              // Aynı başlık altındaki ikinci hücreyi dinamik olarak bulalım
-              const headerIndexes = tableData.headers
-                .map((h, index) => h === header ? index : -1) // Aynı başlıkların index'lerini buluyoruz
-                .filter(index => index !== -1); // -1 olanları filteleyip gerçek index'leri alıyoruz
+  return (
+    <div className="container mt-5">
+      <div className="col-md-12">
+        <div className="panel panel-default">
+          <div className="panel-heading">Datametrics Table</div>
+          <div className="panel-body">
+            <table className="table table-condensed table-striped">
+              <thead>
+                <tr>
+                  <th></th>
+                  <th></th>
+                  <th>Son 6 Ay Trend</th>
+                  <th>2023 Aralık</th>
+                  <th>2024 Ağustos</th>
+                  <th>2024 Eylül</th>
+                  <th>2024 Ekim</th>
+                  <th>2024 Kasım</th>
+                </tr>
+              </thead>
+              <tbody>
+                {data.map(item => renderRow(item))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
 
-              // Eğer başlık altında 2 veya daha fazla index varsa
-              if (headerIndexes.length > 1) {
-                // İkinci başlık altındaki değeri al
-                const secondIndex = headerIndexes.find(index => index !== cellIndex); // Diğer index
-                const compareValue = row[secondIndex]; // İkinci değeri al
-                console.log(compareValue)
-                // Eğer veri bulunduysa karşılaştırma yap ve yeşil/kırmızı yuvarlak ekle
-                if (compareValue) {
-                  return (
-                    <td key={cellIndex}>
-                      <span className={`circle ${getCircleColor(compareValue)}`} />
-                    </td>
-                  );
-                }
-              }
-            }
-            // Eğer hücre boş değilse, normal hücreyi göster
-            return (
-              <td key={cellIndex}>
-                <span>{cell}</span>
-              </td>
-            );
-          })}
-        </tr>
-      ))}
-    </tbody>
-  </table>
-  
-  )
-}
+export default DynamicEmployeeTable;
