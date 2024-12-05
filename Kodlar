@@ -1,1 +1,148 @@
- Each child in a list should have a unique "key" prop.
+import React, { useState } from 'react';
+import 'bootstrap/dist/css/bootstrap.min.css';
+
+const DynamicEmployeeTable = () => {
+  const data = [
+    {
+      id: 1,
+      name: 'DataOps',
+      data: [1.23, 4.56, 7.89, 0.12, 3.45, 6.78, 9.01],
+      children: [
+        {
+          name: 'DQ Skoru',
+          data: [1.11, 2.22, 3.33, 4.44, 5.55, 6.66, 7.77],
+          children: [
+            { 
+              name: 'DQ Technical', 
+              data: [0.98, 1.23, 3.45, 5.67, 7.89, 0.12, 4.56],
+              children: [] 
+            },
+            { 
+              name: 'Last Check', 
+              data: [0.98, 1.23, 3.45, 5.67, 7.89, 0.12, 4.56],
+              children: [] 
+            }
+          ]
+        },
+        {
+          name: 'Veri Envanteri Skoru',
+          data: [8.45, 6.78, 9.01, 2.34, 5.67, 8.90, 1.23],
+          children: [
+            { 
+              name: 'Errors', 
+              data: [0.98, 1.23, 3.45, 5.67, 7.89, 0.12, 4.56],
+              children: [] 
+            },
+            { 
+              name: 'Errors 1', 
+              data: [0.98, 1.23, 3.45, 5.67, 7.89, 0.12, 4.56],
+              children: [] 
+            },
+            { 
+              name: 'Errors 2' , 
+              data: [0.98, 1.23, 3.45, 5.67, 7.89, 0.12, 4.56],
+              children: [] 
+            }
+          ]
+        },
+        {
+          name: 'DENEME',
+          data: [8.45, 6.78, 9.01, 2.34, 5.67, 8.90, 1.23],
+          children: []
+        }
+      ]
+    },
+    {
+      id: 2,
+      name: 'METADATA HUB',
+      data: [2.34, 5.67, 8.90, 1.23, 4.56, 7.89, 0.12, 9.01],
+      children: [
+        {
+          name: 'Aylık Toplam Search Adedi',
+          data: [3.45, 6.78, 9.01, 2.34, 5.67, 8.90, 1.23],
+          children: [  
+            { 
+              name: 'Search 1' , 
+              data: [0.98, 1.23, 3.45, 5.67, 7.89, 0.12, 4.56],
+              children: [] 
+            }
+          ]
+        },
+        {
+          name: 'Aylık Toplam Lineage',
+          data: [3.45, 2.67, 9.01, 4.6, 8.67, 8.90, 8.21],
+          children: []
+        }
+      ]
+    }
+  ];
+
+  const [expandedRows, setExpandedRows] = useState([]);
+
+  // Satır açma/kapama işlevi
+  const toggleRow = (id, parentId = '') => {
+    const key = parentId ? `${parentId}-${id}` : `${id}`;
+    setExpandedRows(prevState =>
+      prevState.includes(key)
+        ? prevState.filter(rowId => rowId !== key)
+        : [...prevState, key]
+    );
+  };
+
+  // Satır render fonksiyonu
+  const renderRow = (item, parentId = '') => (
+    <React.Fragment key={item.id}>
+      <tr key={item.id}>
+        <td>
+          {item.children.length > 0 && (
+            <button
+              className="btn btn-info btn-sm ms-2"
+              type="button"
+              onClick={() => toggleRow(item.id, parentId)}
+            >
+              {expandedRows.includes(`${parentId ? parentId + '-' : ''}${item.id}`) ? '-' : '+'}
+            </button>
+          )}
+          {item.name}
+        </td>
+        {item.data.map((value, index) => (
+          <td key={index}>{value}</td>
+        ))}
+      </tr>
+      {item.children.length > 0 && expandedRows.includes(`${parentId ? parentId + '-' : ''}${item.id}`) && (
+        item.children.map((child, index) => renderRow(child, `${parentId}-${item.id}-${index}`)) // Her child'a benzersiz key
+      )}
+    </React.Fragment>
+  );
+
+  return (
+    <div className="container mt-5">
+      <div className="col-md-12">
+        <div className="panel panel-default">
+          <div className="panel-heading">Datametrics Table</div>
+          <div className="panel-body">
+            <table className="table table-condensed table-striped">
+              <thead>
+                <tr>
+                  <th></th>
+                  <th></th>
+                  <th>Son 6 Ay Trend</th>
+                  <th>2023 Aralık</th>
+                  <th>2024 Ağustos</th>
+                  <th>2024 Eylül</th>
+                  <th>2024 Ekim</th>
+                  <th>2024 Kasım</th>
+                </tr>
+              </thead>
+              <tbody>
+                {data.map(item => renderRow(item))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default DynamicEmployeeTable;
