@@ -1,66 +1,122 @@
+import React from 'react'
+import { useEffect, useState } from 'react';
+import { getObjectData,getObjectPivotTableData } from '@/util/qlikConnection';
 
 
-  const [expandedRows, setExpandedRows] = useState([]);
+export default function TableComponent({app, objectId}) {
+    // const [data, setData] = useState([]);
+
+    function renderTable() {
+        if (app) {
+            getObjectPivotTableData(app, objectId).then((response) => {
+                console.log(response)
+                // const incomingData = response.map(item => ({
+                //     value: parseFloat(item[0].qText),
+                //     name: item[1].qText
+                // }));
+                // setData(incomingData)
+            });
+        } else {
+            // console.error('Qlik Sense app is not loaded yet');
+        }
+    }
+
+    useEffect(() => {
+        renderTable();
+    }, [app, objectId]);
+
+    const data = [
+        {
+          id: 1,
+          name: 'DataOps',
+          data: [1.23, 4.56, 7.89, 0.12, 3.45, 6.78, 9.01],
+          children: [
+            {
+              name: 'DQ Skoru',
+              data: [1.11, 2.22, 3.33, 4.44, 5.55, 6.66, 7.77],
+              children: [
+                { 
+                  name: 'DQ Technical', 
+                  data: [0.98, 1.23, 3.45, 5.67, 7.89, 0.12, 4.56],
+                  children: [] 
+                },
+                { 
+                  name: 'Last Check', 
+                  data: [0.98, 1.23, 3.45, 5.67, 7.89, 0.12, 4.56],
+                  children: [] 
+                }
+              ]
+            },
+            {
+              name: 'Veri Envanteri Skoru',
+              data: [8.45, 6.78, 9.01, 2.34, 5.67, 8.90, 1.23],
+              children: [
+                { 
+                  name: 'Errors', 
+                  data: [0.98, 1.23, 3.45, 5.67, 7.89, 0.12, 4.56],
+                  children: [] 
+                },
+                { 
+                  name: 'Errors 1', 
+                  data: [0.98, 1.23, 3.45, 5.67, 7.89, 0.12, 4.56],
+                  children: [] 
+                },
+                { 
+                  name: 'Errors 2' , 
+                  data: [0.98, 1.23, 3.45, 5.67, 7.89, 0.12, 4.56],
+                  children: [] 
+                }
+              ]
+            },
+            {
+              name: 'DENEME',
+              data: [8.45, 6.78, 9.01, 2.34, 5.67, 8.90, 1.23],
+              children: []
+            }
+          ]
+        },
+        {
+          id: 2,
+          name: 'METADATA HUB',
+          data: [2.34, 5.67, 8.90, 1.23, 4.56, 7.89, 0.12, 9.01],
+          children: [
+            {
+              name: 'Aylık Toplam Search Adedi',
+              data: [3.45, 6.78, 9.01, 2.34, 5.67, 8.90, 1.23],
+              children: [  
+                { 
+                  name: 'Search 1' , 
+                  data: [0.98, 1.23, 3.45, 5.67, 7.89, 0.12, 4.56],
+                  children: [] 
+                }
+              ]
+            },
+            {
+              name: 'Aylık Toplam Lineage',
+              data: [3.45, 2.67, 9.01, 4.6, 8.67, 8.90, 8.21],
+              children: []
+            }
+          ]
+        }
+      ];
+    
+      const [expandedRows, setExpandedRows] = useState([]);
+    
 
   // Satır açma/kapama işlevi
   const toggleRow = (id, parentId = '') => {
     const key = parentId ? `${parentId}-${id}` : `${id}`;
-    const expandedKeys = expandedRows.includes(key)
-      ? expandedRows.filter(rowId => rowId !== key) // Eğer satır zaten açıksa, kapatıyoruz
-      : [...expandedRows, key]; // Eğer kapalıysa, açıyoruz
-
-    // Eğer ana satır kapatılıyorsa, altındaki tüm satırları da kapatalım
-    const allKeysToToggle = getAllChildKeys(key, data);
-    if (expandedRows.includes(key)) {
-      // Eğer ana satır kapatılıyorsa, alt satırları da kapatalım
-      setExpandedRows(prevState =>
-        prevState.filter(rowId => !allKeysToToggle.includes(rowId)) // Alt satırları da çıkart
-      );
-    } else {
-      // Ana satır açılıyorsa, sadece ana satırı açıyoruz
-      setExpandedRows(expandedKeys);
-    }
-  };
-
-  // Tüm alt öğeleri almak için yardımcı fonksiyon
-  const getAllChildKeys = (parentKey, data) => {
-    let keys = [parentKey];
-    const [parentId, ...parentPath] = parentKey.split('-');
-    const findChildren = (items, currentPath) => {
-      items.forEach((item, index) => {
-        const itemKey = `${currentPath}-${index}`;
-        keys.push(itemKey); // Alt öğe ekle
-        if (item.children && item.children.length > 0) {
-          findChildren(item.children, itemKey); // Alt öğe varsa, onun altındaki öğeleri de al
-        }
-      });
-    };
-
-    // Ana öğenin children'larına bakıyoruz
-    const parentData = findItemById(data, parentId);
-    if (parentData) {
-      findChildren(parentData.children, parentKey);
-    }
-
-    return keys;
-  };
-
-  // ID'ye göre öğe bulma fonksiyonu
-  const findItemById = (data, id) => {
-    for (let item of data) {
-      if (item.id.toString() === id) return item;
-      if (item.children && item.children.length > 0) {
-        const found = findItemById(item.children, id);
-        if (found) return found;
-      }
-    }
-    return null;
+    setExpandedRows(prevState =>
+      prevState.includes(key)
+        ? prevState.filter(rowId => rowId !== key)
+        : [...prevState, key]
+    );
   };
 
   // Satır render fonksiyonu
   const renderRow = (item, parentId = '') => (
     <React.Fragment key={item.id}>
-      <tr>
+      <tr key={item.id}>
         <td>
           {item.children.length > 0 && (
             <button
@@ -112,5 +168,3 @@
     </div>
   );
 };
-
-export default DynamicEmployeeTable;
