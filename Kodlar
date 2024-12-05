@@ -5,9 +5,16 @@ const getAllRows = (rows, parentId = '') => {
     const key = parentId ? `${parentId}-${row.id}` : `${row.id}`;
     result.push(key); // Ana satır ekleniyor
     
+    // Eğer children varsa, onları da kontrol et
     if (row.children && row.children.length > 0) {
-      // Eğer çocuk varsa, alt satırları ve onların alt satırlarını da açmak için recursive çağrı
-      result = result.concat(getAllRows(row.children, key));
+      result = result.concat(getAllRows(row.children, key));  // Alt satırlar için recursive çağrı
+
+      // Eğer alt satırların çocukları varsa (row.children.children), onları da kontrol et
+      row.children.forEach(child => {
+        if (child.children && child.children.length > 0) {
+          result = result.concat(getAllRows(child.children, `${key}-${child.id}`));
+        }
+      });
     }
   });
 
