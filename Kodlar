@@ -1,23 +1,31 @@
 const getAllRows = (rows, parentId = '') => {
   let result = [];
-  
+
   rows.forEach((row) => {
     const key = parentId ? `${parentId}-${row.id}` : `${row.id}`;
     result.push(key); // Ana satır ekleniyor
-    
-    // Eğer çocuk varsa, alt satırları açalım
-    if (row.children && row.children.length > 0) {
-      result = result.concat(getAllRows(row.children, key));  // Alt satırlar için recursive çağrı
 
-      // Alt satırların alt satırlarını (children.children) da açalım
-      row.children.forEach(child => {
+    // Eğer bu satırın çocukları varsa, alt satırlara bak
+    if (row.children && row.children.length > 0) {
+      // Alt satırlar için recursive çağrı
+      result = result.concat(getAllRows(row.children, key));
+
+      // Alt satırların alt satırlarını da açalım
+      row.children.forEach((child) => {
         if (child.children && child.children.length > 0) {
-          result = result.concat(getAllRows(child.children, `${key}-${child.id}`)); // Alt satırların alt satırları
-          
-          // Burada child.children içinde daha derin seviyeler için yine aynı işlemi yapıyoruz
-          child.children.forEach(grandchild => {
+          result = result.concat(getAllRows(child.children, `${key}-${child.id}`));
+
+          // 3. seviyedeki (alt satırın alt satırlarının alt satırları) kontrolü
+          child.children.forEach((grandchild) => {
             if (grandchild.children && grandchild.children.length > 0) {
-              result = result.concat(getAllRows(grandchild.children, `${key}-${child.id}-${grandchild.id}`)); // 3. seviye
+              result = result.concat(getAllRows(grandchild.children, `${key}-${child.id}-${grandchild.id}`));
+
+              // 4. seviyedeki (4. derecedeki çocuk) kontrolü
+              grandchild.children.forEach((greatGrandchild) => {
+                if (greatGrandchild.children && greatGrandchild.children.length > 0) {
+                  result = result.concat(getAllRows(greatGrandchild.children, `${key}-${child.id}-${grandchild.id}-${greatGrandchild.id}`));
+                }
+              });
             }
           });
         }
