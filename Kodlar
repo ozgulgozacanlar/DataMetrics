@@ -1,5 +1,3 @@
-const [expandedRows, setExpandedRows] = useState([]);
-
   // Satır açma/kapama işlevi
   const toggleRow = (id, parentId = '') => {
     const key = parentId ? `${parentId}-${id}` : `${id}`;
@@ -25,7 +23,7 @@ const [expandedRows, setExpandedRows] = useState([]);
 
   // useEffect hook to set initial state for expanded rows (all rows expanded)
   useEffect(() => {
-    const initialExpandedRows = getAllRows(data);
+    const initialExpandedRows = getAllRows(data);  // Başlangıçta tüm satırlar açık olacak
     setExpandedRows(initialExpandedRows);
   }, []); // Boş dependency array ile sadece ilk renderda çalışır
 
