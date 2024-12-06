@@ -1,58 +1,260 @@
-const deneme = (array) => {
-    const { qLeft, qData } = array;
-    const result = [];
-    let currentParent = null;
 
-    // Yardımcı fonksiyon: Aynı öğe var mı kontrol et
-    const doesItemExistInChildren = (parent, item) => {
-        // Parent.children null veya undefined ise, boş bir dizi döndürüyoruz
-        const children = parent.children || [];
-        return children.some(child => child.name.trim() === item.name.trim());
+
+
+export default function TableComponent({ app, objectId }) {
+    const [tableData, setData] = useState([]);
+    function renderTable() {
+        if (app) {
+            getObjectPivotTableData(app, objectId).then((response) => {
+                collectTableData(response);
+            });
+        } else {
+            // console.error('Qlik Sense app is not loaded yet');
+        }
+    }
+
+    useEffect(() => {
+        renderTable();
+    }, [app, objectId]);
+
+    const data = [
+        {
+            name: 'DataOps',
+            data: [1.23, 4.56, 7.89, 0.12, 3.45, 6.78, 9.01],
+            children: [
+                {
+                    name: 'DQ Skoru',
+                    data: [1.11, 2.22, 3.33, 4.44, 5.55, 6.66, 7.77],
+                    children: [
+                        {
+                            name: 'DQ Technical',
+                            data: [0.98, 1.23, 3.45, 5.67, 7.89, 0.12, 4.56],
+                            children: [  {
+                                name: 'DQ Technical 1',
+                                data: [0.98, 1.23, 3.45, 5.67, 7.89, 0.12, 4.56],
+                                children: []
+                            },
+                            {
+                                name: 'DQ Technical 2',
+                                data: [0.98, 1.23, 3.45, 5.67, 7.89, 0.12, 4.56],
+                                children: []
+                            },]
+                        },
+                        {
+                            name: 'Last Check',
+                            data: [0.98, 1.23, 3.45, 5.67, 7.89, 0.12, 4.56],
+                            children: []
+                        }
+                    ]
+                },
+                {
+                    name: 'Veri Envanteri Skoru',
+                    data: [8.45, 6.78, 9.01, 2.34, 5.67, 8.90, 1.23],
+                    children: [
+                        {
+                            name: 'Errors',
+                            data: [0.98, 1.23, 3.45, 5.67, 7.89, 0.12, 4.56],
+                            children: []
+                        },
+                        {
+                            name: 'Errors 1',
+                            data: [0.98, 1.23, 3.45, 5.67, 7.89, 0.12, 4.56],
+                            children: []
+                        },
+                        {
+                            name: 'Errors 2',
+                            data: [0.98, 1.23, 3.45, 5.67, 7.89, 0.12, 4.56],
+                            children: []
+                        }
+                    ]
+                },
+                {
+                    name: 'DENEME',
+                    data: [8.45, 6.78, 9.01, 2.34, 5.67, 8.90, 1.23],
+                    children: []
+                }
+            ]
+        },
+        {
+            name: 'METADATA HUB',
+            data: [2.34, 5.67, 8.90, 1.23, 4.56, 7.89, 0.12],
+            children: [
+                {
+                    name: 'Aylık Toplam Search Adedi',
+                    data: [3.45, 6.78, 9.01, 2.34, 5.67, 8.90, 1.23],
+                    children: [
+                        {
+                            name: 'Search 1',
+                            data: [0.98, 1.23, 3.45, 5.67, 7.89, 0.12, 4.56],
+                            children: []
+                        }
+                    ]
+                },
+                {
+                    name: 'Aylık Toplam Lineage',
+                    data: [3.45, 2.67, 9.01, 4.6, 8.67, 8.90, 8.21],
+                    children: []
+                }
+            ]
+        }
+    ];
+    console.log(data)
+    const collectTableData = (array) => {
+
+        const { qLeft, qData } = array;
+        const result = [];
+        let currentParent = null;
+        qLeft.forEach((leftItem, index) => {
+            const dataItem = {
+                name: leftItem.qSubNodes[0]?.qText || leftItem.qText, // qText ya da qSubNodes'dan gelen değeri kullanıyoruz
+                data: [leftItem.qText,"", ...qData[index].map(val => (val.qText))], // qText'i { qText: value } formatında ekliyoruz
+                children: []
+            };
+
+            // Eğer dataItem.name "•" ile başlıyorsa, mevcut parent'ın  children'a ekliyoruz
+            if (dataItem.name.trim().startsWith("•")) {
+                if (currentParent) {
+                    currentParent.children.push(dataItem);
+                }
+            }
+            // Eğer dataItem.name "⸰" ile başlıyorsa, currentParent.children.children içine ekliyoruz
+            else if (dataItem.name.trim().startsWith("⸰")) {
+
+                if (currentParent && currentParent.children.length > 0) {
+                    // currentParent'ın children'ında başka öğeler varsa, bunları "children.children" içine ekliyoruz
+                    currentParent.children[currentParent.children.length - 1].children.push(dataItem);
+                }
+            }
+            // Eğer "•" veya "⸰" ile başlamıyorsa, doğrudan ana parent'a ekliyoruz
+            else {
+                result.push(dataItem);  // Bu öğe parent olmayan bir öğedir, doğrudan result'a ekliyoruz
+                currentParent = dataItem;  // Bu öğeyi currentParent olarak belirliyoruz
+            }
+
+        });
+
+        console.log(result);
+        setData(result);
+    }
+    const [expandedRows, setExpandedRows] = useState([]);  
+    // Bu fonksiyon, her bir öğeye bir id ekler. Eğer öğenin 'id' özelliği yoksa,
+    // o zaman 'row-index' şeklinde bir id atar.
+    const addIdsToData = (data) => {
+        return data.map((item, index) => {
+            // Her öğenin kopyasını alıyoruz ve 'id' özelliğini ekliyoruz.
+            const newItem = { ...item, id: item.id || `row-${index}` };
+
+            // Eğer öğenin alt öğeleri (children) varsa, bu alt öğeler üzerinde de
+            // aynı işlemi uygulamak için recursive olarak bu fonksiyonu çağırıyoruz.
+            if (newItem.children && newItem.children.length > 0) {
+                newItem.children = addIdsToData(newItem.children); // Alt öğeleri işliyoruz
+            }
+
+            return newItem;
+        });
     };
 
-    qLeft.forEach((leftItem, index) => {
-        const dataItem = {
-            name: leftItem.qSubNodes[0]?.qText || leftItem.qText,
-            data: [leftItem.qText, ...qData[index].map(val => val.qText)],
-            children: []
-        };
+    // Verilen 'data' dizisini her öğeye 'id' ekleyip döndürür.
+    const updatedData = addIdsToData(tableData);
 
-        leftItem.qSubNodes.forEach(subNode => {
-            const trimmedText = subNode.qText.trim();
-            if (trimmedText.startsWith("•") || trimmedText.startsWith("⸰")) {
-                const childItem = {
-                    name: subNode.qText,
-                    data: [leftItem.qText, ...qData[index].map(val => val.qText)],
-                    children: []
-                };
+    // Bu fonksiyon, tüm satır anahtarlarını (row keys) toplar.
+    // Eğer öğenin alt öğeleri varsa, onların anahtarlarını da ekler.
+    // 'parentKey', her öğenin anahtarını tanımlamak için kullanıldı.
+    const collectAllRowKeys = (items, parentKey = '') => {
+        let keys = [];
+        items.forEach((item) => {
+            // 'parentKey' varsa, öğenin anahtarını 'parentKey' ile birleştiriyoruz.
+            // Eğer 'parentKey' yoksa ( yani direk ana parent ise ), sadece öğenin 'id'sini kullanıyoruz.
+            const currentKey = parentKey ? `${parentKey}-${item.id}` : `${item.id}`;
 
-                // Eğer aynı çocuk zaten mevcutsa, tekrar eklememek için kontrol yapıyoruz
-                if (!doesItemExistInChildren(dataItem, childItem)) {
-                    dataItem.children.push(childItem);
-                }
+            keys.push(currentKey);
+
+            // Eğer öğenin alt öğeleri varsa (children), bu alt öğelerin anahtarlarını
+            // toplamak için recursive olarak fonksiyonu çağırıyoruz.
+            if (item.children.length > 0) {
+                keys = [...keys, ...collectAllRowKeys(item.children, currentKey)];
             }
         });
 
-        // Eğer "•" ile başlıyorsa, mevcut parent'a ekliyoruz
-        if (dataItem.name.trim().startsWith("•")) {
-            if (currentParent && !doesItemExistInChildren(currentParent, dataItem)) {
-                currentParent.children.push(dataItem);
-            }
-        }
-        // Eğer "⸰" ile başlıyorsa, currentParent.children'da son öğeye ekliyoruz
-        else if (dataItem.name.trim().startsWith("⸰")) {
-            if (currentParent && currentParent.children.length > 0 && !doesItemExistInChildren(currentParent.children[currentParent.children.length - 1], dataItem)) {
-                currentParent.children[currentParent.children.length - 1].children.push(dataItem);
-            }
-        } 
-        // Eğer "•" veya "⸰" ile başlamıyorsa, doğrudan result'a ekliyoruz
-        else {
-            if (!doesItemExistInChildren(result, dataItem)) {
-                result.push(dataItem);
-                currentParent = dataItem;  // Bu öğeyi currentParent olarak belirliyoruz
-            }
-        }
-    });
+        return keys;
+    };
 
-    console.log(result);  // Sonuçları konsola yazdırıyoruz
-};
+    // İlk açılışta tüm satırların açılmasını sağlamak için:
+    // 1. updatedData üzerinde tüm satır anahtarlarını topluyoruz.
+    // 2. Tüm anahtarları 'expandedRows' durumuna set ediyoruz, böylece tüm satırlar açık gelir.
+    useEffect(() => {
+        const allRowKeys = collectAllRowKeys(updatedData);  // Tüm anahtarları topluyoruz
+        setExpandedRows(allRowKeys); // İlk açılışta tüm satırları açıyoruz
+    }, []);
+
+    // Bu fonksiyon, bir satırın açılıp kapanmasını sağlar. Eğer satır zaten açıksa,
+    // onu kapatır; eğer kapalıysa, onu açar. Anahtar olarak 'id' ve 'parentId' kullanılır.
+    const toggleRow = (id, parentId = '') => {
+        // 'id' ve 'parentId' birleşiminden oluşan bir anahtar oluşturuyoruz.
+        const key = parentId ? `${parentId}-${id}` : `${id}`;
+
+        // 'expandedRows' durumunu güncelliyoruz:
+        // - Eğer 'expandedRows' içinde bu anahtar varsa, onu kaldırıyoruz (satır kapanır).
+        // - Eğer yoksa, ekliyoruz (satır açılır).
+        setExpandedRows((prevState) =>
+            prevState.includes(key)
+                ? prevState.filter((rowId) => rowId !== key)  // Satır kapatılıyor
+                : [...prevState, key]  // Satır açılıyor
+        );
+    };
+
+    const renderRow = (item, parentId = '', level = 0) => (
+        <React.Fragment key={item.id}>
+            <tr key={item.id} className={level === 0 ? 'parent-row' : 'child-row'}>
+                <td style={{ paddingLeft: `${level * 20}px` }}>
+                    {item.children.length > 0 && (
+                        <button
+                            className="btn btn-info btn-sm ms-2"
+                            type="button"
+                            onClick={() => toggleRow(item.id, parentId)}
+                        >
+                            {expandedRows.includes(`${parentId ? parentId + '-' : ''}${item.id}`) ? '-' : '+'}
+                        </button>
+                    )}
+                    {item.name}
+                </td>
+                {item.data.map((value, index) => (
+                    <td key={index}>{value}</td>
+                ))}
+            </tr>
+            {item.children.length > 0 &&
+                expandedRows.includes(`${parentId ? parentId + '-' : ''}${item.id}`) &&
+                item.children.map((child) =>
+                    renderRow(child, `${parentId ? parentId + '-' : ''}${item.id}`, level + 1)
+                )}
+        </React.Fragment>
+    );
+    return (
+        <div className="container mt-5">
+            <div className="col-md-12">
+                <div className="panel panel-default">
+                    <div className="panel-heading">Datametrics Table</div>
+                    <div className="panel-body">
+                        <table className="table table-condensed">
+                            <thead>
+                                <tr>
+                                    <th></th>
+                                    <th></th>
+                                    <th>Son 6 Ay Trend</th>
+                                    <th>2023 Aralık</th>
+                                    <th>2024 Ağustos</th>
+                                    <th>2024 Eylül</th>
+                                    <th>2024 Ekim</th>
+                                    <th>2024 Kasım</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {updatedData.map((item) => renderRow(item, '', 0))}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    );
+}
