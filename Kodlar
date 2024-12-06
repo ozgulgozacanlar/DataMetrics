@@ -5,7 +5,9 @@ const deneme = (array) => {
 
     // Yardımcı fonksiyon: Aynı öğe var mı kontrol et
     const doesItemExistInChildren = (parent, item) => {
-        return parent.children.some(child => child.name.trim() === item.name.trim());
+        // Parent.children null veya undefined ise, boş bir dizi döndürüyoruz
+        const children = parent.children || [];
+        return children.some(child => child.name.trim() === item.name.trim());
     };
 
     qLeft.forEach((leftItem, index) => {
