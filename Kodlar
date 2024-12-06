@@ -1,51 +1,8 @@
-.rounded-button {
-    background-color: white;  /* Butonun içini beyaz yapar */
-    border: 2px solid #d3d3d3;  /* Çevresini açık gri yapar */
-    color: #007bff;  /* Yazı rengini mavi yapar */
-    border-radius: 50%;  /* Butonu yuvarlak yapar */
-    padding: 5px;  /* Butonun boyutunu küçültür */
-    font-size: 18px;  /* Yazı büyüklüğünü artırır */
-    display: inline-flex;  /* Butonun içeriğini düzgün yerleştirir */
-    justify-content: center;
-    align-items: center;
-    width: 30px;  /* Butonun genişliğini belirler */
-    height: 30px;  /* Butonun yüksekliğini belirler */
-    cursor: pointer;  /* Fareyi buton üzerinde göstermek için pointer */
-}
+import React, { useEffect, useState } from 'react'
+import { getObjectData, getObjectPivotTableData } from '@/util/qlikConnection';
+import Loader from '@/assets/svg/Loader';
+import './TableComponent.css';
 
-.rounded-button:hover {
-    background-color: #007bff;  /* Hover efekti: arka plan mavi olur */
-    color: white;  /* Hoverda yazı rengi beyaz olur */
-}
-
-.rounded-button.up {
-    font-size: 20px;  /* Sağ ok için biraz daha büyük yazı */
-}
-
-.rounded-button.down {
-    font-size: 18px;  /* Aşağı ok için standart boyut */
-}
-
-.rounded-button span {
-    display: inline-block;
-}
-
-.rounded-button.up::before {
-    content: '►';  /* Sağ ok işareti */
-    font-size: 22px; /* Sağ ok boyutunu biraz büyütüyoruz */
-}
-
-.rounded-button.down::before {
-    content: '▼';  /* Aşağı ok işareti */
-    font-size: 20px; /* Aşağı ok boyutunu biraz küçültüyoruz */
-}
-<button
-    className={`rounded-button btn btn-sm ms-2 ${expandedRows.includes(`${parentId ? parentId + '-' : ''}${item.id}`) ? 'up' : 'down'}`}
-    type="button"
-    onClick={() => toggleRow(item.id, parentId)}
->
-    {/* Sola ve sağa okları şartlı olarak ekle */}
-    <span className="material-icons">
-        {expandedRows.includes(`${parentId ? parentId + '-' : ''}${item.id}`) ? '►' : '▼'}
-    </span>
-</button>
+export default function TableComponent({ app, objectId }) {
+    const [tableData, setData] = useState([]);
+    const [isLoading, setLoading] = useState(true);
