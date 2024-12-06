@@ -1,4 +1,131 @@
-  const data = [
+array = [
+qLeft:[
+    [
+    {
+        "qText": "10100",
+    
+        "qSubNodes": [
+            {
+                "qText": "Toplam Kolon Sayısı",
+               
+                "qSubNodes": [],
+             
+            }
+        ],
+    
+    },
+    {
+        "qText": "10101",
+  
+        "qSubNodes": [
+            {
+                "qText": "•    Kavram Çalışması Yapılmış Kolon Sayısı",
+         
+                "qSubNodes": [],
+             }
+        ],
+ 
+    },
+    {
+        "qText": "10102",    
+        "qSubNodes": [
+            {
+                "qText": "•    Kavram Çalışması Yapılmış Kolon Oranı (%)",   
+                "qSubNodes": [],
+              
+            }
+        ],
+       
+    },
+
+]
+qData : [
+    [
+        {
+            "qText": "671,609",
+            "qNum": "NaN",
+           
+        },
+        {
+            "qText": "703.808",
+            "qNum": "NaN",
+          
+        },
+        {
+            "qText": "711.531",
+            "qNum": "NaN",
+            
+        },
+        {
+            "qText": "721.064",
+            "qNum": "NaN",
+            
+        },
+        {
+            "qText": "722.587",
+            "qNum": "NaN",
+          
+        }
+    ],
+    [
+        {
+            "qText": "661,055",
+            "qNum": "NaN",
+            
+        },
+        {
+            "qText": "691.532",
+            "qNum": "NaN",
+            
+        },
+        {
+            "qText": "700.589",
+            "qNum": "NaN",
+            
+        },
+        {
+            "qText": "711.462",
+            "qNum": "NaN",
+          
+        },
+        {
+            "qText": "712.022",
+            "qNum": "NaN",
+        }
+            
+    ],
+    [
+        {
+            "qText": "%98,43",
+            "qNum": "NaN",
+           
+        },
+        {
+            "qText": "%98,26",
+            "qNum": "NaN",
+           
+        },
+        {
+            "qText": "%98,46",
+            "qNum": "NaN",
+           
+        },
+        {
+            "qText": "%98,67",
+            "qNum": "NaN",
+           
+        },
+        {
+            "qText": "%98,54",
+           
+        }
+    ]
+]
+]
+
+
+
+const data = [
         {
             name: 'DataOps',
             data: [1.23, 4.56, 7.89, 0.12, 3.45, 6.78, 9.01],
