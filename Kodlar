@@ -1,5 +1,11 @@
 
-"   ⸰    Dq Technical Sufficiency"
+    const trimmedText = subNode.qText.trim(); // Başındaki boşlukları temizliyoruz
+    if (trimmedText.startsWith("•") || trimmedText.startsWith("⸰")) {
+
+
+
+    data: [{ qText: leftItem.qText }, ...qData[index].map(val => ({ qText: val }))], // qText'i { qText: value } formatında ekliyoruz
+
 
 const result = [];
 let currentParent = null;
