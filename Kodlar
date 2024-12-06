@@ -1,3 +1,34 @@
+
+// array içindeki her bir öğe için işlem yapıyoruz
+array.forEach(item => {
+  const { qLeft, qData } = item;
+
+  qLeft.forEach((leftItem, index) => {
+    const dataItem = {
+      name: leftItem.qSubNodes[0]?.qText || leftItem.qText,  // Toplam Kolon Sayısı, vb.
+      data: [leftItem.qText, ...qData[index].map(qd => qd.qText)],  // qText'i başa ekliyoruz, ardından qData'nın qText'lerini
+      children: []
+    };
+
+    // qSubNodes içindeki öğeleri kontrol ediyoruz
+    leftItem.qSubNodes.forEach(subNode => {
+      if (subNode.qText.startsWith('•')) {  // Eğer "•" ile başlıyorsa
+        const subNodeItem = {
+          name: subNode.qText,
+          data: [leftItem.qText, ...qData[index].map(qd => qd.qText)],  // Üst öğenin qText ve ilgili qData'yı ekliyoruz
+          children: []
+        };
+
+        dataItem.children.push(subNodeItem);  // "•" ile başlayan öğeyi children'a ekliyoruz
+      }
+    });
+
+    data.push(dataItem);  // Sonuç array'ine ekliyoruz
+  });
+});
+
+console.log(JSON.stringify(data, null, 2));
+
 array = [
 qLeft:[
     [
