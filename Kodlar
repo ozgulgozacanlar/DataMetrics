@@ -1,7 +1,23 @@
+.rounded-button {
+    background-color: white; /* Butonun içini beyaz yapar */
+    border: 2px solid #007bff; /* Kenar rengini mavi yapar */
+    color: #007bff; /* Yazı rengini mavi yapar */
+    border-radius: 50%; /* Butonu yuvarlak yapar */
+    padding: 10px 15px; /* Butonun içindeki yazıyı düzgün yerleştirir */
+    font-size: 16px; /* Yazı büyüklüğünü ayarlayabilirsiniz */
+    display: inline-flex; /* Butonu düzgün yerleştirir */
+    justify-content: center;
+    align-items: center;
+}
+
+.rounded-button:hover {
+    background-color: #007bff; /* Hover efekti: arka plan mavi olur */
+    color: white; /* Hoverda yazı rengi beyaz olur */
+}
 <button
-                            className="btn btn-info btn-sm ms-2"
-                            type="button"
-                            onClick={() => toggleRow(item.id, parentId)}
-                        >
-                            {expandedRows.includes(`${parentId ? parentId + '-' : ''}${item.id}`) ? '-' : '+'}
-                        </button>
+    className="rounded-button btn btn-sm ms-2"
+    type="button"
+    onClick={() => toggleRow(item.id, parentId)}
+>
+    {expandedRows.includes(`${parentId ? parentId + '-' : ''}${item.id}`) ? '-' : '+'}
+</button>
