@@ -1,15 +1,35 @@
+qLeft.forEach((leftItem, index) => {
+  // Yeni bir item oluşturuyoruz
+  const dataItem = {
+    name: leftItem.qSubNodes[0]?.qText || leftItem.qText, // qText ya da qSubNodes'dan gelen değeri kullanıyoruz
+    data: [{ qText: leftItem.qText }, ...qData[index].map(val => ({ qText: val }))], // qText'i { qText: value } formatında ekliyoruz
+    children: []
+  };
 
+  // Eğer mevcut item'ın qSubNodes'unda "•" ya da "⸰" varsa, bunları children'a ekliyoruz
+  leftItem.qSubNodes.forEach(subNode => {
     const trimmedText = subNode.qText.trim(); // Başındaki boşlukları temizliyoruz
     if (trimmedText.startsWith("•") || trimmedText.startsWith("⸰")) {
+      const childItem = {
+        name: subNode.qText,
+        data: [{ qText: leftItem.qText }, ...qData[index].map(val => ({ qText: val }))],
+        children: []
+      };
 
+      dataItem.children.push(childItem); // Bu itemı children'a ekliyoruz
+    }
+  });
 
-
-    data: [{ qText: leftItem.qText }, ...qData[index].map(val => ({ qText: val }))], // qText'i { qText: value } formatında ekliyoruz
-
-
-const result = [];
-let currentParent = null;
-
+  // Eğer "•" ya da "⸰" işaretli değilse, doğrudan ekliyoruz
+  if (dataItem.name.trim().startsWith("•") || dataItem.name.trim().startsWith("⸰")) {
+    if (currentParent) {
+      currentParent.children.push(dataItem);
+    }
+  } else {
+    result.push(dataItem); // İlk öğe doğrudan ekleniyor
+    currentParent = dataItem; // Bu öğe şu anda parent oldu
+  }
+});
 qLeft.forEach((leftItem, index) => {
   // Yeni bir item oluşturuyoruz
   const dataItem = {
