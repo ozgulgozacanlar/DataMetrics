@@ -1,1 +1,28 @@
-Warning: Maximum update depth exceeded. This can happen when a component calls setState inside useEffect, but useEffect either doesn't have a dependency array, or one of the dependencies changes on every render.
+  return (
+        <div className="container mt-5">
+            <div className="col-md-12">
+                <div className="panel panel-default">
+                    <div className="panel-heading">Datametrics Table</div>
+                    <div className="panel-body">
+                        <table className="table table-condensed">
+                            <thead>
+                                <tr>
+                                    <th></th>
+                                    <th></th>
+                                    <th>Son 6 Ay Trend</th>
+                                    <th>2023 Aralık</th>
+                                    <th>2024 Ağustos</th>
+                                    <th>2024 Eylül</th>
+                                    <th>2024 Ekim</th>
+                                    <th>2024 Kasım</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {updatedData.map((item) => renderRow(item, '', 0))}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    );
