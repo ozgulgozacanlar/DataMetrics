@@ -1,42 +1,42 @@
-   const deneme = (array) =>{
+const deneme = (array) => {
+    const { qLeft, qData } = array;  // qLeft ve qData'yı destructure ediyoruz
+    const result = [];  // Sonuçları tutacağımız dizi
+    let currentParent = null;  // Şu anki parent öğeyi tutan değişken
+    let lastParent = null;  // Son eklenen öğenin parent'ını tutan değişken
 
-    const { qLeft, qData } = array;
-    const result = [];
-    let currentParent = null;
-    
     qLeft.forEach((leftItem, index) => {
-      // Yeni bir item oluşturuyoruz
-      const dataItem = {
-        name: leftItem.qSubNodes[0]?.qText || leftItem.qText, // qText ya da qSubNodes'dan gelen değeri kullanıyoruz
-        data: [ leftItem.qText, ...qData[index].map(val => (val.qText ))], // qText'i { qText: value } formatında ekliyoruz
-        children: []
-      };
-    
-      // Eğer mevcut item'ın qSubNodes'unda "•" varsa, bunları children'a ekliyoruz
-      leftItem.qSubNodes.forEach(subNode => {
-        const trimmedText = subNode.qText.trim(); // Başındaki boşlukları temizliyoruz
-        if (trimmedText.startsWith("•") || trimmedText.startsWith("⸰")) {
-          const childItem = {
-            name: subNode.qText,
-            data: [ leftItem.qText , ...qData[index].map(val => ( val.qText ))], // qText'i { qText: value } formatında ekliyoruz
-            children: []
-          };
-    
-          dataItem.children.push(childItem); // Bu itemı children'a ekliyoruz
+        // Her öğe için bir dataItem oluşturuyoruz
+        const dataItem = {
+            name: leftItem.qSubNodes[0]?.qText || leftItem.qText,  // qSubNodes'dan ya da qText'den name alınır
+            data: [leftItem.qText, ...qData[index].map(val => val.qText)],  // qData'dan değerler alınır
+            children: []  // Başlangıçta children boş
+        };
+
+        // Eğer öğenin qSubNodes'unda "•" ya da "⸰" varsa, bunları children olarak ekliyoruz
+        leftItem.qSubNodes.forEach(subNode => {
+            const trimmedText = subNode.qText.trim();  // Boşlukları temizliyoruz
+            if (trimmedText.startsWith("•") || trimmedText.startsWith("⸰")) {
+                const childItem = {
+                    name: subNode.qText,  // Çocuk öğenin adı
+                    data: [leftItem.qText, ...qData[index].map(val => val.qText)],  // Çocuk öğe için veriler
+                    children: []  // Çocuk öğenin alt öğeleri başta boş
+                };
+                dataItem.children.push(childItem);  // Çocuk öğeyi parent'ın children'ına ekliyoruz
+            }
+        });
+
+        // Eğer dataItem.name "•" veya "⸰" ile başlıyorsa ve currentParent varsa
+        // Bu öğeyi son eklenen parent'ın children altına ekliyoruz
+        if (dataItem.name.trim().startsWith("⸰")) {
+            if (lastParent) {
+                lastParent.children.push(dataItem);  // Bu öğeyi bir önceki parent'ın children'ına ekliyoruz
+            }
+        } else {
+            result.push(dataItem);  // Bu öğe parent olmayan bir öğedir, doğrudan result'a ekliyoruz
+            currentParent = dataItem;  // Bu öğeyi currentParent olarak belirliyoruz
+            lastParent = currentParent;  // lastParent olarak da kaydediyoruz
         }
-      });
-     
-      // Eğer "•" işaretli değilse, doğrudan ekliyoruz
-      if (dataItem.name.trim().startsWith("•") || dataItem.name.trim().startsWith("⸰")) {
-        if (currentParent) {
-          currentParent.children.push(dataItem);
-        }
-      } else {
-        result.push(dataItem); // İlk öğe doğrudan ekleniyor
-        currentParent = dataItem; // Bu öğe şu anda parent oldu
-      }
     });
-    
-    console.log(result);
-  
-    }
+
+    console.log(result);  // Sonuçları konsola yazdırıyoruz
+};
