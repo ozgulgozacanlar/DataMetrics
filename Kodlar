@@ -1,3 +1,6 @@
+
+"   ⸰    Dq Technical Sufficiency"
+
 const result = [];
 let currentParent = null;
 
