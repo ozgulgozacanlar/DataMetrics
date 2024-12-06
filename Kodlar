@@ -1,1 +1,31 @@
- className={`btn btn-info btn-sm ms-2 rounded-button`} 
+<button
+    className={`rounded-button btn btn-sm ms-2 ${expandedRows.includes(`${parentId ? parentId + '-' : ''}${item.id}`) ? 'up' : 'down'}`}
+    type="button"
+    onClick={() => toggleRow(item.id, parentId)}
+>
+    {/* Sola ve sağa okları şartlı olarak ekle */}
+    <span className="material-icons">
+        {expandedRows.includes(`${parentId ? parentId + '-' : ''}${item.id}`) ? '►' : '▼'}
+    </span>
+</button>
+.rounded-button.up {
+    font-size: 20px;  /* Sağ ok için biraz daha büyük yazı */
+}
+
+.rounded-button.down {
+    font-size: 18px;  /* Aşağı ok için standart boyut */
+}
+
+.rounded-button span {
+    display: inline-block;
+}
+
+.rounded-button.up::before {
+    content: '►';  /* Sağ ok işareti */
+    font-size: 22px; /* Sağ ok boyutunu biraz büyütüyoruz */
+}
+
+.rounded-button.down::before {
+    content: '▼';  /* Aşağı ok işareti */
+    font-size: 20px; /* Aşağı ok boyutunu biraz küçültüyoruz */
+}
