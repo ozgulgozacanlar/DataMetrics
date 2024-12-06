@@ -1,1 +1,6 @@
-    data: [{ qText: leftItem.qText }, ...qData[index].map(val => ({ qText: val }))], // qText'i { qText: value } formatında ekliyoruz
+ leftItem.qSubNodes.forEach(subNode => {
+    const trimmedText = subNode.qText.trim(); // Başındaki boşlukları temizliyoruz
+    if (trimmedText.startsWith("•") || trimmedText.startsWith("⸰")) {
+
+
+  if (dataItem.name.trim().startsWith("•") || dataItem.name.trim().startsWith("⸰")) {
