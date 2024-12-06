@@ -1,42 +1,18 @@
-const deneme = (array) => {
-    const { qLeft, qData } = array;  // qLeft ve qData'yı destructure ediyoruz
-    const result = [];  // Sonuçları tutacağımız dizi
-    let currentParent = null;  // Şu anki parent öğeyi tutan değişken
-    let lastParent = null;  // Son eklenen öğenin parent'ını tutan değişken
-
-    qLeft.forEach((leftItem, index) => {
-        // Her öğe için bir dataItem oluşturuyoruz
-        const dataItem = {
-            name: leftItem.qSubNodes[0]?.qText || leftItem.qText,  // qSubNodes'dan ya da qText'den name alınır
-            data: [leftItem.qText, ...qData[index].map(val => val.qText)],  // qData'dan değerler alınır
-            children: []  // Başlangıçta children boş
-        };
-
-        // Eğer öğenin qSubNodes'unda "•" ya da "⸰" varsa, bunları children olarak ekliyoruz
-        leftItem.qSubNodes.forEach(subNode => {
-            const trimmedText = subNode.qText.trim();  // Boşlukları temizliyoruz
-            if (trimmedText.startsWith("•") || trimmedText.startsWith("⸰")) {
-                const childItem = {
-                    name: subNode.qText,  // Çocuk öğenin adı
-                    data: [leftItem.qText, ...qData[index].map(val => val.qText)],  // Çocuk öğe için veriler
-                    children: []  // Çocuk öğenin alt öğeleri başta boş
-                };
-                dataItem.children.push(childItem);  // Çocuk öğeyi parent'ın children'ına ekliyoruz
+ // Eğer dataItem.name "•" ile başlıyorsa, mevcut parent'a ekliyoruz
+        if (dataItem.name.trim().startsWith("•")) {
+            if (currentParent) {
+                currentParent.children.push(dataItem);  // Mevcut parent'a ekliyoruz
             }
-        });
-
-        // Eğer dataItem.name "•" veya "⸰" ile başlıyorsa ve currentParent varsa
-        // Bu öğeyi son eklenen parent'ın children altına ekliyoruz
-        if (dataItem.name.trim().startsWith("⸰")) {
-            if (lastParent) {
-                lastParent.children.push(dataItem);  // Bu öğeyi bir önceki parent'ın children'ına ekliyoruz
+        }
+        // Eğer dataItem.name "⸰" ile başlıyorsa, currentParent.children.children içine ekliyoruz
+        else if (dataItem.name.trim().startsWith("⸰")) {
+            if (currentParent && currentParent.children.length > 0) {
+                // currentParent'ın children'ında başka öğeler varsa, bunları "children.children" içine ekliyoruz
+                currentParent.children[currentParent.children.length - 1].children.push(dataItem);
             }
-        } else {
+        } 
+        // Eğer "•" veya "⸰" ile başlamıyorsa, doğrudan result'a ekliyoruz
+        else {
             result.push(dataItem);  // Bu öğe parent olmayan bir öğedir, doğrudan result'a ekliyoruz
             currentParent = dataItem;  // Bu öğeyi currentParent olarak belirliyoruz
-            lastParent = currentParent;  // lastParent olarak da kaydediyoruz
         }
-    });
-
-    console.log(result);  // Sonuçları konsola yazdırıyoruz
-};
