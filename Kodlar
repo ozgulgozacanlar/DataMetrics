@@ -1,8 +1,1 @@
-import React, { useEffect, useState } from 'react'
-import { getObjectData, getObjectPivotTableData } from '@/util/qlikConnection';
-import Loader from '@/assets/svg/Loader';
-import './TableComponent.css';
-
-export default function TableComponent({ app, objectId }) {
-    const [tableData, setData] = useState([]);
-    const [isLoading, setLoading] = useState(true);
+ className={`btn btn-info btn-sm ms-2 rounded-button`} 
