@@ -1,22 +1,7 @@
-   {/* Eğer tableData yüklendiyse ve boş değilse tabloyu göster, aksi takdirde loader göster */}
-                        {tableData.length === 0 || loading ? (
-                            <Loader />  // Eğer tableData boşsa ya da loading true ise, loader'ı göster
-                        ) : (
-                            <table className="table table-condensed">
-                                <thead>
-                                    <tr>
-                                        <th></th>
-                                        <th></th>
-                                        <th>Son 6 Ay Trend</th>
-                                        <th>2023 Aralık</th>
-                                        <th>2024 Ağustos</th>
-                                        <th>2024 Eylül</th>
-                                        <th>2024 Ekim</th>
-                                        <th>2024 Kasım</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {tableData.map((item) => renderRow(item, '', 0))}
-                                </tbody>
-                            </table>
-                        )}
+<button
+                            className="btn btn-info btn-sm ms-2"
+                            type="button"
+                            onClick={() => toggleRow(item.id, parentId)}
+                        >
+                            {expandedRows.includes(`${parentId ? parentId + '-' : ''}${item.id}`) ? '-' : '+'}
+                        </button>
