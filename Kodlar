@@ -1,33 +1,675 @@
-
-// array içindeki her bir öğe için işlem yapıyoruz
-array.forEach(item => {
-  const { qLeft, qData } = item;
-
-  qLeft.forEach((leftItem, index) => {
-    const dataItem = {
-      name: leftItem.qSubNodes[0]?.qText || leftItem.qText,  // Toplam Kolon Sayısı, vb.
-      data: [leftItem.qText, ...qData[index].map(qd => qd.qText)],  // qText'i başa ekliyoruz, ardından qData'nın qText'lerini
-      children: []
-    };
-
-    // qSubNodes içindeki öğeleri kontrol ediyoruz
-    leftItem.qSubNodes.forEach(subNode => {
-      if (subNode.qText.startsWith('•')) {  // Eğer "•" ile başlıyorsa
-        const subNodeItem = {
-          name: subNode.qText,
-          data: [leftItem.qText, ...qData[index].map(qd => qd.qText)],  // Üst öğenin qText ve ilgili qData'yı ekliyoruz
-          children: []
-        };
-
-        dataItem.children.push(subNodeItem);  // "•" ile başlayan öğeyi children'a ekliyoruz
-      }
-    });
-
-    data.push(dataItem);  // Sonuç array'ine ekliyoruz
-  });
-});
-
-console.log(JSON.stringify(data, null, 2));
+[
+    {
+        "name": "Toplam Kolon Sayısı",
+        "data": [
+            "10100",
+            "671,609",
+            "703.808",
+            "711.531",
+            "721.064",
+            "722.587"
+        ],
+        "children": []
+    },
+    {
+        "name": "•    Kavram Çalışması Yapılmış Kolon Sayısı",
+        "data": [
+            "10101",
+            "661,055",
+            "691.532",
+            "700.589",
+            "711.462",
+            "712.022"
+        ],
+        "children": [
+            {
+                "name": "•    Kavram Çalışması Yapılmış Kolon Sayısı",
+                "data": [
+                    "10101",
+                    "661,055",
+                    "691.532",
+                    "700.589",
+                    "711.462",
+                    "712.022"
+                ],
+                "children": []
+            }
+        ]
+    },
+    {
+        "name": "•    Kavram Çalışması Yapılmış Kolon Oranı (%)",
+        "data": [
+            "10102",
+            "%98,43",
+            "%98,26",
+            "%98,46",
+            "%98,67",
+            "%98,54"
+        ],
+        "children": [
+            {
+                "name": "•    Kavram Çalışması Yapılmış Kolon Oranı (%)",
+                "data": [
+                    "10102",
+                    "%98,43",
+                    "%98,26",
+                    "%98,46",
+                    "%98,67",
+                    "%98,54"
+                ],
+                "children": []
+            }
+        ]
+    },
+    {
+        "name": "GT Flow Toplam Kolon Sayısı",
+        "data": [
+            "10200",
+            "12.919",
+            "84.690",
+            "90.325",
+            "-",
+            "-"
+        ],
+        "children": []
+    },
+    {
+        "name": "•    GT Flow Çalışması Tamamlanan Kolon Sayısı",
+        "data": [
+            "10201",
+            "10.845",
+            "80.312",
+            "89.483",
+            "-",
+            "-"
+        ],
+        "children": [
+            {
+                "name": "•    GT Flow Çalışması Tamamlanan Kolon Sayısı",
+                "data": [
+                    "10201",
+                    "10.845",
+                    "80.312",
+                    "89.483",
+                    "-",
+                    "-"
+                ],
+                "children": []
+            }
+        ]
+    },
+    {
+        "name": "•    GT Flow Çalışılan Kolon Sayısı",
+        "data": [
+            "10202",
+            "1.763",
+            "2.470",
+            "373",
+            "-",
+            "-"
+        ],
+        "children": [
+            {
+                "name": "•    GT Flow Çalışılan Kolon Sayısı",
+                "data": [
+                    "10202",
+                    "1.763",
+                    "2.470",
+                    "373",
+                    "-",
+                    "-"
+                ],
+                "children": []
+            }
+        ]
+    },
+    {
+        "name": "•    GT Flow Geciken Kolon Sayısı",
+        "data": [
+            "10203",
+            "311",
+            "1.908",
+            "469",
+            "-",
+            "-"
+        ],
+        "children": [
+            {
+                "name": "•    GT Flow Geciken Kolon Sayısı",
+                "data": [
+                    "10203",
+                    "311",
+                    "1.908",
+                    "469",
+                    "-",
+                    "-"
+                ],
+                "children": []
+            }
+        ]
+    },
+    {
+        "name": "Kavram Sayısı",
+        "data": [
+            "10300",
+            "65,253",
+            "64.864",
+            "65.367",
+            "65.788",
+            "65.791"
+        ],
+        "children": []
+    },
+    {
+        "name": "•    Gizlilik Sınıflandırılması Yapılmış Toplam Kavram Sayısı",
+        "data": [
+            "10301",
+            "64,907",
+            "64.208",
+            "64.553",
+            "64.719",
+            "64.731"
+        ],
+        "children": [
+            {
+                "name": "•    Gizlilik Sınıflandırılması Yapılmış Toplam Kavram Sayısı",
+                "data": [
+                    "10301",
+                    "64,907",
+                    "64.208",
+                    "64.553",
+                    "64.719",
+                    "64.731"
+                ],
+                "children": []
+            }
+        ]
+    },
+    {
+        "name": "•    Çok Gizli Kavram Adedi",
+        "data": [
+            "10302",
+            "34",
+            "53",
+            "53",
+            "51",
+            "51"
+        ],
+        "children": [
+            {
+                "name": "•    Çok Gizli Kavram Adedi",
+                "data": [
+                    "10302",
+                    "34",
+                    "53",
+                    "53",
+                    "51",
+                    "51"
+                ],
+                "children": []
+            }
+        ]
+    },
+    {
+        "name": "•    Gizli Kavram Adedi",
+        "data": [
+            "10303",
+            "27,999",
+            "27.077",
+            "27.114",
+            "27.174",
+            "27.183"
+        ],
+        "children": [
+            {
+                "name": "•    Gizli Kavram Adedi",
+                "data": [
+                    "10303",
+                    "27,999",
+                    "27.077",
+                    "27.114",
+                    "27.174",
+                    "27.183"
+                ],
+                "children": []
+            }
+        ]
+    },
+    {
+        "name": "•    Hizmete Özel Kavram Adedi",
+        "data": [
+            "10304",
+            "335",
+            "397",
+            "488",
+            "494",
+            "494"
+        ],
+        "children": [
+            {
+                "name": "•    Hizmete Özel Kavram Adedi",
+                "data": [
+                    "10304",
+                    "335",
+                    "397",
+                    "488",
+                    "494",
+                    "494"
+                ],
+                "children": []
+            }
+        ]
+    },
+    {
+        "name": "•    Dahili Kavram Adedi",
+        "data": [
+            "10305",
+            "34,896",
+            "34.994",
+            "35.208",
+            "35.292",
+            "35.295"
+        ],
+        "children": [
+            {
+                "name": "•    Dahili Kavram Adedi",
+                "data": [
+                    "10305",
+                    "34,896",
+                    "34.994",
+                    "35.208",
+                    "35.292",
+                    "35.295"
+                ],
+                "children": []
+            }
+        ]
+    },
+    {
+        "name": "•    Açık Kavram Adedi",
+        "data": [
+            "10306",
+            "1,643",
+            "1.680",
+            "1.683",
+            "1.699",
+            "1.699"
+        ],
+        "children": [
+            {
+                "name": "•    Açık Kavram Adedi",
+                "data": [
+                    "10306",
+                    "1,643",
+                    "1.680",
+                    "1.683",
+                    "1.699",
+                    "1.699"
+                ],
+                "children": []
+            }
+        ]
+    },
+    {
+        "name": "Banka Flow Toplam Kavram Sayısı",
+        "data": [
+            "10400",
+            "8.871",
+            "9.056",
+            "9.057",
+            "-",
+            "-"
+        ],
+        "children": []
+    },
+    {
+        "name": "•    Banka Flow Sınıflanması Tamamlanan Kavram Sayısı",
+        "data": [
+            "10401",
+            "8.744",
+            "8.828",
+            "8.609",
+            "-",
+            "-"
+        ],
+        "children": [
+            {
+                "name": "•    Banka Flow Sınıflanması Tamamlanan Kavram Sayısı",
+                "data": [
+                    "10401",
+                    "8.744",
+                    "8.828",
+                    "8.609",
+                    "-",
+                    "-"
+                ],
+                "children": []
+            }
+        ]
+    },
+    {
+        "name": "•    Banka Flow Çalışılan Kavram Sayısı",
+        "data": [
+            "10402",
+            "32",
+            "2",
+            "150",
+            "-",
+            "-"
+        ],
+        "children": [
+            {
+                "name": "•    Banka Flow Çalışılan Kavram Sayısı",
+                "data": [
+                    "10402",
+                    "32",
+                    "2",
+                    "150",
+                    "-",
+                    "-"
+                ],
+                "children": []
+            }
+        ]
+    },
+    {
+        "name": "•    Banka Flow Geciken Kavram Sayısı",
+        "data": [
+            "10403",
+            "79",
+            "111",
+            "298",
+            "-",
+            "-"
+        ],
+        "children": [
+            {
+                "name": "•    Banka Flow Geciken Kavram Sayısı",
+                "data": [
+                    "10403",
+                    "79",
+                    "111",
+                    "298",
+                    "-",
+                    "-"
+                ],
+                "children": []
+            }
+        ]
+    },
+    {
+        "name": "Toplam İşletilen Kural Sayısı",
+        "data": [
+            "10500",
+            "65.673",
+            "99.995",
+            "104.419",
+            "99.609",
+            "99.760"
+        ],
+        "children": []
+    },
+    {
+        "name": "DATAOps (Weighted Score)",
+        "data": [
+            "10600",
+            "93,96",
+            "82,46",
+            "83,38",
+            "92,01",
+            "91,10"
+        ],
+        "children": []
+    },
+    {
+        "name": "•    DQ Skoru",
+        "data": [
+            "10601",
+            "92,00",
+            "93,75",
+            "94,93",
+            "95,03",
+            "95,25"
+        ],
+        "children": [
+            {
+                "name": "•    DQ Skoru",
+                "data": [
+                    "10601",
+                    "92,00",
+                    "93,75",
+                    "94,93",
+                    "95,03",
+                    "95,25"
+                ],
+                "children": []
+            }
+        ]
+    },
+    {
+        "name": "   ⸰    Dq Technical Sufficiency",
+        "data": [
+            "1060101",
+            "94,50",
+            "98,53",
+            "98,53",
+            "98,80",
+            "98,73"
+        ],
+        "children": []
+    },
+    {
+        "name": "   ⸰    Dq Technical Strength",
+        "data": [
+            "1060102",
+            "93,63",
+            "96,13",
+            "96,93",
+            "96,73",
+            "96,93"
+        ],
+        "children": []
+    },
+    {
+        "name": "   ⸰    Last Run Check",
+        "data": [
+            "1060103",
+            "93,50",
+            "95,60",
+            "95,47",
+            "95,40",
+            "95,73"
+        ],
+        "children": []
+    },
+    {
+        "name": "   ⸰    Consecutive Errors",
+        "data": [
+            "1060104",
+            "85,63",
+            "87,20",
+            "87,60",
+            "88,80",
+            "89,27"
+        ],
+        "children": []
+    },
+    {
+        "name": "•    Veri Envanteri Skoru",
+        "data": [
+            "10602",
+            "96,00",
+            "98,91",
+            "99,01",
+            "100,00",
+            "100,00"
+        ],
+        "children": [
+            {
+                "name": "•    Veri Envanteri Skoru",
+                "data": [
+                    "10602",
+                    "96,00",
+                    "98,91",
+                    "99,01",
+                    "100,00",
+                    "100,00"
+                ],
+                "children": []
+            }
+        ]
+    },
+    {
+        "name": "•    Kritik İş Kesici DQ Sayıları",
+        "data": [
+            "10603",
+            "360",
+            "226",
+            "229",
+            "315",
+            "322"
+        ],
+        "children": [
+            {
+                "name": "•    Kritik İş Kesici DQ Sayıları",
+                "data": [
+                    "10603",
+                    "360",
+                    "226",
+                    "229",
+                    "315",
+                    "322"
+                ],
+                "children": []
+            }
+        ]
+    },
+    {
+        "name": "•    Toplam İş Kesici DQ Sayıları",
+        "data": [
+            "10608",
+            "-",
+            "-",
+            "2.582",
+            "2.860",
+            "2.876"
+        ],
+        "children": [
+            {
+                "name": "•    Toplam İş Kesici DQ Sayıları",
+                "data": [
+                    "10608",
+                    "-",
+                    "-",
+                    "2.582",
+                    "2.860",
+                    "2.876"
+                ],
+                "children": []
+            }
+        ]
+    },
+    {
+        "name": "•    Veri biriktirilen STG tablo adedi",
+        "data": [
+            "10604",
+            "378",
+            "266",
+            "264",
+            "1.817",
+            "1.836"
+        ],
+        "children": [
+            {
+                "name": "•    Veri biriktirilen STG tablo adedi",
+                "data": [
+                    "10604",
+                    "378",
+                    "266",
+                    "264",
+                    "1.817",
+                    "1.836"
+                ],
+                "children": []
+            }
+        ]
+    },
+    {
+        "name": "•    İş birimlerine açılan STG tablo adedi (VIA/Toplam)",
+        "data": [
+            "10605",
+            "564",
+            "548",
+            "617",
+            "1.367",
+            "754"
+        ],
+        "children": [
+            {
+                "name": "•    İş birimlerine açılan STG tablo adedi (VIA/Toplam)",
+                "data": [
+                    "10605",
+                    "564",
+                    "548",
+                    "617",
+                    "1.367",
+                    "754"
+                ],
+                "children": []
+            }
+        ]
+    },
+    {
+        "name": "•    Procedure Sayıları",
+        "data": [
+            "10606",
+            "1,370",
+            "1.119",
+            "842",
+            "735",
+            "735"
+        ],
+        "children": [
+            {
+                "name": "•    Procedure Sayıları",
+                "data": [
+                    "10606",
+                    "1,370",
+                    "1.119",
+                    "842",
+                    "735",
+                    "735"
+                ],
+                "children": []
+            }
+        ]
+    },
+    {
+        "name": "•    SmartODI Kullanımı",
+        "data": [
+            "10607",
+            "5,818",
+            "7.315",
+            "7.612",
+            "7.832",
+            "7.832"
+        ],
+        "children": [
+            {
+                "name": "•    SmartODI Kullanımı",
+                "data": [
+                    "10607",
+                    "5,818",
+                    "7.315",
+                    "7.612",
+                    "7.832",
+                    "7.832"
+                ],
+                "children": []
+            }
+        ]
+    }
+]
 
 array = [
 qLeft:[
