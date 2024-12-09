@@ -1,6 +1,1 @@
-    if(pageName === "home"){
-            setTableHeaderData(["","","Son 6 Ay Trend", ...headerDatas])
-        }
-        else{
-            setTableHeaderData(["","", ...headerDatas])
-        }
+setTableHeaderData(pageName === "home" ? ["", "", "Son 6 Ay Trend", ...headerDatas] : ["", "", ...headerDatas]);
