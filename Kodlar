@@ -1,5 +1,10 @@
-export default function TableComponent({ app, objectId , pageName }) {
-
-      <div className="metric-table-wrapper">
-        <TableComponent app={app} objectId={"UnWrqj"}/>
-      </div>
+ qLeft.forEach((leftItem, index) => {
+            const rowData= [leftItem.qText, ...qData[index].map(val => (val.qText))]
+            if(pageName === "home"){
+                rowData= [leftItem.qText,"", ...qData[index].map(val => (val.qText))]
+            }          
+            const dataItem = {
+                name: leftItem.qSubNodes[0]?.qText || leftItem.qText, // qText ya da qSubNodes'dan gelen değeri kullanıyoruz
+                data: rowData, // qText'i { qText: value } formatında ekliyoruz
+                children: []
+            };
