@@ -1,32 +1,41 @@
+import { useNavigate } from 'react-router-dom';
+import { useState } from 'react';
+
 export default function NewNavbar() {
-    const navigate = useNavigate();
-    
+  const navigate = useNavigate();
+  const [activeTab, setActiveTab] = useState('/'); // Varsayılan aktif sekme ana sayfa
+
+  const handleNavigation = (path) => {
+    navigate(path);
+    setActiveTab(path); // Aktif sekmeyi güncelle
+  };
+
   return (
-      <div className="nav-tab-wrapper">
-          <div className="tab-item active" onClick={() => navigate('/')}>
-              Veri Dünyası
-          </div>
-          <div className="tab-item" onClick={() => navigate('/prisma')}>
-              Prisma
-          </div>
-          <div className="tab-item" onClick={() => navigate('/kurumsalveri')}>
-              Kurumsal Veri Çözümleri
-          </div>
-          <div className="tab-item" onClick={() => navigate('/operational-excellence')}>
-              Operational Excellence
-          </div>
-          <div className="tab-item" onClick={() => navigate('/data-community')}>
-              Data Community
-          </div>
-          <div className="tab-item" onClick={() => navigate('/metadata-management')}>
-              Metadata Management
-          </div>
-          <div className="tab-item" onClick={() => navigate('/ileri-analitik-kpi')}>
-              İleri Analitik KPI
-          </div>
-          <div className="tab-item" onClick={() => navigate('/ekip-bazli-metrikler')}>
-              Ekip Bazlı Metrikler
-          </div>
+    <div className="nav-tab-wrapper">
+      <div className={`tab-item ${activeTab === '/' ? 'active' : ''}`} onClick={() => handleNavigation('/')}>
+        Veri Dünyası
       </div>
-  )
+      <div className={`tab-item ${activeTab === '/prisma' ? 'active' : ''}`} onClick={() => handleNavigation('/prisma')}>
+        Prisma
+      </div>
+      <div className={`tab-item ${activeTab === '/kurumsalveri' ? 'active' : ''}`} onClick={() => handleNavigation('/kurumsalveri')}>
+        Kurumsal Veri Çözümleri
+      </div>
+      <div className={`tab-item ${activeTab === '/operational-excellence' ? 'active' : ''}`} onClick={() => handleNavigation('/operational-excellence')}>
+        Operational Excellence
+      </div>
+      <div className={`tab-item ${activeTab === '/data-community' ? 'active' : ''}`} onClick={() => handleNavigation('/data-community')}>
+        Data Community
+      </div>
+      <div className={`tab-item ${activeTab === '/metadata-management' ? 'active' : ''}`} onClick={() => handleNavigation('/metadata-management')}>
+        Metadata Management
+      </div>
+      <div className={`tab-item ${activeTab === '/ileri-analitik-kpi' ? 'active' : ''}`} onClick={() => handleNavigation('/ileri-analitik-kpi')}>
+        İleri Analitik KPI
+      </div>
+      <div className={`tab-item ${activeTab === '/ekip-bazli-metrikler' ? 'active' : ''}`} onClick={() => handleNavigation('/ekip-bazli-metrikler')}>
+        Ekip Bazlı Metrikler
+      </div>
+    </div>
+  );
 }
