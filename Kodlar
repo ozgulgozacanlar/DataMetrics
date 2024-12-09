@@ -1,45 +1,5 @@
-<Routes>
-  <Route exact path="/" element={<Home />} />
-  <Route path="/prisma" element={<Prisma />} />
-  <Route path="/kurumsalveri" element={<KurumsalVeri />} />
-  <Route path="/operational-excellence" element={<OperationalExcellence />} />
-  <Route path="/data-community" element={<DataCommunity />} />
-  <Route path="/metadata-management" element={<MetadataManagement />} />
-  <Route path="/ileri-analitik-kpi" element={<IleriAnalitikKPI />} />
-  <Route path="/ekip-bazli-metrikler" element={<EkipBazliMetrikler />} />
-</Routes>
+export default function TableComponent({ app, objectId , pageName }) {
 
-import { useNavigate } from 'react-router-dom';
-
-export default function NewNavbar() {
-  const navigate = useNavigate();
-
-  return (
-    <div className="nav-tab-wrapper">
-      <div className="tab-item active" onClick={() => navigate('/')}>
-        Veri Dünyası
+      <div className="metric-table-wrapper">
+        <TableComponent app={app} objectId={"UnWrqj"}/>
       </div>
-      <div className="tab-item" onClick={() => navigate('/prisma')}>
-        Prisma
-      </div>
-      <div className="tab-item" onClick={() => navigate('/kurumsalveri')}>
-        Kurumsal Veri Çözümleri
-      </div>
-      <div className="tab-item" onClick={() => navigate('/operational-excellence')}>
-        Operational Excellence
-      </div>
-      <div className="tab-item" onClick={() => navigate('/data-community')}>
-        Data Community
-      </div>
-      <div className="tab-item" onClick={() => navigate('/metadata-management')}>
-        Metadata Management
-      </div>
-      <div className="tab-item" onClick={() => navigate('/ileri-analitik-kpi')}>
-        İleri Analitik KPI
-      </div>
-      <div className="tab-item" onClick={() => navigate('/ekip-bazli-metrikler')}>
-        Ekip Bazlı Metrikler
-      </div>
-    </div>
-  );
-}
