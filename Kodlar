@@ -1,10 +1,11 @@
- qLeft.forEach((leftItem, index) => {
-            const rowData= [leftItem.qText, ...qData[index].map(val => (val.qText))]
-            if(pageName === "home"){
-                rowData= [leftItem.qText,"", ...qData[index].map(val => (val.qText))]
-            }          
-            const dataItem = {
-                name: leftItem.qSubNodes[0]?.qText || leftItem.qText, // qText ya da qSubNodes'dan gelen değeri kullanıyoruz
-                data: rowData, // qText'i { qText: value } formatında ekliyoruz
-                children: []
-            };
+qLeft.forEach((leftItem, index) => {
+  const rowData = pageName === "home"
+    ? [leftItem.qText, "", ...qData[index].map(val => val.qText)]
+    : [leftItem.qText, ...qData[index].map(val => val.qText)];
+
+  const dataItem = {
+    name: leftItem.qSubNodes[0]?.qText || leftItem.qText,
+    data: rowData,
+    children: []
+  };
+});
