@@ -1,11 +1,6 @@
-qLeft.forEach((leftItem, index) => {
-  const rowData = pageName === "home"
-    ? [leftItem.qText, "", ...qData[index].map(val => val.qText)]
-    : [leftItem.qText, ...qData[index].map(val => val.qText)];
-
-  const dataItem = {
-    name: leftItem.qSubNodes[0]?.qText || leftItem.qText,
-    data: rowData,
-    children: []
-  };
-});
+    if(pageName === "home"){
+            setTableHeaderData(["","","Son 6 Ay Trend", ...headerDatas])
+        }
+        else{
+            setTableHeaderData(["","", ...headerDatas])
+        }
