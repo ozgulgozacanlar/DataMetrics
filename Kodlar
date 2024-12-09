@@ -1,2 +1,28 @@
-const cleanedName = item.name.replace(/^[\s•⸰]+/, '');
-<div>{item.name.replace(/^[\s•⸰]+/, '')}</div>
+import React from 'react'
+import './NewNavBar.css';
+
+export default function NewNavbar() {
+
+  return (
+    <div className="nav-tab-wrapper">
+        <div className="tab-item active">Veri Dünyası</div>
+        <div className="tab-item">Prisma</div>
+        <div className="tab-item">Kurumsal Veri Çözümleri</div>
+        <div className="tab-item">Operational Excellence</div>
+        <div className="tab-item">Data Community</div>
+        <div className="tab-item">Metadata Management</div>
+        <div className="tab-item">İleri Analitik KPI</div>
+        <div className="tab-item">Ekip Bazlı Metrikler</div>
+      </div>
+  )
+}
+
+            <div className="main-wrapper px-3 px-xl-5">
+              <NewNavbar />
+              <Routes>
+                <Route exact path="/" element={<Home />} />
+                <Route path="/home" element={<Home />} />
+                <Route path="/prisma" element={<Prisma />} />
+                <Route path="/kurumsalveri" element={<KurumsalVeri />} />
+              </Routes>
+            </div>
