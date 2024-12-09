@@ -1,1 +1,32 @@
-setTableHeaderData(pageName === "home" ? ["", "", "Son 6 Ay Trend", ...headerDatas] : ["", "", ...headerDatas]);
+export default function NewNavbar() {
+    const navigate = useNavigate();
+    
+  return (
+      <div className="nav-tab-wrapper">
+          <div className="tab-item active" onClick={() => navigate('/')}>
+              Veri Dünyası
+          </div>
+          <div className="tab-item" onClick={() => navigate('/prisma')}>
+              Prisma
+          </div>
+          <div className="tab-item" onClick={() => navigate('/kurumsalveri')}>
+              Kurumsal Veri Çözümleri
+          </div>
+          <div className="tab-item" onClick={() => navigate('/operational-excellence')}>
+              Operational Excellence
+          </div>
+          <div className="tab-item" onClick={() => navigate('/data-community')}>
+              Data Community
+          </div>
+          <div className="tab-item" onClick={() => navigate('/metadata-management')}>
+              Metadata Management
+          </div>
+          <div className="tab-item" onClick={() => navigate('/ileri-analitik-kpi')}>
+              İleri Analitik KPI
+          </div>
+          <div className="tab-item" onClick={() => navigate('/ekip-bazli-metrikler')}>
+              Ekip Bazlı Metrikler
+          </div>
+      </div>
+  )
+}
