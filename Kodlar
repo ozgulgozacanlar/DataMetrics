@@ -1,3 +1,4 @@
+{filteredApps.map((app, appIndex) => {
   console.log("Filtered app:", app);
   return (
     <StreamCard 
@@ -10,3 +11,4 @@
       isFav={app.isFav} 
     />
   );
+})}
