@@ -1,11 +1,23 @@
-  // `isFav` ile senkronize etmek için useEffect kullanıyoruz
-  useEffect(() => {
-    setFavStatus(isFav);
-  }, [isFav]);
-
- const handleAddFavorite = async (id) => {
-    console.log("Butona tıklandı, id:", id);
-    const newStatus = !favStatus; // Durumu tersine çevir
-    await toggleFavorites(id, newStatus);
-    setFavStatus(newStatus); // UI'yi güncelle
-  };
+  const handleRemoveFavoriteApp = async (id, isFav) => {
+    await toggleFavorites(id, isFav);
+    // Favori listesini güncelle
+    getFavorites().then(async (favArr) => {
+      const favoriteArray = [];
+      for (const favId of favArr) {
+        const appArr = await getAppById(favId);
+        if (appArr) {
+          favoriteArray.push({
+            name: appArr.name,
+            publishTime: appArr.publishTime,
+            thunmnail: appArr.thumbnail,
+            description: appArr.description,
+            favStatus: true,
+            id: appArr.id,
+          });
+        }
+      }
+      setFavorites(favoriteArray);
+    }).catch((error) => {
+      console.error('Favori data hatası:', error);
+    });
+};
