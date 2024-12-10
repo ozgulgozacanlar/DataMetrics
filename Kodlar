@@ -20,23 +20,25 @@
   </div>
 </div>
 
-  <div className="inner-card" onClick={() => handleClickStream(id)}>
-      {cardType === "app" && (
-         <div className="inner-card-btn fav-icon" onClick={() =>    
-          e.stopPropagation(); 
-          handleAddFavorite(id); }>
-         <Like filled={isFav} />
-       </div>
-   
+<div className="inner-card" onClick={() => handleClickStream(id)}>
+  {cardType === "app" && (
+    <div 
+      className="inner-card-btn fav-icon" 
+      onClick={(e) => {
+        e.stopPropagation(); 
+        handleAddFavorite(id);
+      }}
+    >
+      <Like filled={isFav} />
+    </div>
   )}
-      <div className="inner-icon" style={{ backgroundColor: color }}>
-        {svg}
-      </div>
-      <div className="inner-card-title">
-        <span title={title}>
-          {title}
-        </span>
-      </div>
-    </div>   
-  
-  );
+  <div className="inner-icon" style={{ backgroundColor: color }}>
+    {svg}
+  </div>
+  <div className="inner-card-title">
+    <span title={title}>
+      {title}
+    </span>
+  </div>
+</div>
+
