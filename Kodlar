@@ -1,1 +1,2 @@
 isFav: favorites ? favorites.some(fav => fav.name === app.appName) : false
+          isFav={app.isFav} // `isFav` bilgisini burada ilet
