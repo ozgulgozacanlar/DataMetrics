@@ -1,1 +1,12 @@
   console.log("Filtered app:", app);
+  return (
+    <StreamCard 
+      key={appIndex} 
+      title={renderHighlightedText(app.appName, searchTerm)} 
+      svg={getRandomIcon()} 
+      id={app.appId} 
+      cardType={"app"} 
+      color={getRandomColor()} 
+      isFav={app.isFav} 
+    />
+  );
