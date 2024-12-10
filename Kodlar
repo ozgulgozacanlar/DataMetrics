@@ -1,9 +1,4 @@
- onFavoriteChange={handleRemoveFavoriteApp} // Home'deki işlemi StreamCard'a ilet
-
- const handleAddFavorite = async () => {
-    const newStatus = !favStatus;
-    setFavStatus(newStatus);
-
-    // Home'deki işlemi tetikleyerek favorileri güncelle
-    await onFavoriteChange(id);
-  };
+ <div className="header-title">
+           <Like filled={false} />
+            <h1 className='mb-0'>{appName}</h1>
+        </div>
