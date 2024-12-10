@@ -1,18 +1,16 @@
-useEffect(() => {
-  const filteredApps = qlikTableArray.flatMap(item =>
-    item.apps.filter(app =>
-      isMatch(app.appName, searchTerm) && favorites?.some(fav => fav.name === app.appName)
-    )
-  );
-  
-  console.log("filteredApps with search and favorites match", filteredApps);
+  useEffect(() => {
+     const filteredApps = qlikTableArray.flatMap(item =>
+       item.apps.filter(app => isMatch(app.appName, searchTerm))
+     );
 
-  const exactFilteredApps = filteredApps.map(app => ({
-    ...app,
-    isFav: favorites?.some(fav => fav.name === app.appName) ?? false, 
-  }));
+    console.log("filteredApps with search and favorites match", filteredApps);
+    //Eşleşen app'ler sadece arama terimiyle tam olarak eşleşenleri alacak şekilde filtrelenir
+     const exactFilteredApps = filteredApps.filter(app =>
+      app.appName.toLowerCase().includes(searchTerm.toLowerCase())
+     );
+    
 
-  console.log("exactFilteredApps with isFav preserved:", exactFilteredApps);
-  
-  setFilteredApps(exactFilteredApps);
-}, [searchTerm, qlikTableArray, favorites]);
+
+     
+    setFilteredApps(exactFilteredApps);
+  }, [searchTerm, qlikTableArray,favorites]);
