@@ -1,85 +1,18 @@
-    const onlyAppNames = qlikTableArray
-        .flatMap(item => item.apps)
-        .filter(app => app.appName)
-        .map(app => ({
-          appName: app.appName,
-          appId: app.appId,
-          isFav: favorites ? favorites.some(fav => fav.name === app.appName) : false       
-         }));
-       console.log(onlyAppNames);
-      setFilteredApps(onlyAppNames);
+useEffect(() => {
+  const filteredApps = qlikTableArray.flatMap(item =>
+    item.apps.filter(app =>
+      isMatch(app.appName, searchTerm) && favorites?.some(fav => fav.name === app.appName)
+    )
+  );
+  
+  console.log("filteredApps with search and favorites match", filteredApps);
 
-  useEffect(() => {
-    const filteredApps = qlikTableArray.flatMap(item =>
-      item.apps.filter(app => isMatch(app.appName, searchTerm))
-    );
-    // Eşleşen app'ler sadece arama terimiyle tam olarak eşleşenleri alacak şekilde filtrelenir
-    const exactFilteredApps = filteredApps.filter(app =>
-      app.appName.toLowerCase().includes(searchTerm.toLowerCase())
-    );
-     console.log(exactFilteredApps)
-    setFilteredApps(exactFilteredApps);
-  }, [searchTerm, qlikTableArray]);
+  const exactFilteredApps = filteredApps.map(app => ({
+    ...app,
+    isFav: favorites?.some(fav => fav.name === app.appName) ?? false, 
+  }));
 
-{
-    "appName": "DataOps",
-    "appId": "e8fa3a39-2373-486b-b1d4-802cd0bb045a",
-    "sheets": [
-        {
-            "sheetName": "All Team & All Metric Summary",
-            "sheetId": "0db7ba89-38cd-4451-b6c9-6f88db319911"
-        },
-        {
-            "sheetName": "BI Usage & Capacity",
-            "sheetId": "6e275d48-4eaf-4c82-b03a-be0f845dd6ee"
-        },
-        {
-            "sheetName": "Data Governance",
-            "sheetId": "b44d0713-c2d3-4dff-a729-16f23ea18a2b"
-        },
-        {
-            "sheetName": "Data Governance Detail",
-            "sheetId": "6764e4cd-7e84-459b-a732-eed2b0b7641b"
-        },
-        {
-            "sheetName": "DataOps Summary - Main Page",
-            "sheetId": "6cdf41e6-a346-493c-9400-9eccbf7b78cc"
-        },
-        {
-            "sheetName": "Development & Automation",
-            "sheetId": "23758777-65c7-4178-b010-34e8e6b0ef08"
-        },
-        {
-            "sheetName": "Development & Automation Details",
-            "sheetId": "c41b70d7-5523-4edf-b52d-506d8fd99e6a"
-        },
-        {
-            "sheetName": "DevSecOps",
-            "sheetId": "7c36a903-bad9-401c-81c1-a44d87020bf7"
-        },
-        {
-            "sheetName": "Informative Metrics",
-            "sheetId": "8ba11c87-efbf-4544-92ac-4bc31bed71e9"
-        },
-        {
-            "sheetName": "Informative: Orphan Adetleri",
-            "sheetId": "fc9d3684-fec8-4159-8366-a28fae4096fa"
-        },
-        {
-            "sheetName": "Pipeline Health",
-            "sheetId": "40440eb4-228e-42a1-b75b-376b0a72fe89"
-        },
-        {
-            "sheetName": "Pipeline Health Details",
-            "sheetId": "269b1449-98d0-4e4e-9d10-ce0faf922fa2"
-        },
-        {
-            "sheetName": "Usage & Capacity",
-            "sheetId": "2ea214a6-2263-4a69-8a4f-88373789c8cb"
-        },
-        {
-            "sheetName": "Usage & Capacity Details",
-            "sheetId": "a2e19818-2857-4bae-941b-9e29752da646"
-        }
-    ]
-}
+  console.log("exactFilteredApps with isFav preserved:", exactFilteredApps);
+  
+  setFilteredApps(exactFilteredApps);
+}, [searchTerm, qlikTableArray, favorites]);
