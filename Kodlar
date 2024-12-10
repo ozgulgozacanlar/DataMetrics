@@ -1,5 +1,7 @@
-   <div className="header-title">
-          <div className="fav-icon"><Favorite filled={false} /></div>
-           
+<div className="header-title">
             <h1 className='mb-0'>{appName}</h1>
+            <div className="fav-icon" onClick={(e) => {
+          e.stopPropagation(); 
+          handleAddFavorite();
+         }}><Favorite filled={favStatus} /> <span>Favorilere Ekle</span></div>
         </div>
