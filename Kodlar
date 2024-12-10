@@ -1,20 +1,52 @@
-useEffect(() => {
-  const filteredApps = qlikTableArray.flatMap(item =>
-    item.apps.filter(app =>
-      isMatch(app.appName, searchTerm) &&
-      app.appName.toLowerCase().includes(searchTerm.toLowerCase()) // Tam eşleşme ve arama için bu kontrolü koruyoruz.
-    )
-  );
+export default function StreamCard({ title, svg , id , cardType ,color , isFav}) {
 
-  console.log("filteredApps with search term match", filteredApps);
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
+  const [favStatus, setFavStatus] = useState(isFav);
 
-  // Burada favorites durumunu `isFav` olarak ekliyoruz
-  const exactFilteredApps = filteredApps.map(app => ({
-    ...app,
-    isFav: favorites?.some(fav => fav.name === app.appName) ?? false, // Eğer favorilerde varsa `true`, yoksa `false`
-  }));
-
-  console.log("exactFilteredApps with `isFav` status:", exactFilteredApps);
-
-  setFilteredApps(exactFilteredApps);
-}, [searchTerm, qlikTableArray, favorites]);
+  const handleClickStream = (id) => {
+    if(cardType == "stream"){
+      dispatch(setSelectedStreamId(id));
+      sessionStorage.setItem("lastSelectedStreamId", id);
+      setTimeout(() => {
+        navigate("apps");
+      }, 250);
+    }
+    else{
+      //Eğer stream seçilmeden app seçilmişse seçilen app'in bağlı olduğu stream bulunup kaydedilir.
+      getAppById(id).then((appArr) => {
+        if (appArr) {
+         dispatch(setSelectedStreamId(appArr.stream.id));
+         sessionStorage.setItem("lastSelectedStreamId", appArr.stream.id);
+        }
+      })
+      dispatch(setSelectedAppId(id));
+      
+      sessionStorage.setItem("lastSelectedAppId", id);
+      setTimeout(() => {
+        navigate("sheets");
+      }, 250);
+    }
+  };
+  const handleAddFavorite = async (id,favStatus) => {
+    console.log("Butona tıklandı, id:", id);
+    await toggleFavorites(id, favStatus);
+    setFavStatus(!favStatus);
+    // Buton için işlemler burada yapılabilir.
+  }
+  
+  return (
+ 
+    <div className="inner-card" onClick={() => handleClickStream(id)}>
+    {cardType === "app" && (
+      <div 
+        className="fav-icon" 
+        onClick={(e) => {
+          e.stopPropagation(); 
+          handleAddFavorite(id,isFav);
+        }}
+      >
+        <Like filled={favStatus} />
+      </div>
+    )}
+    <div className="inner-icon" style={{ backgroundColor: color }}>
