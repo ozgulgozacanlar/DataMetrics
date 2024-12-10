@@ -1,7 +1,21 @@
 <div className="header-title">
-            <h1 className='mb-0'>{appName}</h1>
-            <div className="fav-icon" onClick={(e) => {
-          e.stopPropagation(); 
+  {pageName === 'apps' ? (
+    // Eğer pageName 'apps' ise yalnızca streamName göster
+    <h1 className="mb-0">{streamName}</h1>
+  ) : (
+    // Diğer durumlarda appName ve favori simgesi göster
+    <>
+      <h1 className="mb-0">{appName}</h1>
+      <div
+        className="fav-icon"
+        onClick={(e) => {
+          e.stopPropagation();
           handleAddFavorite();
-         }}><Favorite filled={favStatus} /> <span>Favorilere Ekle</span></div>
-        </div>
+        }}
+      >
+        <Favorite filled={favStatus} />
+        <span>Favorilere Ekle</span>
+      </div>
+    </>
+  )}
+</div>
