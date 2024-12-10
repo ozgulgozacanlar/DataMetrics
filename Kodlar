@@ -1,36 +1,10 @@
- <div className="card-wrapper mini">
-                          {filteredApps.map((app, appIndex) => (
-                            <StreamCard key={appIndex} title={renderHighlightedText(app.appName, searchTerm)} svg={getRandomIcon()} id={app.appId} cardType={"app"} color={getRandomColor()} />
-                          ))}
-                        </div>
-<div className="card-wrapper mini">
-  <button className="mini-btn">+</button>
-  {filteredApps.map((app, appIndex) => (
-    <StreamCard 
-      key={appIndex} 
-      title={renderHighlightedText(app.appName, searchTerm)} 
-      svg={getRandomIcon()} 
-      id={app.appId} 
-      cardType={"app"} 
-      color={getRandomColor()} 
-    />
-  ))}
-</div>
-.card-wrapper.mini {
-  position: relative; /* Butonu sağ üst köşeye konumlandırmak için bu alanı referans alıyoruz */
-}
-
-.mini-btn {
-  position: absolute; /* Sağ üst köşeye sabitlemek için absolute kullanılır */
-  top: 5px;           /* Yukarıdan 5px boşluk */
-  right: 5px;         /* Sağdan 5px boşluk */
-  background-color: #007bff; /* Buton rengi */
-  color: white;       /* Yazı rengi */
-  border: none;       /* Kenar boşluğu kaldırıldı */
-  padding: 5px 8px;   /* Butonun iç boşlukları */
-  border-radius: 4px; /* Buton köşeleri */
-  cursor: pointer;    /* Buton üzerine gelindiğinde imleç değişimi */
-}
-.mini-btn:hover {
-  background-color: #0056b3; /* Hover durumunda farklı bir arka plan */
-}
+  <div className="inner-card" onClick={() => handleClickStream(id)}>
+      <div className="inner-icon" style={{ backgroundColor: color }}>
+        {svg}
+      </div>
+      <div className="inner-card-title">
+        <span title={title}>
+          {title}
+        </span>
+      </div>
+    </div>  
