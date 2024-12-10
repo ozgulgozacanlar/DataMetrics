@@ -1,11 +1,145 @@
- const onlyAppNames = qlikTableArray
-      .flatMap(item => item.apps)
-      .filter(app => app.appName)
-      .map(app => ({
-        appName: app.appName,
-        appId: app.appId,
-        isFav: favoriteArray.includes(app.appName) // Favori olup olmadığını kontrol ediyoruz
-      }));
+ useEffect(() => {
+    dispatch(setName('home'));
+    dispatch(setIframeData(null));
+    sessionStorage.removeItem("lastSelectedAppId");
+    sessionStorage.removeItem("lastSelectedStreamId");
+
+    if (!app) {
+      openApp(import.meta.env.VITE_APP_APP1)
+        .then((_app) => {
+          setApp(_app);
+        })
+        .catch((error) => {
+          console.error('Uygulama başlatma hatası:', error);
+        });
+    } else {
+      setLoading(true);
+      getObjectData(app, 'jpmS')
+        .then((data) => {
+          setData(data);
+
+        })
+        .catch((error) => {
+          console.error('Tablo verisi alma hatası:', error);
+        });
+
+      //Sık kullanılanlar tablo datası
+      getObjectData(app, 'bZjSh')
+        .then((data) => {
+          setFrequentlyUsingData(data);
+
+        //*** favorite card işlemleri start ***
+        getFavorites().then(async (favArr) => {
+          console.log("HOME PAGE GET FAVORITES APP : " + favArr)
+
+          const favoriteArray = [];
+          for (const favId of favArr) {
+            const appArr = await getAppById(favId);
+            if (appArr) {
+              favoriteArray.push({
+                name: appArr.name,
+                publishTime: appArr.publishTime,
+                thunmnail: appArr.thumbnail,
+                description: appArr.description,
+                favStatus: true,
+                id: appArr.id
+              });
+            }
+          }
+          setFavorites(favoriteArray);
+        }).catch((error) => {
+          console.error('Favori data hatası:', error);
+        });
+        //*** favorite card işlemleri end ***
+
+        })
+        .catch((error) => {
+          console.error('Tablo verisi alma hatası:', error);
+        });
+
+    }
+  }, [dispatch, app])
+
+  useEffect(() => {
+    if (data) {
+      const streamMap = {};
+      data.forEach(group => {
+        const streamName = group[0].qText; // İlk elemanın qText değeri  (streamName)
+        const streamId = group[1].qText; // 2. elemanın qText değeri  (streamId)
+        const appName = group[2].qText; // 3. elemanın qText değeri  (appName)
+        const appId = group[3].qText; // 4. elemanın qText değeri (appId)
+        const sheetName = group[4].qText; // 5. elemanın qText değeri (sheetName)
+        const sheetId = group[5].qText; // 6. elemanın qText değeri (sheetId)
+
+        const sheet = {
+          sheetName: sheetName,
+          sheetId: sheetId
+        };
+        // Eğer streamName daha önce eklenmemişse
+        if (!streamMap[streamName]) {
+          // Yeni bir kayıt oluştur
+          streamMap[streamName] = {
+            streamName,
+            streamId,
+            apps: [{
+              appName,
+              appId,
+              sheets: [sheet]
+            }],
+            allSheets: [sheet]
+          };
+          qlikTableArray.push(streamMap[streamName]);
+        } else {
+          // Eğer appName yoksa ekle
+          const existingApp = streamMap[streamName].apps.find(app => app.appName === appName);
+          if (!existingApp) {
+            streamMap[streamName].apps.push({
+              appName,
+              appId,
+              sheets: [sheet] // Yeni app için ilk sheet'i ekle
+            });
+          }
+          else {
+            // Eğer app mevcutsa, sheets'i kontrol et ve yeni sheet'i ekle
+            existingApp.sheets.push(sheet);
+          }
+        }
+        // Tüm Sheet'leri ekle
+        const existingSheet = streamMap[streamName].allSheets.find(s => s.sheetName === sheet.sheetName);
+        if (!existingSheet) {
+          streamMap[streamName].allSheets.push(sheet);
+        }
+        else {
+          // Eğer sheetName mevcutsa, sheet Id aynı mı diye kontrol edilir       
+          if (existingSheet.sheetId !== sheetId) {
+            streamMap[streamName].allSheets.push(sheet);
+          }
+        }
+
+      });
+      setQlikTableArray(qlikTableArray);
+      dispatch(setDataArray(qlikTableArray));
+      // console.log(qlikTableArray)
+      console.log(favorites)
+      setFilteredStreams(qlikTableArray);
+      // const onlyAppNames = qlikTableArray
+      //   .flatMap(item => item.apps) // Tüm apps dizilerini tek bir dizi haline getir
+      //   .filter(app => app.appName) // appName olanları filtrele
+      //   .map(app => ({ appName: app.appName, appId: app.appId })); // Sadece appName değerlerini al
+
+        const onlyAppNames = qlikTableArray
+        .flatMap(item => item.apps)
+        .filter(app => app.appName)
+        .map(app => ({
+          appName: app.appName,
+          appId: app.appId,
+          isFav: favorites.includes(app.appName) // Favori olup olmadığını kontrol ediyoruz
+        }));
+       console.log(onlyAppNames);
+      setFilteredApps(onlyAppNames);
+      setLoading(false);
+    }
+  }, [data]);
 
  <StreamCard 
           key={appIndex} 
