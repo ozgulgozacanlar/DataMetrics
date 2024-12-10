@@ -1,14 +1,22 @@
-{filteredApps.map((app, appIndex) => {
-  console.log("Filtered app:", app);
-  return (
-    <StreamCard 
-      key={appIndex} 
-      title={renderHighlightedText(app.appName, searchTerm)} 
-      svg={getRandomIcon()} 
-      id={app.appId} 
-      cardType={"app"} 
-      color={getRandomColor()} 
-      isFav={app.isFav} 
-    />
-  );
-})}
+    const onlyAppNames = qlikTableArray
+        .flatMap(item => item.apps)
+        .filter(app => app.appName)
+        .map(app => ({
+          appName: app.appName,
+          appId: app.appId,
+          isFav: favorites ? favorites.some(fav => fav.name === app.appName) : false       
+         }));
+       console.log(onlyAppNames);
+      setFilteredApps(onlyAppNames);
+
+  useEffect(() => {
+    const filteredApps = qlikTableArray.flatMap(item =>
+      item.apps.filter(app => isMatch(app.appName, searchTerm))
+    );
+    // Eşleşen app'ler sadece arama terimiyle tam olarak eşleşenleri alacak şekilde filtrelenir
+    const exactFilteredApps = filteredApps.filter(app =>
+      app.appName.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+     console.log(exactFilteredApps)
+    setFilteredApps(exactFilteredApps);
+  }, [searchTerm, qlikTableArray]);
