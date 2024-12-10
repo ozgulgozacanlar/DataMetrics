@@ -1,31 +1,15 @@
-.inner-card {
-  position: relative; /* Bu alanı konumlandırmak için referans alıyoruz */
-  padding: 10px; /* Opsiyonel: Görsel düzenleme */
-  border: 1px solid #ddd; /* Opsiyonel */
-  border-radius: 4px; /* Görsel köşe yuvarlaklığı */
-  cursor: pointer;
-}
-
-.inner-card-btn {
-  position: absolute; /* Sağ üst köşeye konumlandır */
-  top: 5px;           /* Yukarıdan 5px */
-  right: 5px;         /* Sağdan 5px */
-  background-color: #007bff; /* Butonun rengi */
-  color: white;
-  border: none;
-  padding: 4px 8px;
-  border-radius: 50%;
-  cursor: pointer;
-  font-size: 14px;
-}
-
-.inner-card-btn:hover {
-  background-color: #0056b3;
-}
 <div className="inner-card" onClick={() => handleClickStream(id)}>
-  <button className="inner-card-btn" onClick={(e) => { e.stopPropagation(); handleButtonClick(id); }}>
-    +
-  </button>
+  {cardType === "app" && (
+    <button 
+      className="inner-card-btn" 
+      onClick={(e) => { 
+        e.stopPropagation(); 
+        handleButtonClick(id); 
+      }}
+    >
+      +
+    </button>
+  )}
   <div className="inner-icon" style={{ backgroundColor: color }}>
     {svg}
   </div>
@@ -35,11 +19,3 @@
     </span>
   </div>
 </div>
-function handleButtonClick(id) {
-  console.log("Butona tıklandı, id:", id);
-  // Buton için işlemler burada yapılabilir.
-}
-
-function handleClickStream(id) {
-  console.log("Card tıklandı, id:", id);
-}
