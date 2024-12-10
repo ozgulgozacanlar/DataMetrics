@@ -1,44 +1,83 @@
-<div className="inner-card" onClick={() => handleClickStream(id)}>
-  {cardType === "app" && (
-    <button 
-      className="inner-card-btn" 
-      onClick={(e) => { 
-        e.stopPropagation(); 
-        handleButtonClick(id); 
-      }}
-    >
-      +
-    </button>
-  )}
-  <div className="inner-icon" style={{ backgroundColor: color }}>
-    {svg}
-  </div>
-  <div className="inner-card-title">
-    <span title={title}>
-      {title}
-    </span>
-  </div>
-</div>
+   filteredApps.length > 0 && (
+                      <div className='mt-2'>
+                        <div className="inner-title">Apps</div>
+                        <div className="card-wrapper mini">
+                          {filteredApps.map((app, appIndex) => (
+                            <StreamCard key={appIndex} title={renderHighlightedText(app.appName, searchTerm)} svg={getRandomIcon()} id={app.appId} cardType={"app"} color={getRandomColor()} />
+                          ))}
+                        </div>
+                      </div>
+                    )}
 
-<div className="inner-card" onClick={() => handleClickStream(id)}>
-  {cardType === "app" && (
-    <div 
-      className="inner-card-btn fav-icon" 
-      onClick={(e) => {
-        e.stopPropagation(); 
-        handleAddFavorite(id);
-      }}
-    >
-      <Like filled={isFav} />
-    </div>
-  )}
-  <div className="inner-icon" style={{ backgroundColor: color }}>
-    {svg}
-  </div>
-  <div className="inner-card-title">
-    <span title={title}>
-      {title}
-    </span>
-  </div>
-</div>
+ useEffect(() => {
+    if (data) {
+      const streamMap = {};
+      data.forEach(group => {
+        const streamName = group[0].qText; // İlk elemanın qText değeri  (streamName)
+        const streamId = group[1].qText; // 2. elemanın qText değeri  (streamId)
+        const appName = group[2].qText; // 3. elemanın qText değeri  (appName)
+        const appId = group[3].qText; // 4. elemanın qText değeri (appId)
+        const sheetName = group[4].qText; // 5. elemanın qText değeri (sheetName)
+        const sheetId = group[5].qText; // 6. elemanın qText değeri (sheetId)
 
+        const sheet = {
+          sheetName: sheetName,
+          sheetId: sheetId
+        };
+        // Eğer streamName daha önce eklenmemişse
+        if (!streamMap[streamName]) {
+          // Yeni bir kayıt oluştur
+          streamMap[streamName] = {
+            streamName,
+            streamId,
+            apps: [{
+              appName,
+              appId,
+              sheets: [sheet]
+            }],
+            allSheets: [sheet]
+          };
+          qlikTableArray.push(streamMap[streamName]);
+        } else {
+          // Eğer appName yoksa ekle
+          const existingApp = streamMap[streamName].apps.find(app => app.appName === appName);
+          if (!existingApp) {
+            streamMap[streamName].apps.push({
+              appName,
+              appId,
+              sheets: [sheet] // Yeni app için ilk sheet'i ekle
+            });
+          }
+          else {
+            // Eğer app mevcutsa, sheets'i kontrol et ve yeni sheet'i ekle
+            existingApp.sheets.push(sheet);
+          }
+        }
+        // Tüm Sheet'leri ekle
+        const existingSheet = streamMap[streamName].allSheets.find(s => s.sheetName === sheet.sheetName);
+        if (!existingSheet) {
+          streamMap[streamName].allSheets.push(sheet);
+        }
+        else {
+          // Eğer sheetName mevcutsa, sheet Id aynı mı diye kontrol edilir       
+          if (existingSheet.sheetId !== sheetId) {
+            streamMap[streamName].allSheets.push(sheet);
+          }
+        }
+
+      });
+      setQlikTableArray(qlikTableArray);
+      dispatch(setDataArray(qlikTableArray));
+      // console.log(qlikTableArray)
+
+      setFilteredStreams(qlikTableArray);
+      const onlyAppNames = qlikTableArray
+        .flatMap(item => item.apps) // Tüm apps dizilerini tek bir dizi haline getir
+        .filter(app => app.appName) // appName olanları filtrele
+        .map(app => ({ appName: app.appName, appId: app.appId })); // Sadece appName değerlerini al
+
+      //  console.log(onlyAppNames);
+      setFilteredApps(onlyAppNames);
+      setLoading(false);
+    }
+  }, [data]);
