@@ -81,3 +81,23 @@
       setLoading(false);
     }
   }, [data]);
+
+   getFavorites().then(async (favArr) => {
+          console.log("HOME PAGE GET FAVORITES APP : " + favArr)
+
+          const favoriteArray = [];
+          for (const favId of favArr) {
+            const appArr = await getAppById(favId);
+            if (appArr) {
+              favoriteArray.push({
+                name: appArr.name,
+                publishTime: appArr.publishTime,
+                thunmnail: appArr.thumbnail,
+                description: appArr.description,
+                favStatus: true,
+                id: appArr.id
+              });
+            }
+          }
+          setFavorites(favoriteArray);
+        }
