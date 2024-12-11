@@ -1,10 +1,62 @@
-<div class="dropdown">
-  <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-    Dropdown button
-  </button>
-  <ul class="dropdown-menu">
-    <li><a class="dropdown-item" href="#">Action</a></li>
-    <li><a class="dropdown-item" href="#">Another action</a></li>
-    <li><a class="dropdown-item" href="#">Something else here</a></li>
-  </ul>
-</div>
+
+export default function App() {
+
+  return (
+    <Provider store={store}>
+      <div className="d-flex">
+        <HashRouter>
+          <SideBar />
+          <div className="content-wrapper">
+            <NavBar />
+            <div className="main-wrapper">
+              <Routes>
+                <Route exact path="/" element={<Home />} />
+                <Route path="/home" element={<Home />} />
+                <Route path="/apps" element={<AppsPage />} />
+                <Route path="/sheets" element={<SheetsPage />} />
+                <Route path="/favorites" element={<FavoritesPage />} />
+                <Route path="/bookmarks" element={<BookMarksPage />} />
+
+              </Routes>
+            </div>
+          </div>
+        </HashRouter>
+      </div>
+    </Provider>
+  );
+}
+
+export default function UserCircle({ user }) {
+
+  const navigate = useNavigate();
+
+  const handleNavigation = (pagename) =>{
+
+    if(pagename == "Favorites"){
+      navigate('/favorites')
+    }
+    else{
+      navigate('/bookmarks')
+    }
+   
+  }
+
+  return (
+    <div class="dropdown">
+    <button class="user-circle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+      {user}
+    </button>
+    <ul class="dropdown-menu">
+      <li><a class="dropdown-item" href="#" onClick={(e) => {
+        e.preventDefault();
+        handleNavigation("Favorites");
+      }}>Favoriler</a></li>
+      <li><a class="dropdown-item" href="#" onClick={(e) => {
+        e.preventDefault();
+        handleNavigation("Bookmarks");
+      }}>Sık Kullanılanlar</a></li>
+    </ul>
+  </div>
+    
+  );
+}
