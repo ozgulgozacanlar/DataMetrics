@@ -1,95 +1,61 @@
-async function loadFavorites() {
-  try {
-    addMenuItem("Favoriler", SVG.Apps, "");
-    
-    const favArr = await getFavorites();
-    const favoriteArray = [];
-    
-    for (const favId of favArr) {
-      const appArr = await getAppById(favId);
-      if (appArr) {
-        favoriteArray.push({
-          name: appArr.name,
-          publishTime: appArr.publishTime,
-          thumbnail: appArr.thumbnail,
-          description: appArr.description,
-          favStatus: true,
-          id: appArr.id
+  useEffect(() => {
+    setLoading(true);
+    dispatch(setName('bookmarks'));
+
+    if (!app) {
+      openApp(import.meta.env.VITE_APP_APP1)
+        .then((_app) => {
+          setApp(_app);
+        })
+        .catch((error) => {
+          console.error('Uygulama başlatma hatası:', error);
         });
-      }
+    } else {
+      //Sık kullanılanlar tablo datası
+      getObjectData(app, 'bZjSh')
+        .then((data) => {
+          setBookmarks(data);
+        })
+        .catch((error) => {
+          console.error('Tablo verisi alma hatası:', error);
+        });
     }
 
-    favoriteArray.forEach(app => {
-      addSubMenuItem("Favoriler", app.name, app.id);
-    });
-  } catch (error) {
-    console.error('Favori işlemleri sırasında hata:', error);
-  }
-}
+  }, []);
+  useEffect(() => {
+    console.log("deneme")
+    //*** Sık Kullanılanlar tablo data düzenlemesi start ***
+    if (bookmarks) {
+      console.log(bookmarks)
+      var frequentlyUsingArray = [];
+      setFrequentlyUsingApps([]);
+      bookmarks.forEach(group => {
+        const appId = group[2].qText; // 3. elemanın qText değeri (appId)
+        var obj = { name: "", publishTime: "", thunmnail: "", description: "", id: "" };
+        getAppById(appId).then((appArr) => {
+          if (appArr) {
+            obj.name = appArr.name;
+            obj.publishTime = appArr.publishTime;
+            obj.thunmnail = appArr.thumbnail;
+            obj.description = appArr.description;
+            obj.id = appArr.id;
+            frequentlyUsingArray.push(obj);
+            setFrequentlyUsingApps((prevData) => {
+              const filteredData = frequentlyUsingArray.filter(item =>
+                !prevData.some(prev => prev.name === item.name)
+              );
+              return [...prevData, ...filteredData]
+            });
+            obj = { name: "", publishTime: "", thunmnail: "", description: "" };
 
-async function handleAppInitialization(appName) {
-  try {
-    const _app = await openApp(appName);
-    const data = await getObjectData(_app, 'jpmS');
-    
-    if (data) {
-      const qlikTableArray = [];
-      const streamMap = {};
-
-      for (const group of data) {
-        const streamName = group[0].qText;
-        const streamId = group[1].qText;
-        const appName = group[2].qText;
-        const appId = group[3].qText;
-        const sheetName = group[4].qText;
-        const sheetId = group[5].qText;
-
-        const sheet = { sheetName, sheetId };
-        
-        if (!streamMap[streamName]) {
-          addMenuItem(streamName, SVG.Apps, streamId);
-          streamMap[streamName] = {
-            streamName,
-            streamId,
-            apps: [{ appName, appId }],
-            sheets: [sheet]
-          };
-          qlikTableArray.push(streamMap[streamName]);
-          addSubMenuItem(streamName, appName, appId);
-        } else {
-          const existingApp = streamMap[streamName].apps.find(app => app.appName === appName);
-          if (!existingApp) {
-            addSubMenuItem(streamName, appName, appId);
-            streamMap[streamName].apps.push({ appName, appId });
           }
+          console.log(frequentlyUsingArray)
 
-          const existingSheet = streamMap[streamName].sheets.find(s => s.sheetName === sheet.sheetName);
-          if (!existingSheet) {
-            streamMap[streamName].sheets.push(sheet);
-          }
-        }
-      }
-
-      addMenuItem("Useful Links", SVG.Apps, "");
-      usefulLinks.forEach(link => {
-        addSubMenuItem("Useful Links", link.name, link.id);
+        })
       });
+      
     }
+    setLoading(false);
+    //*** Sık Kullanılanlar tablo data düzenlemesi end ***
 
-    const tableData = await getObjectData(_app, 'bZjSh');
-    console.log(tableData);
-
-  } catch (error) {
-    console.error('App işlemleri sırasında hata:', error);
-  }
-}
-
-async function initializeApp() {
-  if (appName) {
-    await loadFavorites();
-    await handleAppInitialization(appName);
-  }
-}
-
-// Uygulama yüklenmesi sırasında bu işlemleri başlat.
-initializeApp();
+  }, [bookmarks]);
