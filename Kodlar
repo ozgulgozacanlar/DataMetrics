@@ -1,101 +1,28 @@
+  const toggleSubMenu = (id) => {
+    console.log(activeMenuId)
+    console.log(id)
+    if (activeMenuId === id) {
+      console.log("asdsd")
+      // Eğer zaten açık olan menü tıklanmışsa, kapat
+      setIsOpen(false);
+      setActiveMenuId(null);
+    } else {
+      console.log("rtrtr")
 
-async function handleAppInitialization(appName) {
-  try {
-    const _app = await openApp(appName);
-    const data = await getObjectData(_app, 'jpmS');
-    const bookmarkData = await getObjectData(_app, 'bZjSh');
-    console.log(bookmarkData)
-  
-    if(bookmarkData){
-      addMenuItem("Sık Kullanılanlar", SVG.Apps, "");
-  
-      bookmarkData.forEach(bookmark => {
-        addSubMenuItem("Sık Kullanılanlar", bookmark[1].qText, bookmark[2].qText);
-      });
+      // Yeni bir menü tıklanmışsa, açık olanları kapat
+      setIsOpen(true);
+      setActiveMenuId(id);
     }
-    if (data) {
-      const qlikTableArray = [];
-      const streamMap = {};
-
-      for (const group of data) {
-        const streamName = group[0].qText;
-        const streamId = group[1].qText;
-        const appName = group[2].qText;
-        const appId = group[3].qText;
-        const sheetName = group[4].qText;
-        const sheetId = group[5].qText;
-
-        const sheet = { sheetName, sheetId };
-        
-        if (!streamMap[streamName]) {
-          addMenuItem(streamName, SVG.Apps, streamId);
-          streamMap[streamName] = {
-            streamName,
-            streamId,
-            apps: [{ appName, appId }],
-            sheets: [sheet]
-          };
-          qlikTableArray.push(streamMap[streamName]);
-          addSubMenuItem(streamName, appName, appId);
-        } else {
-          const existingApp = streamMap[streamName].apps.find(app => app.appName === appName);
-          if (!existingApp) {
-            addSubMenuItem(streamName, appName, appId);
-            streamMap[streamName].apps.push({ appName, appId });
-          }
-
-          const existingSheet = streamMap[streamName].sheets.find(s => s.sheetName === sheet.sheetName);
-          if (!existingSheet) {
-            streamMap[streamName].sheets.push(sheet);
-          }
-        }
-      }
-
-      addMenuItem("Useful Links", SVG.Apps, "");
-      usefulLinks.forEach(link => {
-        addSubMenuItem("Useful Links", link.name, link.id);
-      });
-    }
-
-  
-
-  } catch (error) {
-    console.error('App işlemleri sırasında hata:', error);
-  }
-}
-
-async function initializeApp() {
-  if (appName) {
-    await loadFavorites();
-    await handleAppInitialization(appName);
-  }
-}
-initializeApp();
-async function loadFavorites() {
-  try {
-    
-    const favArr = await getFavorites();
-    const favoriteArray = [];
-    
-    for (const favId of favArr) {
-      const appArr = await getAppById(favId);
-      if (appArr) {
-        favoriteArray.push({
-          name: appArr.name,
-          publishTime: appArr.publishTime,
-          thumbnail: appArr.thumbnail,
-          description: appArr.description,
-          favStatus: true,
-          id: appArr.id
-        });
-      }
-    }
-    addMenuItem("Favoriler", SVG.Apps, "");
-
-    favoriteArray.forEach(app => {
-      addSubMenuItem("Favoriler", app.name, app.id);
-    });
-  } catch (error) {
-    console.error('Favori işlemleri sırasında hata:', error);
-  }
-}
+  };
+  const handleClickMenu = (streamId) => {
+    sessionStorage.setItem("lastSelectedStreamId",streamId);
+    sessionStorage.setItem("lastSelectedAppId",null);
+    dispatch(setSelectedStreamId(streamId));
+    dispatch(setSelectedAppId(null));
+    dispatch(setIframeData(null));
+    setTimeout(() => {
+      navigate("apps");
+    }, 250);
+  };
+  // Menü öğesi sınıfı, alt menü açık olduğunda "active" sınıfını ekler
+  const menuItemClass = `menu-item ${isOpen ? 'active' : ''}`;
