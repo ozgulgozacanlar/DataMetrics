@@ -1,10 +1,23 @@
+useEffect(() => {
     getFavorites().then(async (favArr) => {
-      for (const favId of favArr) {
-          console.log(favId)
-          console.log(datas.selectedAppId)
+      if(favArr.includes(datas.selectedAppId)){
+        console.log("Burada")
+        setFavStatus(true);
       }
+    
     }).catch((error) => {
       console.error('Favori data hatası:', error);
     });
   
   }, [datas])
+
+
+export default function NavBar() {
+
+  const datas = useSelector((state) => state.data);
+  const [user, setUser] = useState();
+  const [streamName, setStreamName] = useState("");
+  const [appName, setAppName] = useState("");
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
+  const [favStatus, setFavStatus] = useState(false);
