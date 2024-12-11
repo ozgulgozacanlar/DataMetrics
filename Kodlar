@@ -1,39 +1,9 @@
-import * as SVG from '@/assets/svg';
-import * as Pages from '@/pages';
-import { openApp, getObjectData } from '@/util/qlikConnection';
-import.meta;
-import { getFavorites, getAppById } from './qlikApi';
-
-export var menuContext = [];
-// Bu fonksiyon, menü verilerinden routeları çıkartır ve dizi olarak döndürür.
-function extractRoutes(data) {
-  const routes = [];
-
-  data.forEach((item) => {
-    // Eğer öğenin bir route varsa, route'u diziye ekler.
-    if (item.route) {
-      routes.push({ route: item.route, routeText: item.routeText });
-    }
-
-    // Eğer öğenin alt öğeleri (subNodes) varsa, bu alt öğeleri de tarar ve rotalara ekler.
-    if (item.subNodes) {
-      routes.push(...extractRoutes(item.subNodes));
-    }
-  });
-
-  return routes;
-}
-
-// Menü öğeleri ve route'larını içeren bir context oluşturulur.
-const appName = import.meta.env.VITE_APP_APP1;
-
 if (appName) {
 
   addMenuItem("Favoriler", SVG.Apps, "");
   //*** favorite card işlemleri start ***
   getFavorites().then(async (favArr) => {
     // console.log("HOME PAGE GET FAVORITES APP : " + favArr)
-
     const favoriteArray = [];
     for (const favId of favArr) {
       const appArr = await getAppById(favId);
@@ -49,7 +19,6 @@ if (appName) {
       }
     }
     favoriteArray.forEach(app => {
-      console.log(app)
       addSubMenuItem("Favoriler", app.name, app.id);
     });
   }).catch((error) => {
@@ -116,47 +85,16 @@ if (appName) {
         .catch((error) => {
           console.error('Tablo verisi alma hatası:', error);
         });
+
+        getObjectData(_app, 'bZjSh')
+        .then((data) => {
+          console.log(data)
+        })
+        .catch((error) => {
+          console.error('Tablo verisi alma hatası:', error);
+        }); 
     })
     .catch((error) => {
       console.error('Uygulama başlatma hatası:', error);
     });
 }
-
-
-// Dinamik menü ekleme fonksiyonu
-export function addMenuItem(text, svg = null, streamId, subNodes = []) {
-  
-  var menuItem = {
-    text: text,
-    svg: svg,
-    menuId: streamId,
-    subNodes: subNodes,
-  };
-  menuContext.push(menuItem);
-}
-const usefulLinks = [
-  { name: "Askgt", id: "https://askgt/questions/" },
-  { name: "Confluence", id: "https://confluence" },
-  { name: "Hyperspace", id: "https://hyperspace" },
-  { name: "Smart", id: "https://smart" },
-  { name: "Gtnet", id: "https://gtnet" },
-  { name: "Connect", id: "https://connect/" },
-];
-// Dinamik alt menü ekleme fonksiyonu
-export function addSubMenuItem(parentMenuText, text,id) {
-  var parentMenuItem = menuContext.find(item => item.text === parentMenuText);
-  
-  if (parentMenuItem) {
-    parentMenuItem.subNodes.push({
-      text: text,
-      id:id,
-      streamId: parentMenuItem.menuId,
-      subNodes: [], // Alt öğelerde şu an bir alt dizi yok
-    });
-  } else {
-    console.error('Ana menü öğesi bulunamadı:', parentMenuText);
-  }
-}
-
-// console.log(menuContext);
-export const routeArray = extractRoutes(menuContext);
