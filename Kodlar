@@ -1,20 +1,12 @@
-useEffect(() => {
-  getFavorites()
-    .then(async (favArr) => {
-      let isFavorite = false;
-
-      for (const fav of favArr) {
-        if (fav.toString().trim() === datas.selectedAppId.toString().trim()) {
-          isFavorite = true;
-          console.log("Favori bulundu, işlem sonlandırılıyor.");
-          break; // Döngüden çık
-        }
-      }
-
-      console.log("isFavorite:", isFavorite);
-      setFavStatus(isFavorite);
-    })
-    .catch((error) => {
-      console.error('Favori data hatası:', error);
-    });
-}, [datas]);
+<div class="btn-group">
+  <button type="button" class="btn btn-danger dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+    Action
+  </button>
+  <div class="dropdown-menu">
+    <a class="dropdown-item" href="#">Action</a>
+    <a class="dropdown-item" href="#">Another action</a>
+    <a class="dropdown-item" href="#">Something else here</a>
+    <div class="dropdown-divider"></div>
+    <a class="dropdown-item" href="#">Separated link</a>
+  </div>
+</div>
