@@ -1,61 +1,43 @@
-  useEffect(() => {
-    setLoading(true);
-    dispatch(setName('bookmarks'));
+useEffect(() => {
+  console.log("bookmarks güncellemesi başlatıldı");
 
-    if (!app) {
-      openApp(import.meta.env.VITE_APP_APP1)
-        .then((_app) => {
-          setApp(_app);
-        })
-        .catch((error) => {
-          console.error('Uygulama başlatma hatası:', error);
-        });
-    } else {
-      //Sık kullanılanlar tablo datası
-      getObjectData(app, 'bZjSh')
-        .then((data) => {
-          setBookmarks(data);
-        })
-        .catch((error) => {
-          console.error('Tablo verisi alma hatası:', error);
-        });
-    }
-
-  }, []);
-  useEffect(() => {
-    console.log("deneme")
-    //*** Sık Kullanılanlar tablo data düzenlemesi start ***
+  async function fetchFrequentlyUsingApps() {
     if (bookmarks) {
-      console.log(bookmarks)
-      var frequentlyUsingArray = [];
-      setFrequentlyUsingApps([]);
-      bookmarks.forEach(group => {
-        const appId = group[2].qText; // 3. elemanın qText değeri (appId)
-        var obj = { name: "", publishTime: "", thunmnail: "", description: "", id: "" };
-        getAppById(appId).then((appArr) => {
-          if (appArr) {
-            obj.name = appArr.name;
-            obj.publishTime = appArr.publishTime;
-            obj.thunmnail = appArr.thumbnail;
-            obj.description = appArr.description;
-            obj.id = appArr.id;
-            frequentlyUsingArray.push(obj);
-            setFrequentlyUsingApps((prevData) => {
-              const filteredData = frequentlyUsingArray.filter(item =>
-                !prevData.some(prev => prev.name === item.name)
-              );
-              return [...prevData, ...filteredData]
-            });
-            obj = { name: "", publishTime: "", thunmnail: "", description: "" };
+      try {
+        const frequentlyUsingArray = await Promise.all(
+          bookmarks.map(async (group) => {
+            const appId = group[2].qText; // appId al
+            const appArr = await getAppById(appId); // Asenkron veri çek
+            if (appArr) {
+              return {
+                name: appArr.name,
+                publishTime: appArr.publishTime,
+                thumbnail: appArr.thumbnail,
+                description: appArr.description,
+                id: appArr.id,
+              };
+            }
+            return null;
+          })
+        );
 
-          }
-          console.log(frequentlyUsingArray)
+        const validApps = frequentlyUsingArray.filter(app => app !== null); // Null olanları filtrele
+        setFrequentlyUsingApps((prevData) => {
+          const filteredData = validApps.filter(item =>
+            !prevData.some(prev => prev.name === item.name)
+          );
+          return [...prevData, ...filteredData];
+        });
 
-        })
-      });
-      
+      } catch (error) {
+        console.error('Asenkron işlem sırasında hata:', error);
+      } finally {
+        setLoading(false); // Burada işlemler bitince loading'i kapat
+      }
+    } else {
+      setLoading(false); // Eğer bookmarks boşsa işlemleri sonlandır
     }
-    setLoading(false);
-    //*** Sık Kullanılanlar tablo data düzenlemesi end ***
+  }
 
-  }, [bookmarks]);
+  fetchFrequentlyUsingApps();
+}, [bookmarks]);
