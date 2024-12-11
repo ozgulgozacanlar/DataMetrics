@@ -1,18 +1,162 @@
-const initialState = {
-  navClicked: false,
-  favoriteChange:0
+import * as SVG from '@/assets/svg';
+import * as Pages from '@/pages';
+import { openApp, getObjectData } from '@/util/qlikConnection';
+import.meta;
+import { getFavorites, getAppById } from './qlikApi';
 
-};
+export var menuContext = [];
+// Bu fonksiyon, menü verilerinden routeları çıkartır ve dizi olarak döndürür.
+function extractRoutes(data) {
+  const routes = [];
 
-export const navbarSlice = createSlice({
-  name: 'navbar',
-  initialState,
-  reducers: {
-    setClick: (state, action) => {
-      state.navClicked = action.payload;
-    },
-    setFavoriteChange: (state, action) => {
-      state.favoriteChange += action.payload;
+  data.forEach((item) => {
+    // Eğer öğenin bir route varsa, route'u diziye ekler.
+    if (item.route) {
+      routes.push({ route: item.route, routeText: item.routeText });
     }
-  },
-});
+
+    // Eğer öğenin alt öğeleri (subNodes) varsa, bu alt öğeleri de tarar ve rotalara ekler.
+    if (item.subNodes) {
+      routes.push(...extractRoutes(item.subNodes));
+    }
+  });
+
+  return routes;
+}
+
+// Menü öğeleri ve route'larını içeren bir context oluşturulur.
+const appName = import.meta.env.VITE_APP_APP1;
+
+if (appName) {
+
+  addMenuItem("Favoriler", SVG.Apps, "");
+  //*** favorite card işlemleri start ***
+  getFavorites().then(async (favArr) => {
+    // console.log("HOME PAGE GET FAVORITES APP : " + favArr)
+
+    const favoriteArray = [];
+    for (const favId of favArr) {
+      const appArr = await getAppById(favId);
+      if (appArr) {
+        favoriteArray.push({
+          name: appArr.name,
+          publishTime: appArr.publishTime,
+          thunmnail: appArr.thumbnail,
+          description: appArr.description,
+          favStatus: true,
+          id: appArr.id
+        });
+      }
+    }
+    favoriteArray.forEach(app => {
+      console.log(app)
+      addSubMenuItem("Favoriler", app.name, app.id);
+    });
+  }).catch((error) => {
+    console.error('Favori data hatası:', error);
+  });
+  //*** favorite card işlemleri end ***
+  openApp(appName)
+    .then((_app) => {
+      getObjectData(_app, 'jpmS')
+        .then((data) => {
+          if (data) {
+             const qlikTableArray = [];
+            // streamName'leri kontrol etmek için bir nesne
+            const streamMap = {};
+      
+            data.forEach(group => {
+              const streamName = group[0].qText; // İlk elemanın qText değeri  (streamName)
+              const streamId = group[1].qText; // İlk elemanın qText değeri  (streamId)
+              const appName = group[2].qText; // 2. elemanın qText değeri  (appName)
+              const appId = group[3].qText; // 3. elemanın qText değeri (appId)
+              const sheetName = group[4].qText; // 4. elemanın qText değeri (sheetName)
+              const sheetId = group[5].qText; // 5. elemanın qText değeri (sheetId)
+              
+              const sheet = {
+                sheetName: sheetName,
+                sheetId: sheetId
+              };
+              // Eğer streamName daha önce eklenmemişse
+              if (!streamMap[streamName]) {
+                addMenuItem(streamName, SVG.Apps, streamId);
+                // Yeni bir kayıt oluştur
+                streamMap[streamName] = {
+                  streamName,
+                  streamId,
+                  apps: [{ appName, appId }],
+                  sheets: [sheet]
+                };
+                qlikTableArray.push(streamMap[streamName]);
+                addSubMenuItem(streamName, appName ,appId);
+              } else {
+                // Eğer appName yoksa ekle
+                const existingApp = streamMap[streamName].apps.find(app => app.appName === appName);
+                if (!existingApp) {
+                  addSubMenuItem(streamName, appName,appId);
+                  streamMap[streamName].apps.push({ appName, appId });
+                }
+              }
+              // Sheet'leri ekle
+              const existingSheet = streamMap[streamName].sheets.find(s => s.sheetName === sheet.sheetName);
+              if (!existingSheet) {
+                streamMap[streamName].sheets.push(sheet);
+              }
+      
+            });
+            addMenuItem("Useful Links", SVG.Apps, "");
+            usefulLinks.forEach(link => {
+              addSubMenuItem("Useful Links", link.name, link.id);
+            });
+            
+            //console.log(menuContext);
+            // console.log(qlikTableArray);
+          }
+        })
+        .catch((error) => {
+          console.error('Tablo verisi alma hatası:', error);
+        });
+    })
+    .catch((error) => {
+      console.error('Uygulama başlatma hatası:', error);
+    });
+}
+
+
+// Dinamik menü ekleme fonksiyonu
+export function addMenuItem(text, svg = null, streamId, subNodes = []) {
+  
+  var menuItem = {
+    text: text,
+    svg: svg,
+    menuId: streamId,
+    subNodes: subNodes,
+  };
+  menuContext.push(menuItem);
+}
+const usefulLinks = [
+  { name: "Askgt", id: "https://askgt/questions/" },
+  { name: "Confluence", id: "https://confluence" },
+  { name: "Hyperspace", id: "https://hyperspace" },
+  { name: "Smart", id: "https://smart" },
+  { name: "Gtnet", id: "https://gtnet" },
+  { name: "Connect", id: "https://connect/" },
+];
+// Dinamik alt menü ekleme fonksiyonu
+export function addSubMenuItem(parentMenuText, text,id) {
+  var parentMenuItem = menuContext.find(item => item.text === parentMenuText);
+  
+  if (parentMenuItem) {
+    parentMenuItem.subNodes.push({
+      text: text,
+      id:id,
+      streamId: parentMenuItem.menuId,
+      subNodes: [], // Alt öğelerde şu an bir alt dizi yok
+    });
+  } else {
+    console.error('Ana menü öğesi bulunamadı:', parentMenuText);
+  }
+}
+
+// console.log(menuContext);
+export const routeArray = extractRoutes(menuContext);
