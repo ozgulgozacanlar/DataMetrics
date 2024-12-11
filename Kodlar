@@ -1,100 +1,95 @@
-if (appName) {
-
-  addMenuItem("Favoriler", SVG.Apps, "");
-  //*** favorite card işlemleri start ***
-  getFavorites().then(async (favArr) => {
-    // console.log("HOME PAGE GET FAVORITES APP : " + favArr)
+async function loadFavorites() {
+  try {
+    addMenuItem("Favoriler", SVG.Apps, "");
+    
+    const favArr = await getFavorites();
     const favoriteArray = [];
+    
     for (const favId of favArr) {
       const appArr = await getAppById(favId);
       if (appArr) {
         favoriteArray.push({
           name: appArr.name,
           publishTime: appArr.publishTime,
-          thunmnail: appArr.thumbnail,
+          thumbnail: appArr.thumbnail,
           description: appArr.description,
           favStatus: true,
           id: appArr.id
         });
       }
     }
+
     favoriteArray.forEach(app => {
       addSubMenuItem("Favoriler", app.name, app.id);
     });
-  }).catch((error) => {
-    console.error('Favori data hatası:', error);
-  });
-  //*** favorite card işlemleri end ***
-  openApp(appName)
-    .then((_app) => {
-      getObjectData(_app, 'jpmS')
-        .then((data) => {
-          if (data) {
-             const qlikTableArray = [];
-            // streamName'leri kontrol etmek için bir nesne
-            const streamMap = {};
-      
-            data.forEach(group => {
-              const streamName = group[0].qText; // İlk elemanın qText değeri  (streamName)
-              const streamId = group[1].qText; // İlk elemanın qText değeri  (streamId)
-              const appName = group[2].qText; // 2. elemanın qText değeri  (appName)
-              const appId = group[3].qText; // 3. elemanın qText değeri (appId)
-              const sheetName = group[4].qText; // 4. elemanın qText değeri (sheetName)
-              const sheetId = group[5].qText; // 5. elemanın qText değeri (sheetId)
-              
-              const sheet = {
-                sheetName: sheetName,
-                sheetId: sheetId
-              };
-              // Eğer streamName daha önce eklenmemişse
-              if (!streamMap[streamName]) {
-                addMenuItem(streamName, SVG.Apps, streamId);
-                // Yeni bir kayıt oluştur
-                streamMap[streamName] = {
-                  streamName,
-                  streamId,
-                  apps: [{ appName, appId }],
-                  sheets: [sheet]
-                };
-                qlikTableArray.push(streamMap[streamName]);
-                addSubMenuItem(streamName, appName ,appId);
-              } else {
-                // Eğer appName yoksa ekle
-                const existingApp = streamMap[streamName].apps.find(app => app.appName === appName);
-                if (!existingApp) {
-                  addSubMenuItem(streamName, appName,appId);
-                  streamMap[streamName].apps.push({ appName, appId });
-                }
-              }
-              // Sheet'leri ekle
-              const existingSheet = streamMap[streamName].sheets.find(s => s.sheetName === sheet.sheetName);
-              if (!existingSheet) {
-                streamMap[streamName].sheets.push(sheet);
-              }
-      
-            });
-            addMenuItem("Useful Links", SVG.Apps, "");
-            usefulLinks.forEach(link => {
-              addSubMenuItem("Useful Links", link.name, link.id);
-            });
-            
-            //console.log(menuContext);
-            // console.log(qlikTableArray);
-          }
-        })
-        .catch((error) => {
-          console.error('Tablo verisi alma hatası:', error);
-        });
-
-        getObjectData(_app, 'bZjSh')
-        .then((data) => {
-          console.log(data)
-        })
-        .catch((error) => {
-          console.error('Tablo verisi alma hatası:', error);
-        }); 
-    })
-    .catch((error) => {
-      console.error('Uygulama başlatma hatası:', error);
-    });
+  } catch (error) {
+    console.error('Favori işlemleri sırasında hata:', error);
+  }
 }
+
+async function handleAppInitialization(appName) {
+  try {
+    const _app = await openApp(appName);
+    const data = await getObjectData(_app, 'jpmS');
+    
+    if (data) {
+      const qlikTableArray = [];
+      const streamMap = {};
+
+      for (const group of data) {
+        const streamName = group[0].qText;
+        const streamId = group[1].qText;
+        const appName = group[2].qText;
+        const appId = group[3].qText;
+        const sheetName = group[4].qText;
+        const sheetId = group[5].qText;
+
+        const sheet = { sheetName, sheetId };
+        
+        if (!streamMap[streamName]) {
+          addMenuItem(streamName, SVG.Apps, streamId);
+          streamMap[streamName] = {
+            streamName,
+            streamId,
+            apps: [{ appName, appId }],
+            sheets: [sheet]
+          };
+          qlikTableArray.push(streamMap[streamName]);
+          addSubMenuItem(streamName, appName, appId);
+        } else {
+          const existingApp = streamMap[streamName].apps.find(app => app.appName === appName);
+          if (!existingApp) {
+            addSubMenuItem(streamName, appName, appId);
+            streamMap[streamName].apps.push({ appName, appId });
+          }
+
+          const existingSheet = streamMap[streamName].sheets.find(s => s.sheetName === sheet.sheetName);
+          if (!existingSheet) {
+            streamMap[streamName].sheets.push(sheet);
+          }
+        }
+      }
+
+      addMenuItem("Useful Links", SVG.Apps, "");
+      usefulLinks.forEach(link => {
+        addSubMenuItem("Useful Links", link.name, link.id);
+      });
+    }
+
+    const tableData = await getObjectData(_app, 'bZjSh');
+    console.log(tableData);
+
+  } catch (error) {
+    console.error('App işlemleri sırasında hata:', error);
+  }
+}
+
+async function initializeApp() {
+  if (appName) {
+    await loadFavorites();
+    await handleAppInitialization(appName);
+  }
+}
+
+// Uygulama yüklenmesi sırasında bu işlemleri başlat.
+initializeApp();
