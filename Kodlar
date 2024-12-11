@@ -1,98 +1,24 @@
-import { useState , useEffect} from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { setSelectedAppId, setSelectedStreamId, setIframeData } from '../../app/features/data';
-import { DownChevron } from '@/assets/svg';
-import './MenuItem.css';
-import { useDispatch, useSelector } from "react-redux";
-
-//Search barına yazılan kelime bulunan kelime içinde geçiyorsa bold olarak yazılır.
-const renderHighlightedText = (text,searchTerm) => {
-  if (!searchTerm) return text; // Eğer arama terimi yoksa orijinal metni döndür
-
-  const parts = text.split(new RegExp(`(${searchTerm})`, 'gi')); // Arama terimini metinden ayır
-  return parts.map((part, index) => 
-    part.toLowerCase() === searchTerm.toLowerCase() ? (
-      <strong className='search-selection' key={index}>{part}</strong> // Eşleşen kısmı kalın yap
-    ) : part 
-  );
-};
-// Alt menü öğesi bileşeni
-function SubMenuItem({ item , searchTerm }) {
+export default function MenuItem({ data, searchTerm, activeMenuId, setActiveMenuId }) {
   const navigate = useNavigate();
   const dispatch = useDispatch();
-  const datas = useSelector((state) => state.data);
-  const selectedAppId = datas.selectedAppId;
 
-  const handleClickSubMenu = (streamId, appId) => {
-    //Sol menüde en altta usefull links bölümü oluşturuldu. Oradaki linklere tıklandığında yan sekmede ilgili siteyi açmaktadır.
-    if(appId.includes("https")){
-      window.open(appId , '_blank');
-    }
-    else{
-      sessionStorage.setItem("lastSelectedStreamId", streamId);
-      sessionStorage.setItem("lastSelectedAppId", appId);
-      if(selectedAppId != appId){  //Sol menuden seçili app önceden seçili app ise dispatch parametreler tekrar çağırılmıyor.
-        dispatch(setIframeData(null));
-        dispatch(setSelectedAppId(appId));
-        setTimeout(() => {
-          navigate("sheets");
-        }, 250);
-      }
-      
-    }
-  };
-  
-
-  return (
-    <li>
-      {/* Eğer bir "route" belirtilmişse, bir Link kullanarak yönlendirme yap */}
-      {item.route ? <Link to={item.routeText}>{item.text}</Link> : <a onClick={() => handleClickSubMenu(item.streamId, item.id)}>{renderHighlightedText(item.text,searchTerm)}</a>}
-    </li>
-  );
-}
-
-// Alt menü bileşeni
-function SubMenu({ subNodes , searchTerm }) {
-  return (
-    <ul className="submenu-indent">
-      {subNodes.map((item, index) => (
-        // Her alt menü öğesi için SubMenuItem bileşenini kullan
-        <SubMenuItem key={index} item={item} searchTerm={searchTerm}/>
-      ))}
-    </ul>
-  );
-}
-
-// Yan menü öğesi bileşeni
-export default function MenuItem({ data , searchTerm , activeMenuId , setActiveMenuId}) {
-  const navigate = useNavigate();
-  const dispatch = useDispatch();
-  const [isOpen, setIsOpen] = useState(data.isOpen);
-
-  useEffect(() => { //Arama ile bulunan kelimeler alt menüde ise ilgili menülerin açılması için bu değişken tutuldu.
-   setIsOpen(data.isOpen)
-  }, [data]);
-  // Alt menüyü açma / kapama işlevi
-  
+  // Alt menüyü aç veya kapat
   const toggleSubMenu = (id) => {
-    console.log(activeMenuId)
-    console.log(id)
-    if (activeMenuId === id) {
-      console.log("asdsd")
-      // Eğer zaten açık olan menü tıklanmışsa, kapat
-      setIsOpen(false);
-      setActiveMenuId(null);
-    } else {
-      console.log("rtrtr")
+    console.log("Mevcut aktif menü ID:", activeMenuId);
+    console.log("Tıklanan menü ID:", id);
 
-      // Yeni bir menü tıklanmışsa, açık olanları kapat
-      setIsOpen(true);
-      setActiveMenuId(id);
+    if (activeMenuId === id) {
+      console.log("Menü kapatılıyor");
+      setActiveMenuId(null); // Aynı menü tıklandıysa kapat
+    } else {
+      console.log("Yeni menü açılıyor");
+      setActiveMenuId(id); // Yeni menü aktif yap
     }
   };
+
   const handleClickMenu = (streamId) => {
-    sessionStorage.setItem("lastSelectedStreamId",streamId);
-    sessionStorage.setItem("lastSelectedAppId",null);
+    sessionStorage.setItem("lastSelectedStreamId", streamId);
+    sessionStorage.setItem("lastSelectedAppId", null);
     dispatch(setSelectedStreamId(streamId));
     dispatch(setSelectedAppId(null));
     dispatch(setIframeData(null));
@@ -100,40 +26,44 @@ export default function MenuItem({ data , searchTerm , activeMenuId , setActiveM
       navigate("apps");
     }, 250);
   };
-  // Menü öğesi sınıfı, alt menü açık olduğunda "active" sınıfını ekler
-  const menuItemClass = `menu-item ${isOpen && activeMenuId ? 'active' : ''}`;
+
+  // Menü öğesi aktiflik sınıfı sadece aktif alt menü için olacak
+  const menuItemClass = activeMenuId === data.menuId ? "menu-item active" : "menu-item";
 
   return (
     <li className={menuItemClass}>
       {data.route ? (
-        // Eğer bir "route" belirtilmişse, bir Link kullanarak yönlendirme yap
+        // Eğer bir "route" varsa yönlendirme yap
         <Link to={data.routeText}>
           <div className="menu-item-icon">
             <data.svg />
           </div>
-          <span onClick={() => handleClickMenu(data.menuId)}>{renderHighlightedText(data.text,searchTerm)}</span>
-          {data.subNodes && <DownChevron isActive={isOpen} />}
+          <span onClick={() => handleClickMenu(data.menuId)}>
+            {renderHighlightedText(data.text, searchTerm)}
+          </span>
+          {data.subNodes && <DownChevron isActive={activeMenuId === data.menuId} />}
         </Link>
       ) : (
-        // Aksi takdirde, alt menüyü açma / kapama işlevini çalıştıran bir tıklama olayı ekler
-        <a href={data.routeText} >
+        // Alt menü açma / kapama işlevini gerçekleştiren tıklama olayı
+        <a href={data.routeText}>
           <div className="menu-item-icon">
             <data.svg />
           </div>
-          <span onClick={() => handleClickMenu(data.menuId)}>{renderHighlightedText(data.text,searchTerm)}</span>
-          {data.subNodes && 
-          <div onClick={() => toggleSubMenu(data.menuId)}>
-            <DownChevron isActive={isOpen} />
-          </div>
-          }
+          <span onClick={() => handleClickMenu(data.menuId)}>
+            {renderHighlightedText(data.text, searchTerm)}
+          </span>
+          {data.subNodes && (
+            <div onClick={() => toggleSubMenu(data.menuId)}>
+              <DownChevron isActive={activeMenuId === data.menuId} />
+            </div>
+          )}
         </a>
       )}
 
-
-      {/* Eğer alt menü öğeleri varsa ve isOpen durumu true ise alt menüyü göster */}
-            {/* {data.subNodes && isSubmenuActive && <SubMenu subNodes={data.subNodes} />} */}
-
-      {data.subNodes && isOpen  && <SubMenu subNodes={data.subNodes} searchTerm={searchTerm}/>}
+      {/* Alt menüler yalnızca aktifse göster */}
+      {data.subNodes && activeMenuId === data.menuId && (
+        <SubMenu subNodes={data.subNodes} searchTerm={searchTerm} />
+      )}
     </li>
   );
 }
