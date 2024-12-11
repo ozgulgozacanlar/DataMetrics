@@ -1,19 +1,18 @@
-<div className="breadcrumb-bar d-flex align-items-center gap-1">
-  {pageName !== 'favorites' && pageName !== 'bookmarks' ? (
-    <>
-      <h1 onClick={handleHomeClick}>Ana Sayfa</h1>
-      <RightChevron />
-      {appName ? (
-        <>
-          <h1 onClick={handleStreamClick}>{streamName}</h1>
-          <RightChevron />
-          <h1 onClick={handleAppClick}>{appName}</h1>
-        </>
-      ) : (
-        <h1>{streamName}</h1>
-      )}
-    </>
-  ) : (
-    <h1 onClick={handleHomeClick}>Ana Sayfa</h1>
-  )}
-</div>
+const initialState = {
+  navClicked: false,
+  favoriteChange:0
+
+};
+
+export const navbarSlice = createSlice({
+  name: 'navbar',
+  initialState,
+  reducers: {
+    setClick: (state, action) => {
+      state.navClicked = action.payload;
+    },
+    setFavoriteChange: (state, action) => {
+      state.favoriteChange += action.payload;
+    }
+  },
+});
