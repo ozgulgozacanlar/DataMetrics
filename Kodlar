@@ -1,69 +1,38 @@
-export default function MenuItem({ data, searchTerm, activeMenuId, setActiveMenuId }) {
-  const navigate = useNavigate();
-  const dispatch = useDispatch();
+ <ul className="sidemenu ps-0">
+                {filteredItems.map((item, i) => (
+                  <MenuItem data={item} key={i} isSideMenuClosed={isMenuClosed} searchTerm={searchTerm} activeMenuId={activeMenuId} setActiveMenuId={setActiveMenuId}/>
+                ))}
+              </ul>
 
-  // Alt menüyü aç veya kapat
-  const toggleSubMenu = (id) => {
-    console.log("Mevcut aktif menü ID:", activeMenuId);
-    console.log("Tıklanan menü ID:", id);
+const [activeMenuId, setActiveMenuId] = useState(null);
 
-    if (activeMenuId === id) {
-      console.log("Menü kapatılıyor");
-      setActiveMenuId(null); // Aynı menü tıklandıysa kapat
-    } else {
-      console.log("Yeni menü açılıyor");
-      setActiveMenuId(id); // Yeni menü aktif yap
-    }
-  };
+  function handleClick() {
+    dispatch(setMenu(!isMenuClosed));
+    dispatch(pinMenu(!isMenuPinned));
+  }
+  function handleClickGoHome() {
+    navigate("/");
+  }
+  useEffect(() => {
+    const fetchMenuContext = async () => {
+      while (true) {
+        if (menuContext.length > 0) {
+          setMenuItems(menuContext);
+          setFilteredItems(menuContext); // Başlangıçta filtrelenmiş öğeleri ayarla
+          console.log(menuContext)
+          break; // Exit the loop if the menuContext is not empty
+        }
 
-  const handleClickMenu = (streamId) => {
-    sessionStorage.setItem("lastSelectedStreamId", streamId);
-    sessionStorage.setItem("lastSelectedAppId", null);
-    dispatch(setSelectedStreamId(streamId));
-    dispatch(setSelectedAppId(null));
-    dispatch(setIframeData(null));
-    setTimeout(() => {
-      navigate("apps");
-    }, 250);
-  };
+        await new Promise((resolve) => setTimeout(resolve, 1000));
+      }
 
-  // Menü öğesi aktiflik sınıfı sadece aktif alt menü için olacak
-  const menuItemClass = activeMenuId === data.menuId ? "menu-item active" : "menu-item";
+      setLoading(false);
+    };
+    fetchMenuContext();
+  }, []);
 
-  return (
-    <li className={menuItemClass}>
-      {data.route ? (
-        // Eğer bir "route" varsa yönlendirme yap
-        <Link to={data.routeText}>
-          <div className="menu-item-icon">
-            <data.svg />
-          </div>
-          <span onClick={() => handleClickMenu(data.menuId)}>
-            {renderHighlightedText(data.text, searchTerm)}
-          </span>
-          {data.subNodes && <DownChevron isActive={activeMenuId === data.menuId} />}
-        </Link>
-      ) : (
-        // Alt menü açma / kapama işlevini gerçekleştiren tıklama olayı
-        <a href={data.routeText}>
-          <div className="menu-item-icon">
-            <data.svg />
-          </div>
-          <span onClick={() => handleClickMenu(data.menuId)}>
-            {renderHighlightedText(data.text, searchTerm)}
-          </span>
-          {data.subNodes && (
-            <div onClick={() => toggleSubMenu(data.menuId)}>
-              <DownChevron isActive={activeMenuId === data.menuId} />
-            </div>
-          )}
-        </a>
-      )}
 
-      {/* Alt menüler yalnızca aktifse göster */}
-      {data.subNodes && activeMenuId === data.menuId && (
-        <SubMenu subNodes={data.subNodes} searchTerm={searchTerm} />
-      )}
-    </li>
-  );
-}
+ useEffect(() => { //Arama ile bulunan kelimeler alt menüde ise ilgili menülerin açılması için bu değişken tutuldu.
+   setIsOpen(data.isOpen)
+   console.log(activeMenuId)
+  }, [data]);
