@@ -1,21 +1,17 @@
-<div className="header-title">
-          {pageName === 'apps' ? (
-            // Eğer pageName 'apps' ise yalnızca streamName göster
-            <h1 className="mb-0">{streamName}</h1>
-          ) : (
-            // Diğer durumlarda appName ve favori simgesi göster
-            <>
-              <h1 className="mb-0">{appName}</h1>
-              <div
-                className="fav-icon"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  handleAddFavorite();
-                }}
-              >
-                <Favorite filled={favStatus} />
-                <span>{favStatus ? 'Favorilerden Kaldır' : 'Favorilere Ekle'}</span>
-              </div>
-            </>
-          )}
-        </div>
+ <div className="breadcrumb-bar d-flex align-items-center gap-1">
+      {pageName != 'favorites' && pageName != 'bookmarks' ? (
+        
+        <h1 onClick= {handleHomeClick}> Ana Sayfa</h1>
+        <RightChevron />
+        {appName ? <>
+          <h1 onClick= {handleStreamClick}>{streamName}</h1>
+          <RightChevron />
+          <h1 onClick= {handleAppClick}>{appName}</h1>
+        </> :
+          <h1>{streamName}</h1>
+        }
+      ):(
+        <h1 onClick= {handleHomeClick}> Ana Sayfa</h1>
+      )
+          
+      </div>
