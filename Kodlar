@@ -1,21 +1,32 @@
-    <div className="nav-tab-wrapper">
-        <div className={activeTab === "Tab1" ? "tab-item active" : "tab-item"}  onClick={() => applyFilter("ALL", "Tab1")}>Tüm Birimler</div>
-        <div className={activeTab === "Tab2" ? "tab-item active" : "tab-item"}  onClick={() => applyFilter("AI FACTORY", "Tab2")}>AI Factory</div>
-        <div className={activeTab === "Tab3" ? "tab-item active" : "tab-item"}  onClick={() => applyFilter("KURUMSAL VERİ VE RİSK YÖNETİM ÇÖZÜMLERİ", "Tab3")}>Kurumsal Veri ve Risk</div>
-        <div className={activeTab === "Tab4" ? "tab-item active" : "tab-item"}  onClick={() => applyFilter("VERİ AMBARI MIS VE İŞ ZEKASI ÇÖZÜMLERİ", "Tab4")}>Veri Ambarı MIS & İş Zekası</div>
-        <div className={activeTab === "Tab5" ? "tab-item active" : "tab-item"}  onClick={() => applyFilter("VERİ YÖNETİŞİMİ VE FİNANSAL ŞİRKETLER VERİ AMBARI", "Tab5")}>Veri Yönetişimi</div>
-      </div>
-  <div className="nav-button" onClick={() => console.log("Button Clicked!")}>Sağdaki Buton</div>
-.nav-button {
-  cursor: pointer;
-  padding: 8px 12px;
-  background-color: #007bff;
-  color: #fff;
-  border-radius: 4px;
-  margin-left: auto; /* Bu butonu sağ tarafa kaydırır */
-  transition: background-color 0.2s ease;
-}
+import * as React from "react"
+const SvgComponent = (props) => (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    width={512}
+    height={512}
+    data-name="Layer 1"
+    viewBox="0 0 32 32"
+    {...props}
+  >
+    <path d="M17 9h-7a1 1 0 1 1 0-2h7a1 1 0 1 1 0 2zM20 14H10a1 1 0 1 1 0-2h10a1 1 0 1 1 0 2zM15.86 18H10a1 1 0 1 1 0-2h5.86a1 1 0 1 1 0 2zM13.46 22H10a1 1 0 1 1 0-2h3.46a1 1 0 1 1 0 2z" />
+    <path d="M13.46 28H9c-2.757 0-5-2.243-5-5V6c0-2.757 2.243-5 5-5h12c2.757 0 5 2.243 5 5v8.2a1 1 0 1 1-2 0V6c0-1.654-1.346-3-3-3H9C7.346 3 6 4.346 6 6v17c0 1.654 1.346 3 3 3h4.46a1 1 0 1 1 0 2z" />
+    <path d="M23 31c-3.859 0-7-3.14-7-7s3.141-7 7-7 7 3.14 7 7-3.141 7-7 7zm0-12c-2.757 0-5 2.243-5 5s2.243 5 5 5 5-2.243 5-5-2.243-5-5-5z" />
+    <path d="M22.333 26.533a.997.997 0 0 1-.707-.293l-1.333-1.333a.999.999 0 1 1 1.414-1.414l.626.626 1.96-1.959a.999.999 0 1 1 1.414 1.414l-2.667 2.667a.997.997 0 0 1-.707.293z" />
+  </svg>
+)
+export default SvgComponent
 
-.nav-button:hover {
-  background-color: #0056b3;
-}
+import * as React from "react"
+const SvgComponent = (props) => (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    data-name="Layer 1"
+    viewBox="0 0 51.2 51.2"
+    {...props}
+  >
+    <path d="M19.294 20.901c.756 0 1.523-.127 2.274-.394a6.808 6.808 0 0 0 4.126-8.688 6.755 6.755 0 0 0-3.489-3.862 6.749 6.749 0 0 0-5.198-.264 6.808 6.808 0 0 0-4.126 8.687 6.813 6.813 0 0 0 6.413 4.521zM18.08 10.708a3.583 3.583 0 0 1 2.752.14 3.576 3.576 0 0 1 1.847 2.045 3.605 3.605 0 0 1-2.184 4.6 3.606 3.606 0 0 1-4.6-2.186 3.604 3.604 0 0 1 2.185-4.599z" />
+    <path d="m43.19 12.055-8.848-8.85A7.48 7.48 0 0 0 29.017 1H13.334c-4.152 0-7.53 3.378-7.53 7.53v34.14c0 4.152 3.378 7.53 7.53 7.53h24.532c4.152 0 7.53-3.378 7.53-7.53V17.38a7.477 7.477 0 0 0-2.205-5.325zm-3.257 1.268h-2.53a4.335 4.335 0 0 1-4.33-4.33v-2.53l6.86 6.86zm2.263 29.347a4.335 4.335 0 0 1-4.33 4.33H13.334a4.335 4.335 0 0 1-4.33-4.33V8.53a4.335 4.335 0 0 1 4.33-4.33h15.683c.29 0 .577.03.856.085v4.708c0 4.153 3.378 7.53 7.53 7.53h4.709c.055.28.084.566.084.856V42.67z" />
+    <path d="m35.896 29.3-5.98 5.98-2.314-2.853a1.6 1.6 0 0 0-2.374-.124l-3.125 3.125a1.6 1.6 0 1 0 2.263 2.263l1.87-1.87 2.314 2.854a1.6 1.6 0 0 0 2.374.123l7.235-7.234a1.6 1.6 0 1 0-2.263-2.263zM13.684 27.417h15.472a1.6 1.6 0 1 0 0-3.2H13.684a1.6 1.6 0 1 0 0 3.2zM18.345 30.884H13.86a1.6 1.6 0 1 0 0 3.2h4.486a1.6 1.6 0 1 0 0-3.2zM18.345 37.553H13.86a1.6 1.6 0 1 0 0 3.2h4.486a1.6 1.6 0 1 0 0-3.2z" />
+  </svg>
+)
+export default SvgComponent
