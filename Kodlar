@@ -1,1 +1,31 @@
+ const getRandomIcon = () => {
+    if (icons.length === 0) return null;
+    const randomIndex = Math.floor(Math.random() * icons.length);
+    const RandomIconComponent = icons[randomIndex];
+    return <RandomIconComponent />;
+  };
+  const svgIcon =  getRandomIcon();
+
+  // Rastgele renk seçen fonksiyon
+  const getRandomColor = () => {
+    return colors[Math.floor(Math.random() * colors.length)];
+  };
+
+   activeStreamsTab === 'Stream' ?
+                      <div className={`card-wrapper ${filteredStreams.length > 10 ? 'mini' : ''}`}>
+                        {filteredStreams.map((item, index) => (
+                          <StreamCard key={index} title={item.streamName} svg={getRandomIcon()} id={item.streamId} cardType={"stream"} color={getRandomColor()} />
+                        ))}
+                      </div>
+                      :
+                      <div className='app-section'>
+                        {filteredApps.length > 0 && (
+                          <>
+                            <div className={`card-wrapper ${filteredApps.length > 10 ? 'mini' : ''}`}>
+                              {filteredApps.map((app, appIndex) => (
                                 <StreamCard key={appIndex} title={app.appName} svg={getRandomIcon()} id={app.appId} cardType={"app"} color={getRandomColor()}  isFav={app.isFav} onFavoriteChange={handleAddRemoveFavoriteApp}/>
+                              ))}
+                            </div>
+                          </>
+                        )}
+                      </div>
