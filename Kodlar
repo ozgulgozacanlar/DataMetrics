@@ -1,6 +1,7 @@
-const randomIconRef = useRef(getRandomIcon());
+// İlk render'da svg ikonunu belirle
+  const [svgIcon, setSvgIcon] = useState(null);
 
-// Bu değer yalnızca ilk render sırasında bir kez oluşturulur ve daha sonra değişmez
-const getRandomIcon = () => {
-  return randomIconRef.current;
-};
+  // Component ilk render edildiğinde getRandomIcon() bir kez çalışsın ve svgIcon olarak state'e atansın
+  useEffect(() => {
+    setSvgIcon(getRandomIcon());
+  }, []);  // Boş bağımlılık dizisi, sadece ilk render'da çalışır
