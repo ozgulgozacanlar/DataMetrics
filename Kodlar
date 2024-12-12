@@ -5,3 +5,17 @@
         <div className={activeTab === "Tab4" ? "tab-item active" : "tab-item"}  onClick={() => applyFilter("VERİ AMBARI MIS VE İŞ ZEKASI ÇÖZÜMLERİ", "Tab4")}>Veri Ambarı MIS & İş Zekası</div>
         <div className={activeTab === "Tab5" ? "tab-item active" : "tab-item"}  onClick={() => applyFilter("VERİ YÖNETİŞİMİ VE FİNANSAL ŞİRKETLER VERİ AMBARI", "Tab5")}>Veri Yönetişimi</div>
       </div>
+  <div className="nav-button" onClick={() => console.log("Button Clicked!")}>Sağdaki Buton</div>
+.nav-button {
+  cursor: pointer;
+  padding: 8px 12px;
+  background-color: #007bff;
+  color: #fff;
+  border-radius: 4px;
+  margin-left: auto; /* Bu butonu sağ tarafa kaydırır */
+  transition: background-color 0.2s ease;
+}
+
+.nav-button:hover {
+  background-color: #0056b3;
+}
