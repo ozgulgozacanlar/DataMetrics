@@ -1,1 +1,7 @@
-  const [icon] = useState(() => svg);
+    <div className="nav-tab-wrapper">
+        <div className={activeTab === "Tab1" ? "tab-item active" : "tab-item"}  onClick={() => applyFilter("ALL", "Tab1")}>Tüm Birimler</div>
+        <div className={activeTab === "Tab2" ? "tab-item active" : "tab-item"}  onClick={() => applyFilter("AI FACTORY", "Tab2")}>AI Factory</div>
+        <div className={activeTab === "Tab3" ? "tab-item active" : "tab-item"}  onClick={() => applyFilter("KURUMSAL VERİ VE RİSK YÖNETİM ÇÖZÜMLERİ", "Tab3")}>Kurumsal Veri ve Risk</div>
+        <div className={activeTab === "Tab4" ? "tab-item active" : "tab-item"}  onClick={() => applyFilter("VERİ AMBARI MIS VE İŞ ZEKASI ÇÖZÜMLERİ", "Tab4")}>Veri Ambarı MIS & İş Zekası</div>
+        <div className={activeTab === "Tab5" ? "tab-item active" : "tab-item"}  onClick={() => applyFilter("VERİ YÖNETİŞİMİ VE FİNANSAL ŞİRKETLER VERİ AMBARI", "Tab5")}>Veri Yönetişimi</div>
+      </div>
