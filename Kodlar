@@ -1,4 +1,75 @@
-  <div className="col-2 stacked-columns">
-      <div className="col-content">İçerik 1</div>
-      <div className="col-content">İçerik 2</div>
-    </div>
+<div className="row mt-3">
+        <div className="col stacked-columns">
+          <div className="col-content d-flex">
+            <div className="card">
+              <div className="card-title">Bölge Pusula Performansı</div>
+              <div className="card-content">
+                <HorizontalBarChart app={app} objectId={"286328fb-e24c-4a23-b937-c9f0b568407e"} graphicName={"Bolge"} />
+              </div>
+            </div>
+          </div>
+          <div className="col-content  d-flex">
+            <div className="card">
+              <div className="card-title">Şube Pusula Performansı</div>
+              <div className="card-content">
+                <HorizontalBarChart app={app} objectId={"ARcVA"} graphicName={"Sube"} />
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div className="col d-flex">
+          <div className="card">
+            <div className="card-title">Bölge Toplamı</div>
+            <div className="card-content">
+              <LineChart app={app} objectId={"fxwq"} legendText={"Bölge"} />
+              <BubbleChart app={app} objectId={"DQaUBAG"}></BubbleChart>
+              <div className="d-flex justify-content-around column-gap-5 mb-1">
+                <HighLowTable app={app} objectId={"upUFp"} level={"up"} />
+                <HighLowTable app={app} objectId={"mqZmVV"} level={"down"} />
+              </div>
+            </div>
+          </div>
+        </div>
+        <div className="col d-flex">
+          <div className="card">
+            <div className="card-title">Bireysel</div>
+            <div className="card-content">
+              <LineChart app={app} objectId={"pQVjzMC"} legendText={"Bireysel"} />
+              <BubbleChart app={app} objectId={"rhSJF"}></BubbleChart>
+              <div className="d-flex justify-content-around column-gap-5 mb-1">
+                <HighLowTable app={app} objectId={"naXuP"} level={"up"} />
+                <HighLowTable app={app} objectId={"MSRHmHP"} level={"down"} />
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div className="col d-flex">
+          <div className="card">
+            <div className="card-title">KOBİ</div>
+            <div className="card-content">
+              <LineChart app={app} objectId={"fpBDst"} legendText={"KOBİ"} />
+              <BubbleChart app={app} objectId={"MHj"}></BubbleChart>
+              <div className="d-flex justify-content-around column-gap-5 mb-1">
+                <HighLowTable app={app} objectId={"cMNcv"} level={"up"} />
+                <HighLowTable app={app} objectId={"PwepF"} level={"down"} />
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div className="col d-flex">
+          <div className="card">
+            <div className="card-title">Ticari</div>
+            <div className="card-content">
+              <LineChart app={app} objectId={"HXcwH"} legendText={"Ticari"} />
+              <BubbleChart app={app} objectId={"jXBS"}></BubbleChart>
+              <div className="d-flex justify-content-around column-gap-5 mb-1">
+                <HighLowTable app={app} objectId={"mpPcNPu"} level={"up"} />
+                <HighLowTable app={app} objectId={"JHjmZ"} level={"down"} />
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
