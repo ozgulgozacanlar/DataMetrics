@@ -47,5 +47,29 @@
         </div>
       </div>
     </div>
+
+.card {
+  height: 100%; /* Sağ taraftaki kartlar soldaki kartlara uygun yükseklikte olacak */
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+}
+
+.card-content {
+  flex-grow: 1;
+}
+
+.d-flex.flex-column .card {
+  height: auto;
+  margin-bottom: 10px;
+}
+
+.col-6.d-flex .card {
+  height: 100%;
+}
+
+.m-1 {
+  margin: 5px;
+}
   </div>
 </div>
