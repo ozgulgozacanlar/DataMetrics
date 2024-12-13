@@ -27,3 +27,35 @@
             <div className="nav-button" onClick={() => handleDetailNavigation()}><SummaryIco /></div>
 
         </div>
+
+.nav-tab-wrapper {
+    display: flex;
+    align-items: center; /* Dikey hizalama */
+}
+
+.action-container {
+    margin-left: auto; /* Sağ tarafa it */
+}
+import Dropdown from 'react-bootstrap/Dropdown';
+   {/* Sağ tarafa konumlanması gereken bölüm */}
+    <div className="action-container">
+        {pagename === 'home' && activeTab !== '/prisma' ? (
+            <button
+                className="details-button"
+                onClick={() => handleDetailNavigation()}
+            >
+                Detay
+            </button>
+        ) : (
+            <Dropdown>
+                <Dropdown.Toggle variant="success" id="dropdown-basic">
+                    Dropdown
+                </Dropdown.Toggle>
+                <Dropdown.Menu>
+                    <Dropdown.Item href="#/action-1">Action</Dropdown.Item>
+                    <Dropdown.Item href="#/action-2">Another action</Dropdown.Item>
+                    <Dropdown.Item href="#/action-3">Something else</Dropdown.Item>
+                </Dropdown.Menu>
+            </Dropdown>
+        )}
+    </div>
