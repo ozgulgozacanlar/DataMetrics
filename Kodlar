@@ -1,7 +1,7 @@
 <div className="container mt-3">
   <div className="row">
     {/* Sol tarafta üst üste konumlanacak iki kart */}
-    <div className="col-6">
+    <div className="col-6 d-flex flex-column">
       <div className="card mb-3">
         <div className="card-title">Bölge Pusula Performansı</div>
         <div className="card-content">
@@ -16,30 +16,30 @@
       </div>
     </div>
 
-    {/* Sağ tarafta 4 adet kart yan yana sıralanmalı */}
-    <div className="col-6 d-flex flex-wrap">
-      <div className="card flex-fill m-1">
+    {/* Sağ tarafta 4 kart yan yana olacak */}
+    <div className="col-6 d-flex">
+      <div className="card flex-grow-1 m-1">
         <div className="card-title">Bölge Toplamı</div>
         <div className="card-content">
           <LineChart app={app} objectId={"fxwq"} legendText={"Bölge"} />
           <BubbleChart app={app} objectId={"DQaUBAG"} />
         </div>
       </div>
-      <div className="card flex-fill m-1">
+      <div className="card flex-grow-1 m-1">
         <div className="card-title">Bireysel</div>
         <div className="card-content">
           <LineChart app={app} objectId={"pQVjzMC"} legendText={"Bireysel"} />
           <BubbleChart app={app} objectId={"rhSJF"} />
         </div>
       </div>
-      <div className="card flex-fill m-1">
+      <div className="card flex-grow-1 m-1">
         <div className="card-title">KOBİ</div>
         <div className="card-content">
           <LineChart app={app} objectId={"fpBDst"} legendText={"KOBİ"} />
           <BubbleChart app={app} objectId={"MHj"} />
         </div>
       </div>
-      <div className="card flex-fill m-1">
+      <div className="card flex-grow-1 m-1">
         <div className="card-title">Ticari</div>
         <div className="card-content">
           <LineChart app={app} objectId={"HXcwH"} legendText={"Ticari"} />
@@ -49,14 +49,3 @@
     </div>
   </div>
 </div>
-
-.card {
-  height: 100%; /* Sağ taraftaki kartların yükseklikleri soldaki iki kartın yüksekliği kadar uzanır */
-  padding: 10px;
-  display: flex;
-  flex-direction: column;
-}
-
-.card-content {
-  flex-grow: 1;
-}
