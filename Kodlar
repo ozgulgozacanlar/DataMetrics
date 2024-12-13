@@ -1,1 +1,6 @@
-            onClick={() => toggleRow(item.id, parentId)} // td'ye tıklandığında aynı işlev çalışır
+            onClick={() => toggleRow(item.id, parentId)} 
+
+   onClick={(e) => {
+                            e.stopPropagation(); // Burada tık olayı sadece butona özel olsun
+                            toggleRow(item.id, parentId);
+                        }}
