@@ -1,1 +1,5 @@
-d3.max(data.slice(0, visibleCount), (d) => d.value)]
+  .domain(data.slice(0, Math.min(visibleCount, data.length)).map(d => d.name)) // Görünen veri uzunluğunu sınırlıyoruz.
+  const bars = g.selectAll(".bar")
+    .data(data.slice(0, Math.min(visibleCount, data.length)));
+
+  console.log("Bars drawn: ", data.slice(0, visibleCount));
