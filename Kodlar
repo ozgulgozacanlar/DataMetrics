@@ -1,6 +1,29 @@
-            onClick={() => toggleRow(item.id, parentId)} 
+   <div className="nav-tab-wrapper">
+            <div className={`tab-item ${activeTab === '/' ? 'active' : ''}`} onClick={() => handleNavigation('/')}>
+                Veri Dünyası
+            </div>
+            <div className={`tab-item ${activeTab === '/prisma' ? 'active' : ''}`} onClick={() => handleNavigation('/prisma')}>
+                Prisma
+            </div>
+            <div className={`tab-item ${activeTab === '/kurumsalveri' ? 'active' : ''}`} onClick={() => handleNavigation('/kurumsalveri')}>
+                Kurumsal Veri Çözümleri
+            </div>
+            <div className={`tab-item ${activeTab === '/operational-excellence' ? 'active' : ''}`} onClick={() => handleNavigation('/operational-excellence')}>
+                Operational Excellence
+            </div>
+            <div className={`tab-item ${activeTab === '/data-community' ? 'active' : ''}`} onClick={() => handleNavigation('/data-community')}>
+                Data Community
+            </div>
+            <div className={`tab-item ${activeTab === '/metadata-management' ? 'active' : ''}`} onClick={() => handleNavigation('/metadata-management')}>
+                Metadata Management
+            </div>
+            <div className={`tab-item ${activeTab === '/ileri-analitik-kpi' ? 'active' : ''}`} onClick={() => handleNavigation('/ileri-analitik-kpi')}>
+                İleri Analitik KPI
+            </div>
+            <div className={`tab-item ${activeTab === '/ekip-bazli-metrikler' ? 'active' : ''}`} onClick={() => handleNavigation('/ekip-bazli-metrikler')}>
+                Ekip Bazlı Metrikler
+            </div>
 
-   onClick={(e) => {
-                            e.stopPropagation(); // Burada tık olayı sadece butona özel olsun
-                            toggleRow(item.id, parentId);
-                        }}
+            <div className="nav-button" onClick={() => handleDetailNavigation()}><SummaryIco /></div>
+
+        </div>
