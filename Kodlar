@@ -102,3 +102,15 @@
             .attr("stroke", "#666666")
             .attr("stroke-width", 0.5); 
     }
+
+   const handleScroll = (e) => {
+        const scrollPosition = e.target.scrollTop;
+        const barHeight = 20; 
+    
+        const newVisibleCount = Math.min(
+            data.length,
+            Math.ceil(scrollPosition / barHeight) + 15
+        );
+    
+        drawHorizontalBarChart(newVisibleCount);
+    };
