@@ -1,4 +1,32 @@
- const drawHorizontalBarChart = () => {
+export default function HorizontalBarChart({ app, objectId , graphicName }) {
+    const svgRef = useRef(null);
+    const [data, setData] = useState([]);
+
+
+    function renderBarChartQlikObject(objectId) {
+        if (app) {
+            getObjectData(app, objectId).then((response) => {
+                const incomingData = response.map(item => ({
+                    value: parseFloat(item[0].qText),
+                    name: item[1].qText
+                }));
+                setData(incomingData)
+            });
+        } else {
+            // console.error('Qlik Sense app is not loaded yet');
+        }
+    }
+
+    useEffect(() => {
+        renderBarChartQlikObject(objectId);
+    }, [app, objectId]);
+
+    useEffect(() => {
+        drawHorizontalBarChart();
+
+    }, [data]);
+
+    const drawHorizontalBarChart = () => {
         if (data.length === 0) return;
 
         const svg = d3.select(svgRef.current);
@@ -104,3 +132,10 @@
             .attr("stroke", "#666666")
             .attr("stroke-width", 0.5); 
     }
+    return (
+        <div style={{ width: "100%", height: "300px", overflowY: "scroll" }}>
+            <svg ref={svgRef} style={{ width: "100%" }}></svg>
+        </div>
+    );
+
+}
