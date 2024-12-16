@@ -1,19 +1,21 @@
-export default function HorizontalBarChart({ app, objectId , graphicName }) {
+export default function HorizontalBarChart({ app, objectId, graphicName }) {
     const svgRef = useRef(null);
-    const [data, setData] = useState([]);
+    const [data, setData] = useState([]); // Gelen veri durumu
+    const [visibleData, setVisibleData] = useState([]); // Görünen veri
+    const displayedCountRef = useRef(5); // Şu ana kadar gösterilen veri adedi
+    const scrollingRef = useRef(false); // Scroll işlemlerini kontrol eden ref
 
-
+    // Qlik verilerini çekmek için
     function renderBarChartQlikObject(objectId) {
         if (app) {
             getObjectData(app, objectId).then((response) => {
                 const incomingData = response.map(item => ({
                     value: parseFloat(item[0].qText),
-                    name: item[1].qText
+                    name: item[1].qText,
                 }));
-                setData(incomingData)
+                setData(incomingData);
+                setVisibleData(incomingData.slice(0, 5)); // İlk 5 öğeyi göster
             });
-        } else {
-            // console.error('Qlik Sense app is not loaded yet');
         }
     }
 
@@ -21,13 +23,9 @@ export default function HorizontalBarChart({ app, objectId , graphicName }) {
         renderBarChartQlikObject(objectId);
     }, [app, objectId]);
 
-    useEffect(() => {
-        drawHorizontalBarChart();
-
-    }, [data]);
-
+    // Çizim işlemi
     const drawHorizontalBarChart = () => {
-        if (data.length === 0) return;
+        if (visibleData.length === 0) return;
 
         const svg = d3.select(svgRef.current);
         svg.selectAll('*').remove();
@@ -41,101 +39,78 @@ export default function HorizontalBarChart({ app, objectId , graphicName }) {
             .attr("height", height);
 
         const xScale = d3.scaleLinear()
-            .domain([0, d3.max(data, (d) => d.value)])
+            .domain([0, d3.max(visibleData, (d) => d.value)])
             .range([0, width - margin.left - margin.right]);
 
-        // Y ekseninin scale'ini name'e göre ayarlıyoruz
         const yScale = d3.scaleBand()
-            .domain(data.map((d) => d.name))  // Y ekseni domain'ini 'name' üzerinden ayarlıyoruz
+            .domain(visibleData.map((d) => d.name))
             .range([margin.top, height - margin.bottom])
             .padding(0.5);
 
-        // Grafik alanını oluşturma
         const g = svg.append("g")
             .attr("transform", `translate(${margin.left},${margin.top})`);
 
-        // X ekseni
         g.append("g")
             .attr("class", "x-axis")
             .attr("transform", `translate(0,${height - margin.bottom})`)
             .call(d3.axisBottom(xScale).ticks(0))
-            .selectAll(".domain")  // X ekseninin çizgileri
+            .selectAll(".domain")
             .attr("stroke", "white")
             .attr("stroke-width", 2);
 
-        // Y ekseni
-        g.append("g")
-            .attr("class", "y-axis")
-            .call(d3.axisLeft(yScale).ticks(0)) // ticks(0) ile tick'leri kaldor
-            .selectAll(".tick line") // Y eksenindeki tick çizgileri
-            .remove(); // Tick çizgilerini siler.
-
-        // Y ekseninin çizgisini gizlemek için beyaz yapıyoruz
-        g.selectAll(".y-axis .domain")
-            .attr("stroke", "white")  // Y ekseninin çizgilerini beyaz yapıyoruz
-
-
-        const yAxisPosition = 0; // Y ekseninin başlangıç noktası
-
-        // Y eksenine paralel bir path ( y eksenindeki tick sorununu çözmek için bu şekilde bir yöntem uygulandı.)
-        g.append("path")
-            .attr("class", "y-axis-path")
-            .attr("d", `M${yAxisPosition},${margin.top} V${height - margin.bottom}`) // Y ekseninin başlangıç noktasından bitiş noktasına kadar dikey çizgi çizecek
-            .attr("stroke", "#666666")
-            .attr("stroke-width", 0.5); 
-
-        // Bar çubuklarını ve değerleri çiziyoruz
-        const bars = g.selectAll(".bar")
-            .data(data);
-
-        bars.enter()
+        g.selectAll(".bar")
+            .data(visibleData)
+            .enter()
             .append("rect")
             .attr("class", "bar")
-            .attr("x", 0) 
-            .attr("y", (d) => yScale(d.name)) // Y konumunu name'e göre ayarlıyoruz
-            .attr("width", (d) => xScale(d.value)) // X ekseni boyunca barın genişliği
-            .attr("height", yScale.bandwidth()) // Y eksenindeki her barın yüksekliği
-            .attr("fill", (d) => {
-                // Burada d.region veya d.branch gibi bir veri kontrolü yapabilirsiniz
-                if (graphicName === "Bolge") {
-                    return "#2b85c9"; // Bölgeye mavi renk
-                } else if (graphicName === "Sube") {
-                    return "#a1c789"; // Şubeye yeşil renk
-                }
-                return "#2b85c9"; // Varsayılan renk
-            });
+            .attr("x", 0)
+            .attr("y", (d) => yScale(d.name))
+            .attr("width", (d) => xScale(d.value))
+            .attr("height", yScale.bandwidth())
+            .attr("fill", "#2b85c9");
 
-        // Her barın sağındaki değerleri yazıyoruz
-        bars.enter()
+        g.selectAll(".value")
+            .data(visibleData)
+            .enter()
             .append("text")
             .attr("class", "value")
-            .attr("x", (d) => xScale(d.value) + 5) // Çubuğun sağında değer
-            .attr("y", (d) => yScale(d.name) + yScale.bandwidth() / 2.5) // Y eksenindeki her barın ortasında
+            .attr("x", (d) => xScale(d.value) + 5)
+            .attr("y", (d) => yScale(d.name) + yScale.bandwidth() / 2.5)
             .attr("dy", ".35em")
-            .text((d) => d.name); // Değerlerin gösterimi
+            .text((d) => `${d.value}%`);
+    };
 
-        // Y eksenindeki metinleri value olarak değiştiriyoruz
-        g.selectAll(".y-axis text")
-            .text((d) => {
-                // Y eksenindeki metni 'value' olarak değiştirmek
-                const matchingData = data.find(item => item.name === d); // 'name' ile eşleşen veriyi bul
-                return matchingData ?  `${matchingData.value}%` : `${d}%`; // Eğer varsa, value'yu döndür, yoksa d'yi döndür
-            });
+    // Scroll işlemlerini algılamak için
+    const handleScroll = () => {
+        if (scrollingRef.current) return; // Eğer işlem çalışıyorsa durdur
+        scrollingRef.current = true;
 
-        // X ekseninin üzerine sabit uzunlukta bir path çizgisi ekliyoruz
-        const xAxisPosition = height - margin.bottom; // X ekseninin tam üstüne çizgi eklemek için konum
-        const fixedXAxisWidth = width; // Sabit X ekseni uzunluğu
+        const scrollPosition = window.scrollY + window.innerHeight;
+        const contentHeight = document.body.scrollHeight;
 
-        g.append("path")
-            .attr("class", "x-axis-line")
-            .attr("d", `M0,${xAxisPosition} H${fixedXAxisWidth}`) // Sabit bir uzunlukta yatay x ekseni çizgisi çizer
-            .attr("stroke", "#666666")
-            .attr("stroke-width", 0.5); 
-    }
+        if (scrollPosition >= contentHeight - 100) {
+            // Scrollun alt kısma yakın olduğunu kontrol et
+            if (displayedCountRef.current < data.length) {
+                const newCount = Math.min(
+                    displayedCountRef.current + 5,
+                    data.length
+                );
+                setVisibleData(data.slice(0, newCount));
+                displayedCountRef.current = newCount;
+                scrollingRef.current = false;
+                drawHorizontalBarChart();
+            }
+        }
+    };
+
+    useEffect(() => {
+        window.addEventListener('scroll', handleScroll);
+        return () => window.removeEventListener('scroll', handleScroll);
+    }, [data]);
+
     return (
         <div style={{ width: "100%", height: "300px", overflowY: "scroll" }}>
             <svg ref={svgRef} style={{ width: "100%" }}></svg>
         </div>
     );
-
 }
