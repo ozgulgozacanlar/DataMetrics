@@ -1,7 +1,8 @@
 export default function HorizontalBarChart({ app, objectId, graphicName }) {
     const svgRef = useRef(null);
     const [data, setData] = useState([]); // Gelen veri burada tutuluyor
-    const [visibleCount, setVisibleCount] = useState(5); // Görünen bar sayısını kontrol eden state
+    const [visibleData, setVisibleData] = useState([]); // Görünür verileri tutacak olan state
+    const [currentIndex, setCurrentIndex] = useState(0); // Görünür veri miktarını kontrol eden index
 
     function renderBarChartQlikObject(objectId) {
         if (app) {
@@ -11,7 +12,8 @@ export default function HorizontalBarChart({ app, objectId, graphicName }) {
                     name: item[1].qText,
                 }));
                 setData(incomingData);
-                setVisibleCount(5); // İlk 5 veriyle başlıyoruz
+                setVisibleData(incomingData.slice(0, 5)); // İlk 5 veri ile başla
+                setCurrentIndex(5); // İlk adımda 5 veriyi yükle
             });
         }
     }
@@ -22,20 +24,22 @@ export default function HorizontalBarChart({ app, objectId, graphicName }) {
 
     useEffect(() => {
         drawHorizontalBarChart();
-        window.addEventListener('scroll', handleScroll);
-        return () => window.removeEventListener('scroll', handleScroll);
-    }, [data]);
+    }, [visibleData]);
 
-    const handleScroll = () => {
-        const newCount = Math.min(5 + Math.floor(window.scrollY / 50) * 5, data.length);
-        if (newCount !== visibleCount) {
-            setVisibleCount(newCount);
-            drawHorizontalBarChart(data.slice(0, newCount));
+    const handleScroll = (e) => {
+        const scrollPosition = e.target.scrollTop; // Scroll pozisyonunu al
+        if (scrollPosition + e.target.clientHeight >= e.target.scrollHeight) {
+            // Scroll sonuna yaklaştığında yeni veri yükleyin
+            if (currentIndex < data.length) {
+                const newIndex = Math.min(currentIndex + 5, data.length);
+                setVisibleData(data.slice(0, newIndex));
+                setCurrentIndex(newIndex);
+            }
         }
     };
 
-    const drawHorizontalBarChart = (currentData = data.slice(0, visibleCount)) => {
-        if (currentData.length === 0) return;
+    const drawHorizontalBarChart = () => {
+        if (visibleData.length === 0) return;
 
         const svg = d3.select(svgRef.current);
         svg.selectAll('*').remove();
@@ -49,11 +53,11 @@ export default function HorizontalBarChart({ app, objectId, graphicName }) {
             .attr("height", height);
 
         const xScale = d3.scaleLinear()
-            .domain([0, d3.max(currentData, (d) => d.value)])
+            .domain([0, d3.max(visibleData, (d) => d.value)])
             .range([0, width - margin.left - margin.right]);
 
         const yScale = d3.scaleBand()
-            .domain(currentData.map((d) => d.name)) // Görünür veri dilimini göster
+            .domain(visibleData.map(d => d.name))
             .range([margin.top, height - margin.bottom])
             .padding(0.3);
 
@@ -78,7 +82,7 @@ export default function HorizontalBarChart({ app, objectId, graphicName }) {
             .attr("stroke", "white");
 
         const bars = g.selectAll(".bar")
-            .data(currentData);
+            .data(visibleData);
 
         bars.enter()
             .append("rect")
@@ -88,11 +92,8 @@ export default function HorizontalBarChart({ app, objectId, graphicName }) {
             .attr("width", (d) => xScale(d.value))
             .attr("height", yScale.bandwidth())
             .attr("fill", (d) => {
-                if (graphicName === "Bolge") {
-                    return "#2b85c9";
-                } else if (graphicName === "Sube") {
-                    return "#a1c789";
-                }
+                if (graphicName === "Bolge") return "#2b85c9";
+                if (graphicName === "Sube") return "#a1c789";
                 return "#2b85c9";
             });
 
@@ -103,25 +104,13 @@ export default function HorizontalBarChart({ app, objectId, graphicName }) {
             .attr("y", (d) => yScale(d.name) + yScale.bandwidth() / 2.5)
             .attr("dy", ".35em")
             .text((d) => d.name);
-
-        g.selectAll(".y-axis text")
-            .text((d) => {
-                const matchingData = currentData.find(item => item.name === d);
-                return matchingData ? `${matchingData.value}%` : `${d}%`;
-            });
-
-        const xAxisPosition = height - margin.bottom;
-        const fixedXAxisWidth = width;
-
-        g.append("path")
-            .attr("class", "x-axis-line")
-            .attr("d", `M0,${xAxisPosition} H${fixedXAxisWidth}`)
-            .attr("stroke", "#666666")
-            .attr("stroke-width", 0.5);
     };
 
     return (
-        <div style={{ width: "100%", height: "300px", overflowY: "scroll" }}>
+        <div
+            style={{ width: "100%", height: "300px", overflowY: "scroll" }}
+            onScroll={handleScroll}
+        >
             <svg ref={svgRef} style={{ width: "100%" }}></svg>
         </div>
     );
