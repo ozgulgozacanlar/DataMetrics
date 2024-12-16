@@ -1,2 +1,12 @@
 const barHeight = (height - margin.top - margin.bottom) / data.length; // Her bir çubuğun genişliğini elle ayarla
     .attr("y", (d, i) => margin.top + i * barHeight) // Manuel konum hesaplaması
+
+
+const numOfBars = data.length; // Çubuk sayısını al
+const calculatedHeight = numOfBars * 30; // Her bir çubuğun belirli bir yükseklik almasını sağla
+
+const yScale = d3.scaleBand()
+    .domain(data.map(d => d.name))
+    .range([margin.top, margin.top + calculatedHeight]) // Veri sayısına göre genişliği hesapla
+    .padding(0.3); 
+
