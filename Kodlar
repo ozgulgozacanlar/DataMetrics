@@ -1,11 +1,11 @@
 export default function HorizontalBarChart({ app, objectId, graphicName }) {
     const svgRef = useRef(null);
-    const [data, setData] = useState([]); // Gelen veri durumu
-    const [visibleData, setVisibleData] = useState([]); // Görünen veri
+    const [data, setData] = useState([]); // Gelen veriler
+    const [visibleData, setVisibleData] = useState([]); // Görünen veri alt kümesi
     const displayedCountRef = useRef(5); // Şu ana kadar gösterilen veri adedi
-    const scrollingRef = useRef(false); // Scroll işlemlerini kontrol eden ref
+    const scrollingRef = useRef(false);
 
-    // Qlik verilerini çekmek için
+    // Qlik'ten gelen verileri çek
     function renderBarChartQlikObject(objectId) {
         if (app) {
             getObjectData(app, objectId).then((response) => {
@@ -15,6 +15,7 @@ export default function HorizontalBarChart({ app, objectId, graphicName }) {
                 }));
                 setData(incomingData);
                 setVisibleData(incomingData.slice(0, 5)); // İlk 5 öğeyi göster
+                drawHorizontalBarChart(incomingData.slice(0, 5));
             });
         }
     }
@@ -24,8 +25,8 @@ export default function HorizontalBarChart({ app, objectId, graphicName }) {
     }, [app, objectId]);
 
     // Çizim işlemi
-    const drawHorizontalBarChart = () => {
-        if (visibleData.length === 0) return;
+    const drawHorizontalBarChart = (currentData) => {
+        if (currentData.length === 0) return;
 
         const svg = d3.select(svgRef.current);
         svg.selectAll('*').remove();
@@ -39,11 +40,11 @@ export default function HorizontalBarChart({ app, objectId, graphicName }) {
             .attr("height", height);
 
         const xScale = d3.scaleLinear()
-            .domain([0, d3.max(visibleData, (d) => d.value)])
+            .domain([0, d3.max(currentData, (d) => d.value)])
             .range([0, width - margin.left - margin.right]);
 
         const yScale = d3.scaleBand()
-            .domain(visibleData.map((d) => d.name))
+            .domain(currentData.map((d) => d.name))
             .range([margin.top, height - margin.bottom])
             .padding(0.5);
 
@@ -59,7 +60,7 @@ export default function HorizontalBarChart({ app, objectId, graphicName }) {
             .attr("stroke-width", 2);
 
         g.selectAll(".bar")
-            .data(visibleData)
+            .data(currentData)
             .enter()
             .append("rect")
             .attr("class", "bar")
@@ -70,7 +71,7 @@ export default function HorizontalBarChart({ app, objectId, graphicName }) {
             .attr("fill", "#2b85c9");
 
         g.selectAll(".value")
-            .data(visibleData)
+            .data(currentData)
             .enter()
             .append("text")
             .attr("class", "value")
@@ -80,25 +81,27 @@ export default function HorizontalBarChart({ app, objectId, graphicName }) {
             .text((d) => `${d.value}%`);
     };
 
-    // Scroll işlemlerini algılamak için
     const handleScroll = () => {
-        if (scrollingRef.current) return; // Eğer işlem çalışıyorsa durdur
+        if (scrollingRef.current) return;
         scrollingRef.current = true;
 
         const scrollPosition = window.scrollY + window.innerHeight;
         const contentHeight = document.body.scrollHeight;
 
         if (scrollPosition >= contentHeight - 100) {
-            // Scrollun alt kısma yakın olduğunu kontrol et
             if (displayedCountRef.current < data.length) {
                 const newCount = Math.min(
                     displayedCountRef.current + 5,
                     data.length
                 );
-                setVisibleData(data.slice(0, newCount));
+
+                const newVisibleData = data.slice(0, newCount);
+
+                setVisibleData(newVisibleData);
+                drawHorizontalBarChart(newVisibleData);
+
                 displayedCountRef.current = newCount;
                 scrollingRef.current = false;
-                drawHorizontalBarChart();
             }
         }
     };
