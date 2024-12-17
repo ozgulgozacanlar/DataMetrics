@@ -1,59 +1,45 @@
-const renderRow = (item, parentId = '', level = 0) => (
-  <>
-    {/* Üst Satır */}
-    <tr className={level === 0 ? 'parent-row' : 'child-row' + (expandedRows.includes(`${parentId ? parentId + '-' : ''}${item.id}`) ? ' expanded' : '')}>
-      <td style={{ paddingLeft: `${level * 26}px` }} onClick={() => toggleRow(item.id, parentId)}>
-        <div className="first-column">
-          {item.children.length > 0 && (
-            <button
-              className={`rounded-button ${expandedRows.includes(`${parentId ? parentId + '-' : ''}${item.id}`) ? 'down' : 'up'}`}
-              type="button"
-              onClick={(e) => {
-                e.stopPropagation();
-                toggleRow(item.id, parentId);
-              }}
-            >
-            </button>
-          )}
-          <span className="ellipsis">{item.name.replace(/^[\s•⸰]+/, '')}</span>
-        </div>
-      </td>
-      {item.data.map((value, index) => (
-        index === 1 && lineStatus
-          ? (
-            <td key={index}>
-              <div
-                className="line-chart-area"
-                onClick={() => handleRowClick(item)}
-                style={{
-                  cursor: 'pointer',
-                  textAlign: 'center',
-                }}
-              >
-                <ResponsiveLineChart app={app} objectId={lineGraphId} item={item} lineWidth={395} lineHeight={100} />
-              </div>
-            </td>
-          )
-          : <td key={index}>{value}</td>
-      ))}
-    </tr>
-    {/* Alt Satır */}
-    {item.children.length > 0 &&
-      expandedRows.includes(`${parentId ? parentId + '-' : ''}${item.id}`) &&
-      item.children.map((child) =>
-        renderRow(child, `${parentId ? parentId + '-' : ''}${item.id}`, level + 1)
-      )
-    }
-  </>
-);
-.child-row {
-  max-height: 0; /* Kapalı durumda satır */
-  opacity: 0;
-  transition: max-height 0.3s ease, opacity 0.3s ease;
-  overflow: hidden;
-}
+    const renderRow = (item, parentId = '', level = 0) => (
+        <React.Fragment key={item.id}>
+            <tr key={item.id} className={level === 0 ? 'parent-row' : 'child-row'}>
+                <td style={{ paddingLeft: `${level * 26}px` }} onClick={() => toggleRow(item.id, parentId)} >
+                    <div className="first-column">
+                    {item.children.length > 0 && (
+                        <button
+                        className={`rounded-button ${expandedRows.includes(`${parentId ? parentId + '-' : ''}${item.id}`) ? 'down' : 'up'}`}
+                          
+                            type="button"
+                            onClick={(e) => {
+                                e.stopPropagation(); // Burada tık olayı sadece butona özel olsun
+                                toggleRow(item.id, parentId);
+                            }}
+                        >
+                                   {/* {expandedRows.includes(`${parentId ? parentId + '-' : ''}${item.id}`) ? '►' : '▼'} */}
 
-.child-row.expanded {
-  max-height: 100px; /* Açık durumda yeterli yükseklik */
-  opacity: 1;
-}
+                        </button>
+                    )}
+
+                    <span className="ellipsis">
+                        {item.name.replace(/^[\s•⸰]+/, '')}
+                    </span>
+                    </div>
+
+                </td>
+                {item.data.map((value, index) => (
+                    (index == 1 && lineStatus==true) ? 
+                    (<td key={index}><div key={index} className="line-chart-area"
+                    onClick={() => handleRowClick(item)}
+                    onMouseEnter={() => console.log('Hovered on the line-chart-area')}
+                        style={{
+                            cursor: 'pointer',
+                            textAlign: 'center',
+                        }}><ResponsiveLineChart app={app} objectId={lineGraphId} item={item} lineWidth={395} lineHeight={100}/></div></td>) : (<td key={index}>{value}</td>)
+                    
+                ))}
+            </tr>
+            {item.children.length > 0 &&
+                expandedRows.includes(`${parentId ? parentId + '-' : ''}${item.id}`) &&
+                item.children.map((child) =>
+                    renderRow(child, `${parentId ? parentId + '-' : ''}${item.id}`, level + 1)
+                )}
+        </React.Fragment>
+    );
