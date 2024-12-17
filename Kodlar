@@ -1,1 +1,7 @@
 https://qlikprod/extensions/DatahubMashup/index.html
+
+  setExpandedRows((prevState) =>
+            prevState.includes(key)
+                ? prevState.filter((rowId) => rowId !== key)  // Satır kapatılıyor
+                : [...prevState, key]  // Satır açılıyor
+        );
