@@ -1,11 +1,189 @@
-<tr className={level === 0 ? 'parent-row' : (expandedRows.includes(`${parentId ? parentId + '-' : ''}${item.id}`) ? 'child-row expanded' : 'child-row')}>
-.child-row {
-  transform-origin: top;
-  transform: scaleY(0);
-  transition: transform 0.3s ease-in-out;
-  overflow: hidden;
-}
+  const collectTableData = (array) => {
 
-.child-row.expanded {
-  transform: scaleY(1);
+        const { qLeft, qData, qTop } = array;
+        const result = [];
+        let currentParent = null;
+
+
+        const headerDatas = [];
+        qTop.forEach((topName, index) => {
+            headerDatas.push(topName.qText)
+        })
+        //Tablo header'ları ekleniyor
+        setTableHeaderData(["", "", "Son 6 Ay Trend", ...headerDatas]);
+
+        qLeft.forEach((leftItem, index) => {
+          const rowData = [leftItem.qText, "", ...qData[index].map(val => val.qText)]
+        
+          const dataItem = {
+            name: leftItem.qSubNodes[0]?.qText || leftItem.qText,
+            data: rowData,
+            children: []
+          };
+
+            // Eğer dataItem.name "•" ile başlıyorsa, mevcut parent'ın  children'a ekliyoruz
+            if (dataItem.name.trim().startsWith("•")) {
+                if (currentParent) {
+                    currentParent.children.push(dataItem);
+                }
+            }
+            // Eğer dataItem.name "⸰" ile başlıyorsa, currentParent.children.children içine ekliyoruz
+            else if (dataItem.name.trim().startsWith("⸰")) {
+
+                if (currentParent && currentParent.children.length > 0) {
+                    // currentParent'ın children'ında başka öğeler varsa, bunları "children.children" içine ekliyoruz
+                    currentParent.children[currentParent.children.length - 1].children.push(dataItem);
+                }
+            }
+            // Eğer "•" veya "⸰" ile başlamıyorsa, doğrudan ana parent'a ekliyoruz
+            else {
+                result.push(dataItem);  // Bu öğe parent olmayan bir öğedir, doğrudan result'a ekliyoruz
+                currentParent = dataItem;  // Bu öğeyi currentParent olarak belirliyoruz
+            }
+
+        });
+
+        // console.log(result);
+        setData(result);
+    }
+    const [expandedRows, setExpandedRows] = useState([]);  
+    // Bu fonksiyon, her bir öğeye bir id ekler. Eğer öğenin 'id' özelliği yoksa,
+    // o zaman 'row-index' şeklinde bir id atar.
+    const addIdsToData = (data) => {
+        return data.map((item, index) => {
+            // Her öğenin kopyasını alıyoruz ve 'id' özelliğini ekliyoruz.
+            const newItem = { ...item, id: item.id || `row-${index}` };
+
+            // Eğer öğenin alt öğeleri (children) varsa, bu alt öğeler üzerinde de
+            // aynı işlemi uygulamak için recursive olarak bu fonksiyonu çağırıyoruz.
+            if (newItem.children && newItem.children.length > 0) {
+                newItem.children = addIdsToData(newItem.children); // Alt öğeleri işliyoruz
+            }
+
+            return newItem;
+        });
+    };
+
+    // Verilen 'data' dizisini her öğeye 'id' ekleyip döndürür.
+    const updatedData = addIdsToData(tableData);
+
+    // Bu fonksiyon, tüm satır anahtarlarını (row keys) toplar.
+    // Eğer öğenin alt öğeleri varsa, onların anahtarlarını da ekler.
+    // 'parentKey', her öğenin anahtarını tanımlamak için kullanıldı.
+    const collectAllRowKeys = (items, parentKey = '') => {
+        let keys = [];
+        items.forEach((item) => {
+            // 'parentKey' varsa, öğenin anahtarını 'parentKey' ile birleştiriyoruz.
+            // Eğer 'parentKey' yoksa ( yani direk ana parent ise ), sadece öğenin 'id'sini kullanıyoruz.
+            const currentKey = parentKey ? `${parentKey}-${item.id}` : `${item.id}`;
+
+            keys.push(currentKey);
+
+            // Eğer öğenin alt öğeleri varsa (children), bu alt öğelerin anahtarlarını
+            // toplamak için recursive olarak fonksiyonu çağırıyoruz.
+            if (item.children.length > 0) {
+                keys = [...keys, ...collectAllRowKeys(item.children, currentKey)];
+            }
+        });
+
+        return keys;
+    };
+
+    // İlk açılışta tüm satırların açılmasını sağlamak için:
+    // 1. updatedData üzerinde tüm satır anahtarlarını topluyoruz.
+    // 2. Tüm anahtarları 'expandedRows' durumuna set ediyoruz, böylece tüm satırlar açık gelir.
+    useEffect(() => {
+        const allRowKeys = collectAllRowKeys(updatedData);  // Tüm anahtarları topluyoruz
+        setExpandedRows(allRowKeys); // İlk açılışta tüm satırları açıyoruz
+    }, [tableData]);
+
+    // Bu fonksiyon, bir satırın açılıp kapanmasını sağlar. Eğer satır zaten açıksa,
+    // onu kapatır; eğer kapalıysa, onu açar. Anahtar olarak 'id' ve 'parentId' kullanılır.
+    const toggleRow = (id, parentId = '') => {
+        // 'id' ve 'parentId' birleşiminden oluşan bir anahtar oluşturuyoruz.
+        const key = parentId ? `${parentId}-${id}` : `${id}`;
+
+        // 'expandedRows' durumunu güncelliyoruz:
+        // - Eğer 'expandedRows' içinde bu anahtar varsa, onu kaldırıyoruz (satır kapanır).
+        // - Eğer yoksa, ekliyoruz (satır açılır).
+        setExpandedRows((prevState) =>
+            prevState.includes(key)
+                ? prevState.filter((rowId) => rowId !== key)  // Satır kapatılıyor
+                : [...prevState, key]  // Satır açılıyor
+        );
+    };
+
+    const renderRow = (item, parentId = '', level = 0) => (
+        <React.Fragment key={item.id}>
+            <tr key={item.id} className={level === 0 ? 'parent-row' : 'child-row'}>
+                <td style={{ paddingLeft: `${level * 26}px` }} onClick={() => toggleRow(item.id, parentId)} >
+                    <div className="first-column">
+                    {item.children.length > 0 && (
+                        <button
+                        className={`rounded-button ${expandedRows.includes(`${parentId ? parentId + '-' : ''}${item.id}`) ? 'down' : 'up'}`}
+                          
+                            type="button"
+                            onClick={(e) => {
+                                e.stopPropagation(); // Burada tık olayı sadece butona özel olsun
+                                toggleRow(item.id, parentId);
+                            }}
+                        >
+                                   {/* {expandedRows.includes(`${parentId ? parentId + '-' : ''}${item.id}`) ? '►' : '▼'} */}
+
+                        </button>
+                    )}
+
+                    <span className="ellipsis">
+                        {item.name.replace(/^[\s•⸰]+/, '')}
+                    </span>
+                    </div>
+
+                </td>
+                {item.data.map((value, index) => (
+                    (index == 1 && lineStatus==true) ? 
+                    (<td key={index}><div key={index} className="line-chart-area"
+                    onClick={() => handleRowClick(item)}
+                    onMouseEnter={() => console.log('Hovered on the line-chart-area')}
+                        style={{
+                            cursor: 'pointer',
+                            textAlign: 'center',
+                        }}><ResponsiveLineChart app={app} objectId={lineGraphId} item={item} lineWidth={395} lineHeight={100}/></div></td>) : (<td key={index}>{value}</td>)
+                    
+                ))}
+            </tr>
+            {item.children.length > 0 &&
+                expandedRows.includes(`${parentId ? parentId + '-' : ''}${item.id}`) &&
+                item.children.map((child) =>
+                    renderRow(child, `${parentId ? parentId + '-' : ''}${item.id}`, level + 1)
+                )}
+        </React.Fragment>
+    );
+    return (
+        <>
+            {isLoading ? (
+                <div className="fixed-loader">
+                    <Loader />
+                </div>
+            ) : (
+                <>
+
+                    <table className={`metric-table ${currentPage.name}`}>
+                        <thead>
+                             <tr>
+                                {tableHeaderData && tableHeaderData.map((header, index) => (
+                                    <th key={index}>
+                                        {header}
+                                    </th>
+                                ))}
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {updatedData.map((item) => renderRow(item, '', 0))}
+                        </tbody>
+                    </table>
+
+                 </>
+            )}</>
+
+    );
 }
