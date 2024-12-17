@@ -1,6 +1,6 @@
 const renderRow = (item, parentId = '', level = 0) => (
   <>
-    {/* Satır Görünümü */}
+    {/* Üst Satır */}
     <tr className={level === 0 ? 'parent-row' : 'child-row' + (expandedRows.includes(`${parentId ? parentId + '-' : ''}${item.id}`) ? ' expanded' : '')}>
       <td style={{ paddingLeft: `${level * 26}px` }} onClick={() => toggleRow(item.id, parentId)}>
         <div className="first-column">
@@ -37,18 +37,23 @@ const renderRow = (item, parentId = '', level = 0) => (
           : <td key={index}>{value}</td>
       ))}
     </tr>
-    {/* Çocuk Satırları */}
+    {/* Alt Satır */}
     {item.children.length > 0 &&
       expandedRows.includes(`${parentId ? parentId + '-' : ''}${item.id}`) &&
       item.children.map((child) =>
-        <tr className={`child-row ${expandedRows.includes(`${parentId ? parentId + '-' : ''}${item.id}`) ? 'expanded' : ''}`}>
-          <td colSpan={tableHeaderData.length} style={{ padding: 0 }}>
-            {child.data.map((value, index) => (
-              <div key={index}>{value}</div>
-            ))}
-          </td>
-        </tr>
+        renderRow(child, `${parentId ? parentId + '-' : ''}${item.id}`, level + 1)
       )
     }
   </>
 );
+.child-row {
+  max-height: 0; /* Kapalı durumda satır */
+  opacity: 0;
+  transition: max-height 0.3s ease, opacity 0.3s ease;
+  overflow: hidden;
+}
+
+.child-row.expanded {
+  max-height: 100px; /* Açık durumda yeterli yükseklik */
+  opacity: 1;
+}
