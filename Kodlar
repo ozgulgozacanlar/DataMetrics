@@ -13,3 +13,16 @@ const toggleRow = (id, parentId = '') => {
     setTimeout(() => rowElement.style.height = 'auto', 300); // Geçiş sonrası auto yapmak için
   }
 };
+
+   style={{
+        height: expandedRows.includes(`${parentId ? parentId + '-' : ''}${item.id}`) ? `${item.children.length * 30}px` : '0px',
+      }}
+.child-row {
+  transition: height 0.3s ease; /* Dinamik geçişler için */
+  overflow: hidden; 
+  height: 0; /* Kapalı durumda sıfırlıyoruz */
+}
+
+.child-row.open {
+  height: auto; /* Açık durumda gerçek yüksekliği uygula */
+}
