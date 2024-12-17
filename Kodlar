@@ -5,3 +5,20 @@ https://qlikprod/extensions/DatahubMashup/index.html
                 ? prevState.filter((rowId) => rowId !== key)  // Satır kapatılıyor
                 : [...prevState, key]  // Satır açılıyor
         );
+    function renderTable() {
+        if (app) {
+            getObjectPivotTableData(app, objectId).then((response) => {
+              
+                setTableResponse(response);
+                setLoading(false);
+            });
+        } else {
+            //console.error('Qlik Sense app is not loaded yet');
+        }
+    }
+    useEffect(() => {
+        collectTableData(tableResponse);
+    }, [tableResponse]);   
+    useEffect(() => {
+        renderTable();
+    }, [app, objectId, comboboxKey]);    
