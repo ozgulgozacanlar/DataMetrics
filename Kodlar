@@ -1,56 +1,12 @@
-const renderRow = (item, parentId = '', level = 0) => (
-  <React.Fragment key={item.id}>
-    <tr className={level === 0 ? 'parent-row' : 'child-row' + (expandedRows.includes(`${parentId ? parentId + '-' : ''}${item.id}`) ? ' open' : '')}>
-      <td style={{ paddingLeft: `${level * 26}px` }} onClick={() => toggleRow(item.id, parentId)}>
-        <div className="first-column">
-          {item.children.length > 0 && (
-            <button
-              className={`rounded-button ${expandedRows.includes(`${parentId ? parentId + '-' : ''}${item.id}`) ? 'down' : 'up'}`}
-              type="button"
-              onClick={(e) => {
-                e.stopPropagation();
-                toggleRow(item.id, parentId);
-              }}
-            >
-            </button>
-          )}
-          <span className="ellipsis">{item.name.replace(/^[\s•⸰]+/, '')}</span>
-        </div>
-      </td>
-      {item.data.map((value, index) => (
-        index == 1 && lineStatus == true ? 
-        (<td key={index}>
-            <div className="line-chart-area" 
-                onClick={() => handleRowClick(item)} 
-                onMouseEnter={() => console.log('Hovered on the line-chart-area')}
-                style={{ cursor: 'pointer', textAlign: 'center' }}>
-              <ResponsiveLineChart app={app} objectId={lineGraphId} item={item} lineWidth={395} lineHeight={100} />
-            </div>
-          </td>) : 
-          (<td key={index}>{value}</td>)
-      ))}
-    </tr>
-    {item.children.length > 0 && expandedRows.includes(`${parentId ? parentId + '-' : ''}${item.id}`) && (
-      item.children.map((child) =>
-        renderRow(child, `${parentId ? parentId + '-' : ''}${item.id}`, level + 1)
-      )
-    )}
-  </React.Fragment>
-);
-const toggleRow = (id, parentId = '') => {
-  const key = parentId ? `${parentId}-${id}` : `${id}`;
+ const element = document.getElementById(key);
 
-  setExpandedRows((prevState) =>
-    prevState.includes(key)
-      ? prevState.filter((rowId) => rowId !== key) // Eğer açıksa kapat
-      : [...prevState, key] // Eğer kapalıysa aç
-  );
-};.child-row {
-  overflow: hidden;
-  transition: max-height 0.3s ease-out;
-  max-height: 0; /* Varsayılan olarak kapalı durumda */
-}
-
-.child-row.open {
-  max-height: 500px; /* Açıkken gösterilecek yüksekliği buradan ayarlıyoruz */
-}
+  if (element) {
+    if (element.style.maxHeight) {
+      // Eğer maxHeight varsa, sıfırlıyoruz (kapat)
+      element.style.maxHeight = null;
+    } else {
+      // Eğer maxHeight yoksa, genişletiyoruz
+      element.style.transition = 'max-height 0.3s ease-out';
+      element.style.maxHeight = element.scrollHeight + 'px';
+    }
+  }
