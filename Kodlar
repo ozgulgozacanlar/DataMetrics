@@ -1,41 +1,15 @@
-https://qlikprod/extensions/DatahubMashup/index.html
-
-  const renderRow = (item, parentId = '', level = 0) => (
-  <React.Fragment key={item.id}>
-    <tr className={level === 0 ? 'parent-row' : `child-row ${expandedRows.includes(`${parentId ? parentId + '-' : ''}${item.id}`) ? '' : 'collapsed'}`}>
-      <td style={{ paddingLeft: `${level * 26}px` }} onClick={() => toggleRow(item.id, parentId)}>
-        <div className="first-column">
-          {item.children.length > 0 && (
-            <button
-              className={`rounded-button ${expandedRows.includes(`${parentId ? parentId + '-' : ''}${item.id}`) ? 'down' : 'up'}`}
-              type="button"
-              onClick={(e) => {
-                e.stopPropagation();
-                toggleRow(item.id, parentId);
-              }}
-            >
-            </button>
-          )}
-          <span className="ellipsis">
-            {item.name.replace(/^[\s•⸰]+/, '')}
-          </span>
-        </div>
-      </td>
-    </tr>
-    {item.children.length > 0 &&
-      expandedRows.includes(`${parentId ? parentId + '-' : ''}${item.id}`) &&
-      item.children.map((child) =>
-        renderRow(child, `${parentId ? parentId + '-' : ''}${item.id}`, level + 1)
-      )
-    }
-  </React.Fragment>
-);
-.child-row {
-  transition: max-height 0.3s ease;
-  overflow: hidden;
-  max-height: 500px; /* Açık durumda genişliği için hedef yükseklik */
-}
-
-.child-row.collapsed {
-  max-height: 0; /* Kapatıldığında yükseklik sıfır */
-}
+const toggleRow = (id, parentId = '') => {
+  const key = parentId ? `${parentId}-${id}` : `${id}`;
+  
+  if (expandedRows.includes(key)) {
+    // Satırı kapat
+    setExpandedRows((prevState) => prevState.filter((rowId) => rowId !== key));
+  } else {
+    // Satırı aç
+    const rowElement = document.getElementById(key);
+    const rowHeight = rowElement.scrollHeight; // Gerçek yüksekliği al
+    rowElement.style.height = `${rowHeight}px`; 
+    setExpandedRows((prevState) => [...prevState, key]);
+    setTimeout(() => rowElement.style.height = 'auto', 300); // Geçiş sonrası auto yapmak için
+  }
+};
