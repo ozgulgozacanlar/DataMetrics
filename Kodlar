@@ -1,15 +1,9 @@
- {isLoading || isIconLoading || isThemeLoading ? (
-          <div className="fixed-loader">
-            <Loader />
-          </div>
-
-
-  return (
-    <Provider store={store}>
-      <div className="d-flex">
-        <HashRouter>
-          <SideBar />
-          <div className="content-wrapper">
+    <div className="content-wrapper">
+            {isLoading || isIconLoading || isThemeLoading ? (
+              <div className="fixed-loader">
+                <Loader />
+              </div>
+            ) : null}
             <NavBar />
             <div className="main-wrapper">
               <Routes>
@@ -19,11 +13,5 @@
                 <Route path="/sheets" element={<SheetsPage />} />
                 <Route path="/favorites" element={<FavoritesPage />} />
                 <Route path="/bookmarks" element={<BookMarksPage />} />
-
               </Routes>
             </div>
-          </div>
-        </HashRouter>
-      </div>
-    </Provider>
-  );
