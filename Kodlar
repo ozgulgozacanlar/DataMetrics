@@ -1,40 +1,30 @@
-import { openDB } from 'idb';
-
-// Veritabanını başlat
-export const initializeDatabase = async () => {
-  const db = await openDB('UserDatabase', 1, {
-    upgrade(db) {
-      if (!db.objectStoreNames.contains('users')) {
-        const store = db.createObjectStore('users', { keyPath: 'sicilNo' });
-        store.createIndex('sicilNo', 'sicilNo');
+const initDb = async () => {
+    const database = await initializeDatabase();
+    setDb(database);
+  };
+  useEffect(() => {
+    initDb();
+    getUser().then(reply => {
+      if(reply !== 'inactive'){
+        const cleanedUserName = reply.userName.replace(/\s*\(.*?\)\s*/g, '');
+        const words = cleanedUserName.split(' ');
+        const userName = words.map((word, index) => (index === 0 || index === words.length - 1 ? word.charAt(0).toUpperCase() : '')).join('');
+        setUser(userName);
+        handleAddUser(reply.userId,cleanedUserName,"Light");
+     
       }
-    },
-  });
-  return db;
-};
-
-// Kullanıcı verisi ekle
-export const addUser = async (db, sicilNo, adSoyad, temaTercihi) => {
-  const user = { sicilNo, adSoyad, temaTercihi };
-  await db.put('users', user);
-};
-
-// Sicil No'ya göre tema tercihini al
-export const getThemePreference = async (db, sicilNo) => {
-  const user = await db.get('users', sicilNo);
-  return user ? user.temaTercihi : null;  // Tema tercihini döner
-};
-
-// Sicil No'ya göre tema tercihini güncelle
-export const updateThemePreference = async (db, sicilNo, newTheme) => {
-  const user = await db.get('users', sicilNo);
-  if (user) {
-    user.temaTercihi = newTheme;
-    await db.put('users', user);
-  } else {
-    throw new Error('Kullanıcı bulunamadı');
-  }
-};
+    })
+  }, [db]);
+    // Kullanıcıyı eklemek
+    const handleAddUser = async (userId, nameSurname, theme) => {
+      if (db & userId && nameSurname && theme) {
+    
+        await addUserDB(db, userId, nameSurname, theme);
+        alert('Kullanıcı başarıyla eklendi');
+      } else {
+        alert('Lütfen tüm alanları doldurun');
+      }
+    };
 import React, { useState, useEffect } from 'react';
 import {
   initializeDatabase,
