@@ -1,9 +1,24 @@
-    <div className="content-wrapper">
-            {isLoading || isIconLoading || isThemeLoading ? (
-              <div className="fixed-loader">
-                <Loader />
-              </div>
-            ) : null}
+import { Provider, useSelector } from 'react-redux';
+import { HashRouter, Route, Routes } from 'react-router-dom';
+import { SideBar, NavBar } from '@/components';
+import { Home, AppsPage, SheetsPage,FavoritesPage,BookMarksPage } from '@/pages'
+import { store } from './store';
+
+import '@/assets/css/fonts.css';
+import '@/assets/css/layout.css';
+import '@/assets/css/dark.css';
+import 'bootstrap/dist/css/bootstrap.min.css';
+
+export default function App() {
+  const isThemeLoading = useSelector((state) => state.page.themeLoading);
+console.log(isThemeLoading)
+
+  return (
+    <Provider store={store}>
+      <div className="d-flex">
+        <HashRouter>
+          <SideBar />
+          <div className="content-wrapper">
             <NavBar />
             <div className="main-wrapper">
               <Routes>
@@ -13,5 +28,16 @@
                 <Route path="/sheets" element={<SheetsPage />} />
                 <Route path="/favorites" element={<FavoritesPage />} />
                 <Route path="/bookmarks" element={<BookMarksPage />} />
+
               </Routes>
             </div>
+          </div>
+        </HashRouter>
+      </div>
+    </Provider>
+  );
+}
+could not find react-redux context value; please ensure the component is wrapped in a <Provider>
+    at useReduxContext2 (react-redux.js?v=0220e927:148:13)
+    at useSelector2 (react-redux.js?v=0220e927:184:9)
+    at App
