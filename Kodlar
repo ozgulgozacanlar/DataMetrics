@@ -1,43 +1,21 @@
-import { Provider, useSelector } from 'react-redux';
-import { HashRouter, Route, Routes } from 'react-router-dom';
-import { SideBar, NavBar } from '@/components';
-import { Home, AppsPage, SheetsPage,FavoritesPage,BookMarksPage } from '@/pages'
-import { store } from './store';
+/* eslint-disable import/prefer-default-export */
 
-import '@/assets/css/fonts.css';
-import '@/assets/css/layout.css';
-import '@/assets/css/dark.css';
-import 'bootstrap/dist/css/bootstrap.min.css';
-
-export default function App() {
-  const isThemeLoading = useSelector((state) => state.page.themeLoading);
-console.log(isThemeLoading)
-
-  return (
-    <Provider store={store}>
-      <div className="d-flex">
-        <HashRouter>
-          <SideBar />
-          <div className="content-wrapper">
-            <NavBar />
-            <div className="main-wrapper">
-              <Routes>
-                <Route exact path="/" element={<Home />} />
-                <Route path="/home" element={<Home />} />
-                <Route path="/apps" element={<AppsPage />} />
-                <Route path="/sheets" element={<SheetsPage />} />
-                <Route path="/favorites" element={<FavoritesPage />} />
-                <Route path="/bookmarks" element={<BookMarksPage />} />
-
-              </Routes>
-            </div>
-          </div>
-        </HashRouter>
-      </div>
-    </Provider>
-  );
-}
-could not find react-redux context value; please ensure the component is wrapped in a <Provider>
-    at useReduxContext2 (react-redux.js?v=0220e927:148:13)
-    at useSelector2 (react-redux.js?v=0220e927:184:9)
-    at App
+import { configureStore } from '@reduxjs/toolkit';
+import menuReducer from './features/menu';
+import filterReducer from './features/filter';
+import pageReducer from './features/page';
+import dataReducer  from './features/data';
+import navbarReducer from './features/navbar';
+import  userReducer  from './features/user';
+// Redux store'unu yapılandırır
+export const store = configureStore({
+  reducer: {
+    menu: menuReducer,
+    filter: filterReducer,
+    page: pageReducer,
+    data: dataReducer,
+    navbar: navbarReducer,
+    user:userReducer
+  },
+  middleware: (getDefaultMiddleware) => getDefaultMiddleware({ serializableCheck: false }),
+});
