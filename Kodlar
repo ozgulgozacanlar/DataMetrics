@@ -1,1 +1,99 @@
-https://qlikprod/extensions/DatahubMashup/index.html
+import { openDB } from 'idb';
+
+// Veritabanını başlat
+export const initializeDatabase = async () => {
+  const db = await openDB('UserDatabase', 1, {
+    upgrade(db) {
+      if (!db.objectStoreNames.contains('users')) {
+        const store = db.createObjectStore('users', { keyPath: 'sicilNo' });
+        store.createIndex('sicilNo', 'sicilNo');
+      }
+    },
+  });
+  return db;
+};
+
+// Kullanıcı verisi ekle
+export const addUser = async (db, sicilNo, adSoyad, temaTercihi) => {
+  const user = { sicilNo, adSoyad, temaTercihi };
+  await db.put('users', user);
+};
+
+// Sicil No'ya göre tema tercihini al
+export const getThemePreference = async (db, sicilNo) => {
+  const user = await db.get('users', sicilNo);
+  return user ? user.temaTercihi : null;  // Tema tercihini döner
+};
+
+// Sicil No'ya göre tema tercihini güncelle
+export const updateThemePreference = async (db, sicilNo, newTheme) => {
+  const user = await db.get('users', sicilNo);
+  if (user) {
+    user.temaTercihi = newTheme;
+    await db.put('users', user);
+  } else {
+    throw new Error('Kullanıcı bulunamadı');
+  }
+};
+import React, { useState, useEffect } from 'react';
+import {
+  initializeDatabase,
+  addUser,
+  getThemePreference,
+  updateThemePreference,
+} from './helpers/idbHelper';
+
+const App = () => {
+  const [sicilNo, setSicilNo] = useState('');
+  const [adSoyad, setAdSoyad] = useState('');
+  const [temaTercihi, setTemaTercihi] = useState('');
+  const [currentTheme, setCurrentTheme] = useState('');
+  const [db, setDb] = useState(null);
+
+  // Veritabanını başlat
+  const initDb = async () => {
+    const database = await initializeDatabase();
+    setDb(database);
+  };
+
+  // Tema tercihini almak
+  const loadTheme = async () => {
+    if (db && sicilNo) {
+      const theme = await getThemePreference(db, sicilNo);
+      setCurrentTheme(theme);
+    }
+  };
+
+  // Kullanıcıyı eklemek
+  const handleAddUser = async () => {
+    if (db && sicilNo && adSoyad && temaTercihi) {
+      await addUser(db, sicilNo, adSoyad, temaTercihi);
+      alert('Kullanıcı başarıyla eklendi');
+    } else {
+      alert('Lütfen tüm alanları doldurun');
+    }
+  };
+
+  // Tema tercihini güncellemek
+  const handleUpdateTheme = async () => {
+    if (db && sicilNo && temaTercihi) {
+      try {
+        await updateThemePreference(db, sicilNo, temaTercihi);
+        alert('Tema tercihi güncellendi');
+      } catch (error) {
+        alert(error.message);
+      }
+    }
+  };
+
+  // Veritabanını başlatma işlemi
+  useEffect(() => {
+    initDb();
+  }, []);
+
+  // Tema tercihini yükle
+  useEffect(() => {
+    if (sicilNo) {
+      loadTheme();
+    }
+  }, [sicilNo]);
