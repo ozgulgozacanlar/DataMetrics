@@ -1,89 +1,29 @@
-const initDb = async () => {
-    const database = await initializeDatabase();
-    setDb(database);
-  };
-  useEffect(() => {
-    initDb();
-    getUser().then(reply => {
-      if(reply !== 'inactive'){
-        const cleanedUserName = reply.userName.replace(/\s*\(.*?\)\s*/g, '');
-        const words = cleanedUserName.split(' ');
-        const userName = words.map((word, index) => (index === 0 || index === words.length - 1 ? word.charAt(0).toUpperCase() : '')).join('');
-        setUser(userName);
-        handleAddUser(reply.userId,cleanedUserName,"Light");
-     
-      }
-    })
-  }, [db]);
-    // Kullanıcıyı eklemek
-    const handleAddUser = async (userId, nameSurname, theme) => {
-      if (db & userId && nameSurname && theme) {
-    
-        await addUserDB(db, userId, nameSurname, theme);
-        alert('Kullanıcı başarıyla eklendi');
-      } else {
-        alert('Lütfen tüm alanları doldurun');
-      }
-    };
-import React, { useState, useEffect } from 'react';
-import {
-  initializeDatabase,
-  addUser,
-  getThemePreference,
-  updateThemePreference,
-} from './helpers/idbHelper';
+ {isLoading || isIconLoading || isThemeLoading ? (
+          <div className="fixed-loader">
+            <Loader />
+          </div>
 
-const App = () => {
-  const [sicilNo, setSicilNo] = useState('');
-  const [adSoyad, setAdSoyad] = useState('');
-  const [temaTercihi, setTemaTercihi] = useState('');
-  const [currentTheme, setCurrentTheme] = useState('');
-  const [db, setDb] = useState(null);
 
-  // Veritabanını başlat
-  const initDb = async () => {
-    const database = await initializeDatabase();
-    setDb(database);
-  };
+  return (
+    <Provider store={store}>
+      <div className="d-flex">
+        <HashRouter>
+          <SideBar />
+          <div className="content-wrapper">
+            <NavBar />
+            <div className="main-wrapper">
+              <Routes>
+                <Route exact path="/" element={<Home />} />
+                <Route path="/home" element={<Home />} />
+                <Route path="/apps" element={<AppsPage />} />
+                <Route path="/sheets" element={<SheetsPage />} />
+                <Route path="/favorites" element={<FavoritesPage />} />
+                <Route path="/bookmarks" element={<BookMarksPage />} />
 
-  // Tema tercihini almak
-  const loadTheme = async () => {
-    if (db && sicilNo) {
-      const theme = await getThemePreference(db, sicilNo);
-      setCurrentTheme(theme);
-    }
-  };
-
-  // Kullanıcıyı eklemek
-  const handleAddUser = async () => {
-    if (db && sicilNo && adSoyad && temaTercihi) {
-      await addUser(db, sicilNo, adSoyad, temaTercihi);
-      alert('Kullanıcı başarıyla eklendi');
-    } else {
-      alert('Lütfen tüm alanları doldurun');
-    }
-  };
-
-  // Tema tercihini güncellemek
-  const handleUpdateTheme = async () => {
-    if (db && sicilNo && temaTercihi) {
-      try {
-        await updateThemePreference(db, sicilNo, temaTercihi);
-        alert('Tema tercihi güncellendi');
-      } catch (error) {
-        alert(error.message);
-      }
-    }
-  };
-
-  // Veritabanını başlatma işlemi
-  useEffect(() => {
-    initDb();
-  }, []);
-
-  // Tema tercihini yükle
-  useEffect(() => {
-    if (sicilNo) {
-      loadTheme();
-    }
-  }, [sicilNo]);
+              </Routes>
+            </div>
+          </div>
+        </HashRouter>
+      </div>
+    </Provider>
+  );
