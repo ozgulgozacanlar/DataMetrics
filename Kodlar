@@ -1,21 +1,53 @@
-/* eslint-disable import/prefer-default-export */
+import { Provider, useSelector } from 'react-redux'; // useSelector'ı import ediyoruz
+import { HashRouter, Route, Routes } from 'react-router-dom';
+import { SideBar, NavBar } from '@/components';
+import { Home, AppsPage, SheetsPage, FavoritesPage, BookMarksPage } from '@/pages';
+import { store } from './store'; // store'u import ediyoruz
 
-import { configureStore } from '@reduxjs/toolkit';
-import menuReducer from './features/menu';
-import filterReducer from './features/filter';
-import pageReducer from './features/page';
-import dataReducer  from './features/data';
-import navbarReducer from './features/navbar';
-import  userReducer  from './features/user';
-// Redux store'unu yapılandırır
-export const store = configureStore({
-  reducer: {
-    menu: menuReducer,
-    filter: filterReducer,
-    page: pageReducer,
-    data: dataReducer,
-    navbar: navbarReducer,
-    user:userReducer
-  },
-  middleware: (getDefaultMiddleware) => getDefaultMiddleware({ serializableCheck: false }),
-});
+import '@/assets/css/fonts.css';
+import '@/assets/css/layout.css';
+import '@/assets/css/dark.css';
+import 'bootstrap/dist/css/bootstrap.min.css';
+
+function AppContent() {
+  // Redux store'dan themeLoading değerini alıyoruz
+  const isThemeLoading = useSelector((state) => state.page.themeLoading);
+
+  // Alınan veriyi konsola yazdırmak
+  console.log(isThemeLoading);
+
+  return (
+    <div className="d-flex">
+      <HashRouter>
+        <SideBar />
+        <div className="content-wrapper">
+          <NavBar />
+          <div className="main-wrapper">
+            {/* Eğer themeLoading true ise, yükleme spinner'ını göster */}
+            {isThemeLoading && (
+              <div className="fixed-loader">
+                <Loader /> {/* Loader bileşeni yükleme simgesini gösterecek */}
+              </div>
+            )}
+            <Routes>
+              <Route exact path="/" element={<Home />} />
+              <Route path="/home" element={<Home />} />
+              <Route path="/apps" element={<AppsPage />} />
+              <Route path="/sheets" element={<SheetsPage />} />
+              <Route path="/favorites" element={<FavoritesPage />} />
+              <Route path="/bookmarks" element={<BookMarksPage />} />
+            </Routes>
+          </div>
+        </div>
+      </HashRouter>
+    </div>
+  );
+}
+
+export default function App() {
+  return (
+    <Provider store={store}> {/* Store'u burada provider ile sarmalıyız */}
+      <AppContent /> {/* AppContent bileşenini burada render ediyoruz */}
+    </Provider>
+  );
+}
