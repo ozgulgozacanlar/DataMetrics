@@ -1,7 +1,3 @@
-
-npm install crypto-js file-saver
-
-
 import React, { useState } from 'react';
 import CryptoJS from 'crypto-js';
 import { saveAs } from 'file-saver';
@@ -12,8 +8,8 @@ function App() {
   const [message, setMessage] = useState('');
   const [decryptedData, setDecryptedData] = useState(null);
 
-  // Şifreleme anahtarını belirleyelim
-  const encryptionKey = 'my-secret-key';
+  // Sabit bir şifreleme anahtarı kullanarak otomatik anahtar belirleme
+  const encryptionKey = 'my-very-secure-encryption-key'; // Burada sabit bir anahtar kullanıyoruz
 
   // Şifreleme fonksiyonu
   const encryptData = (data) => {
@@ -69,8 +65,8 @@ function App() {
   };
 
   return (
-    <div className="App">
-      <h1>JSON Verisini Şifrele ve Dosyaya Kaydet</h1>
+    <div>
+      <h1>Şifreleme Uygulaması</h1>
 
       <div>
         <label>
@@ -94,20 +90,16 @@ function App() {
         </label>
       </div>
 
-      <button onClick={handleSave}>Veriyi Kaydet</button>
-
-      <p>{message}</p>
+      <button onClick={handleSave}>Veriyi Şifrele ve Kaydet</button>
 
       <div>
-        <h2>Şifreli JSON Dosyasını Yükleyin</h2>
-        <input type="file" onChange={handleFileUpload} />
-        {decryptedData && (
-          <div>
-            <h3>Çözülmüş Veriler:</h3>
-            <p>Kullanıcı Adı: {decryptedData.userName}</p>
-            <p>Tema Tercihi: {decryptedData.themePreference}</p>
-          </div>
-        )}
+        <h3>{message}</h3>
+      </div>
+
+      <div>
+        <h3>Şifreli Veriyi Çöz</h3>
+        <input type="file" accept=".json" onChange={handleFileUpload} />
+        <pre>{JSON.stringify(decryptedData, null, 2)}</pre>
       </div>
     </div>
   );
