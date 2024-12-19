@@ -1,3 +1,7 @@
+
+npm install crypto-js file-saver
+
+
 import React, { useState } from 'react';
 import CryptoJS from 'crypto-js';
 import { saveAs } from 'file-saver';
