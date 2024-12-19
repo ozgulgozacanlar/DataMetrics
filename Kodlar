@@ -1,38 +1,131 @@
-// Kullanıcı ve tema tercihi verisini tanımlayın
-var userData = {
-  userName: 'John Doe',  // Kullanıcı adı
-  themePreference: 'dark' // Tema tercihi
+import React, { useState, useEffect } from "react";
+
+const App = () => {
+  const [userName, setUserName] = useState('');
+  const [themePreference, setThemePreference] = useState('light');
+  const [isLoading, setIsLoading] = useState(false);
+  const [app, setApp] = useState(null);
+
+  useEffect(() => {
+    // Qlik Sense'e bağlanma
+    const qlikApp = window.require(['js/qlik'], function (qlik) {
+      const app = qlik.openApp('your-app-id', {
+        url: "http://qlik-sense-server"
+      });
+      setApp(app);
+    });
+
+    return () => {
+      if (app) {
+        app.close();
+      }
+    };
+  }, []);
+
+  // Yeni verileri Qlik Sense'e kaydetme
+  const handleSave = () => {
+    setIsLoading(true);
+
+    if (!app) {
+      console.error('Qlik Sense bağlantısı kurulamadı.');
+      return;
+    }
+
+    // Inline Load Script ile veri gönderme
+    const script = `
+      LOAD * INLINE [
+        UserName, ThemePreference
+        '${userName}', '${themePreference}'
+      ];
+    `;
+
+    // Script'i Qlik Sense'e gönderme
+    app.setScript(script)
+      .then(() => {
+        return app.doReload();
+      })
+      .then(() => {
+        console.log("Veri başarıyla Qlik Sense'e kaydedildi.");
+        setIsLoading(false);
+
+        // Veriler yüklendikten sonra tabloyu güncelleme
+        updateTableData();
+      })
+      .catch((error) => {
+        console.error('Veri kaydetme hatası: ', error);
+        setIsLoading(false);
+      });
+  };
+
+  // Tabloyu güncelleme fonksiyonu
+  const updateTableData = () => {
+    if (!app) {
+      console.error('Uygulama bağlantısı mevcut değil');
+      return;
+    }
+
+    // Tablo görselleştirmesini almak için
+    app.visualization.get('your-table-object-id').then((vis) => {
+      // Tabloyu güncelleme
+      vis.getData().then((data) => {
+        console.log('Tablodaki mevcut veriler:', data);
+        
+        // Burada yeni verilerinizi güncelleyebilirsiniz
+        const updatedData = [
+          { UserName: userName, ThemePreference: themePreference }
+        ];
+        
+        // Tabloyu güncelleme
+        vis.setData({
+          data: updatedData
+        }).then(() => {
+          console.log('Tablo verisi başarıyla güncellendi.');
+        }).catch((error) => {
+          console.error('Tablo güncelleme hatası:', error);
+        });
+      }).catch((error) => {
+        console.error('Tablo verisini alma hatası:', error);
+      });
+    }).catch((error) => {
+      console.error('Görselleştirme alma hatası:', error);
+    });
+  };
+
+  return (
+    <div>
+      <h1>Qlik Sense'e Veri Gönderme ve Tabloyu Güncelleme</h1>
+
+      <form onSubmit={(e) => { e.preventDefault(); handleSave(); }}>
+        <div>
+          <label htmlFor="userName">Kullanıcı Adı: </label>
+          <input
+            type="text"
+            id="userName"
+            value={userName}
+            onChange={(e) => setUserName(e.target.value)}
+            required
+          />
+        </div>
+
+        <div>
+          <label htmlFor="theme">Tema Tercihi: </label>
+          <select
+            id="theme"
+            value={themePreference}
+            onChange={(e) => setThemePreference(e.target.value)}
+            required
+          >
+            <option value="light">Light</option>
+            <option value="dark">Dark</option>
+          </select>
+        </div>
+
+        <button type="submit" disabled={isLoading}>
+          {isLoading ? 'Yükleniyor...' : 'Veriyi Kaydet'}
+        </button>
+      </form>
+    </div>
+  );
 };
 
-// Qlik Sense Load Script'i ile veriyi tabloya ekleme
-var script = `
-  LOAD * INLINE [
-    UserName, ThemePreference
-    '${userData.userName}', '${userData.themePreference}'
-  ];
-`;
-
-// Qlik Sense uygulamasına script gönderme
-app.setScript(script).then(function() {
-  // Script başarıyla gönderildikten sonra verileri yükleyin
-  app.doReload().then(function() {
-    console.log('Veri başarıyla yüklendi.');
-  }).catch(function(error) {
-    console.error('Veri yükleme hatası: ', error);
-  });
-});
-app.getTableData(0, 100).then(function(data) {
-  // Tablo verilerini kontrol edin
-  console.log(data);
-  // Tabloyu güncelleme işlemi
-  app.visualization.get('your-table-object-id').then(function(vis) {
-    vis.setData({
-      data: updatedData // Burada verilerinizi değiştirebilirsiniz
-    });
-  });
-});
-app.doReload().then(function() {
-  console.log('Tablo ve veriler güncellendi');
-}).catch(function(error) {
-  console.error('Reload hatası: ', error);
-});
+export default App;
