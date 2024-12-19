@@ -22,6 +22,41 @@ const App = () => {
     };
   }, []);
 
+  // Inline Load kullanarak veri eklemek
+  const handleSave = () => {
+    setIsLoading(true);
+
+    if (!app) {
+      console.error('Qlik Sense bağlantısı kurulamadı.');
+      return;
+    }
+
+    // Inline Load Script ile veri gönderme
+    const script = `
+      LOAD * INLINE [
+        UserName, ThemePreference
+        '${userName}', '${themePreference}'
+      ];
+    `;
+
+    // Script'i Qlik Sense'e gönderme
+    app.setScript(script)
+      .then(() => {
+        return app.doReload();
+      })
+      .then(() => {
+        console.log("Veri başarıyla Qlik Sense'e kaydedildi.");
+        setIsLoading(false);
+
+        // Veriler yüklendikten sonra tabloyu güncelleme
+        updateTableData();
+      })
+      .catch((error) => {
+        console.error('Veri kaydetme hatası: ', error);
+        setIsLoading(false);
+      });
+  };
+
   // Tabloyu güncelleme işlemi
   const updateTableData = () => {
     if (!app) {
@@ -31,45 +66,15 @@ const App = () => {
 
     // Tabloyu almak için objenin ID'sini kullanıyoruz
     app.visualization.get('your-table-object-id').then((vis) => {
-      // Tabloyu almak için getTableData kullanıyoruz
-      vis.getTableData(0, 100).then((data) => {
-        console.log('Tablodaki mevcut veriler:', data);
-
-        // Yeni veriyi ekliyoruz
-        const updatedData = [
-          { UserName: userName, ThemePreference: themePreference }
-        ];
-
-        // Tabloyu güncelleme
-        vis.setData({
-          data: updatedData
-        }).then(() => {
-          console.log('Tablo başarıyla güncellendi.');
-        }).catch((error) => {
-          console.error('Tablo güncellenemedi:', error);
-        });
+      // Görselleştirmeyi güncelleyebiliriz, fakat yeni veri eklemek için veri modelini kullanmamız gerekiyor
+      vis.refresh().then(() => {
+        console.log('Tablo başarıyla güncellendi.');
       }).catch((error) => {
-        console.error('Tablo verilerini alma hatası:', error);
+        console.error('Tablo güncellenemedi:', error);
       });
     }).catch((error) => {
       console.error('Görselleştirme objesini alma hatası:', error);
     });
-  };
-
-  // Veriyi kaydetme ve tabloyu güncelleme
-  const handleSave = () => {
-    setIsLoading(true);
-
-    if (!app) {
-      console.error('Qlik Sense bağlantısı kurulamadı.');
-      return;
-    }
-
-    // Yalnızca tabloyu güncellemek
-    updateTableData();
-
-    // Veriler yüklendikten sonra işlemi bitiriyoruz
-    setIsLoading(false);
   };
 
   return (
