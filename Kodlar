@@ -1,108 +1,26 @@
-import React, { useState } from 'react';
-import CryptoJS from 'crypto-js';
-import { saveAs } from 'file-saver';
+function AppContent() {
 
-function App() {
-  const [userName, setUserName] = useState('');
-  const [themePreference, setThemePreference] = useState('');
-  const [message, setMessage] = useState('');
-  const [decryptedData, setDecryptedData] = useState(null);
-
-  // Sabit bir şifreleme anahtarı kullanarak otomatik anahtar belirleme
-  const encryptionKey = 'my-very-secure-encryption-key'; // Burada sabit bir anahtar kullanıyoruz
-
-  // Şifreleme fonksiyonu
-  const encryptData = (data) => {
-    return CryptoJS.AES.encrypt(JSON.stringify(data), encryptionKey).toString();
-  };
-
-  // Şifreli veriyi çözme fonksiyonu
-  const decryptData = (encryptedData) => {
-    const bytes = CryptoJS.AES.decrypt(encryptedData, encryptionKey);
-    const decrypted = bytes.toString(CryptoJS.enc.Utf8);
-    return JSON.parse(decrypted);
-  };
-
-  // JSON verisini dosyaya kaydetme fonksiyonu
-  const saveToFile = (encryptedData) => {
-    const blob = new Blob([encryptedData], { type: 'application/json' });
-    saveAs(blob, 'userData.json');
-  };
-
-  // Veriyi kaydetme ve şifreleme fonksiyonu
-  const handleSave = () => {
-    if (userName && themePreference) {
-      // JSON verisini oluştur
-      const userData = {
-        userName,
-        themePreference,
-      };
-
-      // Veriyi şifrele
-      const encryptedData = encryptData(userData);
-
-      // Şifreli veriyi dosyaya kaydet
-      saveToFile(encryptedData);
-
-      setMessage('Veri başarıyla şifrelendi ve dosyaya kaydedildi!');
-    } else {
-      setMessage('Lütfen tüm alanları doldurun.');
-    }
-  };
-
-  // Dosyayı okuma fonksiyonu
-  const handleFileUpload = (event) => {
-    const file = event.target.files[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onload = () => {
-        const encryptedData = reader.result;
-        const data = decryptData(encryptedData);
-        setDecryptedData(data);
-      };
-      reader.readAsText(file);
-    }
-  };
+  const pageName = useSelector((state) => state.page.name);
+  console.log(pageName)
 
   return (
-    <div>
-      <h1>Şifreleme Uygulaması</h1>
-
-      <div>
-        <label>
-          Kullanıcı Adı:
-          <input
-            type="text"
-            value={userName}
-            onChange={(e) => setUserName(e.target.value)}
-          />
-        </label>
-      </div>
-
-      <div>
-        <label>
-          Tema Tercihi:
-          <input
-            type="text"
-            value={themePreference}
-            onChange={(e) => setThemePreference(e.target.value)}
-          />
-        </label>
-      </div>
-
-      <button onClick={handleSave}>Veriyi Şifrele ve Kaydet</button>
-
-      <div>
-        <h3>{message}</h3>
-      </div>
-
-      <div>
-        <h3>Şifreli Veriyi Çöz</h3>
-        <input type="file" accept=".json" onChange={handleFileUpload} />
-        <pre>{JSON.stringify(decryptedData, null, 2)}</pre>
-      </div>
+    <div className="d-flex">
+      <HashRouter>
+        {pageName !== 'home' || pageName !== 'null' && <SideBar />}
+        <div className="content-wrapper">
+          <NavBar />
+          <div className="main-wrapper">
+            <Routes>
+              <Route exact path="/" element={<Home />} />
+              <Route path="/home" element={<Home />} />
+              <Route path="/apps" element={<AppsPage />} />
+              <Route path="/sheets" element={<SheetsPage />} />
+              <Route path="/favorites" element={<FavoritesPage />} />
+              <Route path="/bookmarks" element={<BookMarksPage />} />
+            </Routes>
+          </div>
+        </div>
+      </HashRouter>
     </div>
   );
 }
-
-export default App;
