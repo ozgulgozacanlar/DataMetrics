@@ -1,25 +1,27 @@
-    <div className="d-flex">
-      <HashRouter>
-        <SideBar />
-        <div className="content-wrapper">
-          <NavBar />
-          <div className="main-wrapper">
-            {/* Eğer themeLoading true ise, yükleme spinner'ını göster */}
-            {isThemeLoading && (
-              <div className="fixed-loader">
-                <Loader /> 
-                {/* Loader bileşeni yükleme simgesini gösterecek */}
-              </div>
-            )}
-            <Routes>
-              <Route exact path="/" element={<Home />} />
-              <Route path="/home" element={<Home />} />
-              <Route path="/apps" element={<AppsPage />} />
-              <Route path="/sheets" element={<SheetsPage />} />
-              <Route path="/favorites" element={<FavoritesPage />} />
-              <Route path="/bookmarks" element={<BookMarksPage />} />
-            </Routes>
+<div className="d-flex">
+  <HashRouter>
+    <SideBar />
+    <div className="content-wrapper">
+      <NavBar />
+      <div className="main-wrapper">
+        {/* Eğer themeLoading true ise, yükleme spinner'ını göster */}
+        {isThemeLoading ? (
+          <div className="fixed-loader">
+            <Loader /> 
+            {/* Loader bileşeni yükleme simgesini gösterecek */}
           </div>
-        </div>
-      </HashRouter>
+        ) : (
+          // Eğer isThemeLoading false ise, Routes kısmı gösterilsin
+          <Routes>
+            <Route exact path="/" element={<Home />} />
+            <Route path="/home" element={<Home />} />
+            <Route path="/apps" element={<AppsPage />} />
+            <Route path="/sheets" element={<SheetsPage />} />
+            <Route path="/favorites" element={<FavoritesPage />} />
+            <Route path="/bookmarks" element={<BookMarksPage />} />
+          </Routes>
+        )}
+      </div>
     </div>
+  </HashRouter>
+</div>
