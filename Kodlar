@@ -115,3 +115,15 @@ const App = () => {
 };
 
 export default App;
+
+
+var script = "LOAD Sales FROM [lib://data/sample.xlsx];";
+var app = qlik.openApp("2abac31e-3b46-4b78-8bxf-c5cea1d2514d", config);
+app.setScript(script).then( function(result){
+  console.log(result);
+});
+var script = "Load Chr(RecNo()+Ord('A')-1) as Alpha, RecNo() as Num autogenerate 26;"
+var app = qlik.openApp("2abac31e-3b46-4b78-8bxf-c5cea1d2514d", config);
+app.setScript(script).then( function(result){
+  console.log(result);
+});
