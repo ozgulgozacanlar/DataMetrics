@@ -1,129 +1,112 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from 'react';
+import CryptoJS from 'crypto-js';
+import { saveAs } from 'file-saver';
 
-const App = () => {
+function App() {
   const [userName, setUserName] = useState('');
-  const [themePreference, setThemePreference] = useState('light');
-  const [isLoading, setIsLoading] = useState(false);
-  const [app, setApp] = useState(null);
+  const [themePreference, setThemePreference] = useState('');
+  const [message, setMessage] = useState('');
+  const [decryptedData, setDecryptedData] = useState(null);
 
-  useEffect(() => {
-    // Qlik Sense'e bağlanma
-    const qlikApp = window.require(['js/qlik'], function (qlik) {
-      const app = qlik.openApp('your-app-id', {
-        url: "http://qlik-sense-server"
-      });
-      setApp(app);
-    });
+  // Şifreleme anahtarını belirleyelim
+  const encryptionKey = 'my-secret-key';
 
-    return () => {
-      if (app) {
-        app.close();
-      }
-    };
-  }, []);
-
-  // Inline Load kullanarak veri eklemek
-  const handleSave = () => {
-    setIsLoading(true);
-
-    if (!app) {
-      console.error('Qlik Sense bağlantısı kurulamadı.');
-      return;
-    }
-
-    // Inline Load Script ile veri gönderme
-    const script = `
-      LOAD * INLINE [
-        UserName, ThemePreference
-        '${userName}', '${themePreference}'
-      ];
-    `;
-
-    // Script'i Qlik Sense'e gönderme
-    app.setScript(script)
-      .then(() => {
-        return app.doReload();
-      })
-      .then(() => {
-        console.log("Veri başarıyla Qlik Sense'e kaydedildi.");
-        setIsLoading(false);
-
-        // Veriler yüklendikten sonra tabloyu güncelleme
-        updateTableData();
-      })
-      .catch((error) => {
-        console.error('Veri kaydetme hatası: ', error);
-        setIsLoading(false);
-      });
+  // Şifreleme fonksiyonu
+  const encryptData = (data) => {
+    return CryptoJS.AES.encrypt(JSON.stringify(data), encryptionKey).toString();
   };
 
-  // Tabloyu güncelleme işlemi
-  const updateTableData = () => {
-    if (!app) {
-      console.error('Uygulama bağlantısı mevcut değil');
-      return;
-    }
+  // Şifreli veriyi çözme fonksiyonu
+  const decryptData = (encryptedData) => {
+    const bytes = CryptoJS.AES.decrypt(encryptedData, encryptionKey);
+    const decrypted = bytes.toString(CryptoJS.enc.Utf8);
+    return JSON.parse(decrypted);
+  };
 
-    // Tabloyu almak için objenin ID'sini kullanıyoruz
-    app.visualization.get('your-table-object-id').then((vis) => {
-      // Görselleştirmeyi güncelleyebiliriz, fakat yeni veri eklemek için veri modelini kullanmamız gerekiyor
-      vis.refresh().then(() => {
-        console.log('Tablo başarıyla güncellendi.');
-      }).catch((error) => {
-        console.error('Tablo güncellenemedi:', error);
-      });
-    }).catch((error) => {
-      console.error('Görselleştirme objesini alma hatası:', error);
-    });
+  // JSON verisini dosyaya kaydetme fonksiyonu
+  const saveToFile = (encryptedData) => {
+    const blob = new Blob([encryptedData], { type: 'application/json' });
+    saveAs(blob, 'userData.json');
+  };
+
+  // Veriyi kaydetme ve şifreleme fonksiyonu
+  const handleSave = () => {
+    if (userName && themePreference) {
+      // JSON verisini oluştur
+      const userData = {
+        userName,
+        themePreference,
+      };
+
+      // Veriyi şifrele
+      const encryptedData = encryptData(userData);
+
+      // Şifreli veriyi dosyaya kaydet
+      saveToFile(encryptedData);
+
+      setMessage('Veri başarıyla şifrelendi ve dosyaya kaydedildi!');
+    } else {
+      setMessage('Lütfen tüm alanları doldurun.');
+    }
+  };
+
+  // Dosyayı okuma fonksiyonu
+  const handleFileUpload = (event) => {
+    const file = event.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = () => {
+        const encryptedData = reader.result;
+        const data = decryptData(encryptedData);
+        setDecryptedData(data);
+      };
+      reader.readAsText(file);
+    }
   };
 
   return (
-    <div>
-      <h1>Qlik Sense Tablosunu Güncelle</h1>
+    <div className="App">
+      <h1>JSON Verisini Şifrele ve Dosyaya Kaydet</h1>
 
-      <form onSubmit={(e) => { e.preventDefault(); handleSave(); }}>
-        <div>
-          <label htmlFor="userName">Kullanıcı Adı: </label>
+      <div>
+        <label>
+          Kullanıcı Adı:
           <input
             type="text"
-            id="userName"
             value={userName}
             onChange={(e) => setUserName(e.target.value)}
-            required
           />
-        </div>
+        </label>
+      </div>
 
-        <div>
-          <label htmlFor="theme">Tema Tercihi: </label>
-          <select
-            id="theme"
+      <div>
+        <label>
+          Tema Tercihi:
+          <input
+            type="text"
             value={themePreference}
             onChange={(e) => setThemePreference(e.target.value)}
-            required
-          >
-            <option value="light">Light</option>
-            <option value="dark">Dark</option>
-          </select>
-        </div>
+          />
+        </label>
+      </div>
 
-        <button type="submit" disabled={isLoading}>
-          {isLoading ? 'Yükleniyor...' : 'Tabloyu Güncelle'}
-        </button>
-      </form>
+      <button onClick={handleSave}>Veriyi Kaydet</button>
+
+      <p>{message}</p>
+
+      <div>
+        <h2>Şifreli JSON Dosyasını Yükleyin</h2>
+        <input type="file" onChange={handleFileUpload} />
+        {decryptedData && (
+          <div>
+            <h3>Çözülmüş Veriler:</h3>
+            <p>Kullanıcı Adı: {decryptedData.userName}</p>
+            <p>Tema Tercihi: {decryptedData.themePreference}</p>
+          </div>
+        )}
+      </div>
     </div>
   );
-};
+}
 
 export default App;
-
-
-var script = "LOAD Sales FROM [lib://data/sample.xlsx];";
-var app = qlik.openApp("2abac31e-3b46-4b78-8bxf-c5cea1d2514d", config);
-app.setScript(script).then( function(result){
-  console.log(result);
-});
-var script = "Load Chr(RecNo()+Ord('A')-1) as Alpha, RecNo() as Num autogenerate 26;"
-var app = qlik.openApp("2abac31e-3b46-4b78-8bxf-c5cea1d2514d", config);
-app.setScript(script).then( function(result){
-  console.log(result);
-});
