@@ -1,5 +1,38 @@
-   <div className="d-flex align-items-center gap-3">
-          <ToggleTheme />
-          <div className="vl-line"></div>
-          <UserCircle user={user} />
-        </div>
+// Kullanıcı ve tema tercihi verisini tanımlayın
+var userData = {
+  userName: 'John Doe',  // Kullanıcı adı
+  themePreference: 'dark' // Tema tercihi
+};
+
+// Qlik Sense Load Script'i ile veriyi tabloya ekleme
+var script = `
+  LOAD * INLINE [
+    UserName, ThemePreference
+    '${userData.userName}', '${userData.themePreference}'
+  ];
+`;
+
+// Qlik Sense uygulamasına script gönderme
+app.setScript(script).then(function() {
+  // Script başarıyla gönderildikten sonra verileri yükleyin
+  app.doReload().then(function() {
+    console.log('Veri başarıyla yüklendi.');
+  }).catch(function(error) {
+    console.error('Veri yükleme hatası: ', error);
+  });
+});
+app.getTableData(0, 100).then(function(data) {
+  // Tablo verilerini kontrol edin
+  console.log(data);
+  // Tabloyu güncelleme işlemi
+  app.visualization.get('your-table-object-id').then(function(vis) {
+    vis.setData({
+      data: updatedData // Burada verilerinizi değiştirebilirsiniz
+    });
+  });
+});
+app.doReload().then(function() {
+  console.log('Tablo ve veriler güncellendi');
+}).catch(function(error) {
+  console.error('Reload hatası: ', error);
+});
