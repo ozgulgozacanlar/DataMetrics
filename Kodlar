@@ -1,18 +1,21 @@
+ {warning && (
+    <div className="warning-message">Uyarı: Favori öğeleri yüklenemedi.</div>
+  )}
+
   <CarouselWrapper>
-    {warning ? (
-      <div className="warning-message">Uyarı: Favori öğeleri yüklenemedi.</div>
+    {favorites && favorites.length > 0 ? (
+      favorites.map((item, i) => (
+        <FavoriteCard
+          key={i}
+          title={item.name}
+          date={item.publishTime}
+          thunmnail={item.thunmnail}
+          description={item.description}
+          id={item.id}
+          onToggle={handleAddRemoveFavoriteApp}
+        />
+      ))
     ) : (
-      (favorites && favorites.length > 0 ? 
-        favorites.map((item, i) => (
-          <FavoriteCard
-            key={i}
-            title={item.name}
-            date={item.publishTime}
-            thunmnail={item.thunmnail}
-            description={item.description}
-            id={item.id}
-            onToggle={handleAddRemoveFavoriteApp}
-          />
-        )) : <></>)
+      <></>
     )}
   </CarouselWrapper>
