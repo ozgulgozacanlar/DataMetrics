@@ -1,7 +1,12 @@
-  getAppById(id).then((appArr) => {
-        console.log(appArr)
-        if (appArr) {
-         dispatch(setSelectedStreamId(appArr.stream.id));
-         sessionStorage.setItem("lastSelectedStreamId", appArr.stream.id);
-        }
-      })
+getAppById(id)
+  .then((appArr) => {
+    console.log(appArr);
+    if (appArr) {
+      dispatch(setSelectedStreamId(appArr.stream.id));
+      sessionStorage.setItem("lastSelectedStreamId", appArr.stream.id);
+    }
+  })
+  .catch((error) => {
+    console.error("Hata oluştu:", error);
+    // Hata mesajını kullanıcıya göstermek veya başka bir işlem yapmak
+  });
