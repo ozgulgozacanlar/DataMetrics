@@ -1,26 +1,26 @@
-function AppContent() {
+function loadSheets(_app) {
+  _app.getList("sheet", function(reply) {
+      const sheetsData = reply.qAppObjectList.qItems;
+      const sheetArray = sheetsData.map(sheet => ({
+          appId: appId,
+          sheetId: sheet.qInfo.qId,
+          name: sheet.qMeta.title,
+          publishTime: sheet.qMeta.publishTime,
+          thumbnail: sheet.qData.thumbnail.qStaticContentUrl.qUrl,
+          description: sheet.qMeta.description
+      }));
 
-  const pageName = useSelector((state) => state.page.name);
-  console.log(pageName)
+      // Rank'e göre sıralama
+      const sortedSheetArray = sheetArray.sort((a, b) => {
+          const rankA = sheetsData.find(sheet => sheet.qInfo.qId === a.sheetId).qData.rank;
+          const rankB = sheetsData.find(sheet => sheet.qInfo.qId === b.sheetId).qData.rank;
+          return rankA - rankB; // Küçükten büyüğe sıralama
+      });
 
-  return (
-    <div className="d-flex">
-      <HashRouter>
-        {pageName !== 'home' || pageName !== 'null' && <SideBar />}
-        <div className="content-wrapper">
-          <NavBar />
-          <div className="main-wrapper">
-            <Routes>
-              <Route exact path="/" element={<Home />} />
-              <Route path="/home" element={<Home />} />
-              <Route path="/apps" element={<AppsPage />} />
-              <Route path="/sheets" element={<SheetsPage />} />
-              <Route path="/favorites" element={<FavoritesPage />} />
-              <Route path="/bookmarks" element={<BookMarksPage />} />
-            </Routes>
-          </div>
-        </div>
-      </HashRouter>
-    </div>
-  );
+      // console.log(sortedSheetArray);
+      setSheets(sortedSheetArray);
+      setTimeout(() => {
+          setLoading(false);
+      }, 2000);
+  });
 }
