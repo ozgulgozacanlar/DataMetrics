@@ -1,15 +1,200 @@
-{favorites && favorites.length > 0 ? (
-  favorites.map((item, i) => {
-    console.log(item);  // Burada her bir 'item' konsola yazdırılır
-    return (
-      <FavoriteCard
-        key={i}
-        title={item.name}
-        date={item.publishTime}
-        thunmnail={item.thunmnail}
-        description={item.description}
-        id={item.id}
-        onToggle={handleAddRemoveFavoriteApp}
-      />
-    );
-  })
+import { useDispatch, useSelector } from "react-redux";
+import { } from '../assets/css/style.css';
+import { SheetCard, WarningModal } from "@/components";
+import { Sheets } from '@/assets/svg';
+import { setName } from '../app/features/page';
+import { useEffect, useState } from 'react';
+import { getSheetById } from "../util/qlikApi";
+import { Loader, Error } from '@/components';
+import { setSelectedAppId, setSelectedStreamId } from "../app/features/data";
+import { setMenu } from '@/app/features/menu';
+import { openApp } from '@/util/qlikConnection';
+import { setIframeData } from "../app/features/data";
+import mashupConfig from "../util/mashupConfig";
+
+export default function SheetsPage() {
+  const datas = useSelector((state) => state.data);
+  const iframeData = useSelector((state) => state.data.iframeData);
+  const navbarClick = useSelector((state) => state.navbar.navClicked);
+  const appId = datas.selectedAppId;
+  const [sheetsData, setSheets] = useState([]);
+  const [isLoading, setLoading] = useState(true);
+  const [iframeSrc, setIframeSrc] = useState("");
+  const lastSelectedAppId = sessionStorage.getItem("lastSelectedAppId");
+  const lastSelectedStreamId = sessionStorage.getItem("lastSelectedStreamId");
+
+  const dispatch = useDispatch();
+  useEffect(() => {
+    dispatch(setName('sheets'));
+    setLoading(true);
+    if (appId || lastSelectedAppId != "null") {
+      //const sheetsArray = [];
+      dispatch(setSelectedStreamId(lastSelectedStreamId));
+      if (appId == null) {
+        dispatch(setSelectedAppId(lastSelectedAppId));
+      } else {
+        sessionStorage.setItem("lastSelectedAppId", appId);
+      }
+
+      openApp(appId).then((_app) => {
+        _app.getList("BookmarkList", function (reply) {
+          if (reply.qBookmarkList.qItems.length > 0 && !navbarClick) { //Eğer navbarClick true ise yani navbar'daki app ismine tıklanmışsa default sheet'i açmaz , app içindeki sheet'leri listeler. ( o yüzden tıklanmışsa else'e girer.) 
+            const defaultItems = reply.qBookmarkList.qItems.filter(item => item.qData.description === "default"); //DataOps bookmark'nda description:default tanımlananlar default açılacak sheet'leri içerir.
+            if (defaultItems.length > 0) {
+              // En güncel modifiedDate'e sahip olanı bul
+              const mostRecentItem = defaultItems.reduce((prev, current) => {
+                return (new Date(prev.qMeta.modifiedDate) > new Date(current.qMeta.modifiedDate)) ? prev : current;
+              });
+              const sheetId = mostRecentItem.qData.sheetId;
+              var obj = { appId, sheetId };
+              dispatch(setIframeData(obj));
+            }
+            else {
+              dispatch(setIframeData(null));
+              loadSheets(_app);
+            }
+          }
+          else {
+            dispatch(setIframeData(null));
+            loadSheets(_app);
+          }
+        })
+
+      })
+      // getSheetById(appId != null ? appId : lastSelectedAppId ).then((sheets) =>{
+      //   for (let k = 0; k < sheets.length; k++) {
+      //     var objSheet = {appId:"", sheetId:"", name:"", publishTime:"",thumbnail :"",description:""};
+      //     objSheet.appId = appId;
+      //     objSheet.sheetId = sheets[k].engineObjectId;
+      //     objSheet.name = sheets[k].name;
+      //     objSheet.publishTime =  sheets[k].publishTime;
+      //     objSheet.thumbnail =  sheets[k].thumbnail =! undefined ? sheets[k].thumbnail : "";
+      //     objSheet.description =  sheets[k].description;
+      //     sheetsArray.push(objSheet);
+      //   }
+      //   console.log(sheetsArray)
+      //   setSheets(sheetsArray);
+
+      //   setTimeout(() => {
+      //     setLoading(false);
+      //    }, 2000);
+
+      //  })
+    }
+
+  }, [appId, lastSelectedAppId, navbarClick]);
+
+  useEffect(() => {
+    var src = "";
+
+    if (iframeData) {
+      const exist = mashupConfig.some((item) => item.appId == appId);
+      if (exist) { //Datahob içinde başka bir mashup açılacak mı? Bu kontrol ediliyor. Bunun için mashupConfig dosyası kullanılmaktadır.
+        for (let i = 0; i < mashupConfig.length; i++) {
+          if (mashupConfig[i].appId == appId) {   //array'de appId eşleştirmesi yapılıyor. Bulunan data içindeki url src'ye ekleniyor
+            src = `${import.meta.env.VITE_QLIK_SERVER}${mashupConfig[i].mashupUrl}`;     //buradaki url'e göre mashup içinde gerekli gösterim yapılıyor.
+          }
+        }
+      } else {
+        // var src = `${import.meta.env.VITE_QLIK_SERVER+"/"}single/?appid=${iframeData.appId}&sheet=${iframeData.sheetId}&opt=currsel&select=clearall`;
+        src = `${import.meta.env.VITE_QLIK_SERVER + "/sense/app/"}${iframeData.appId}/sheet/${iframeData.sheetId}`;
+      }
+      setIframeSrc(src);
+      dispatch(setMenu(true));
+
+    } else {
+      setIframeSrc(src);
+      dispatch(setMenu(false));
+    }
+    setLoading(false);
+
+  }, [iframeData])
+
+  const handleIframeLoad = () => {
+    const exist = mashupConfig.some((item) => item.appId == appId);
+    if (!exist) {
+      const iframe = document.querySelector('.iframe-area');
+      const innerDoc = iframe.contentDocument || iframe.contentWindow.document;
+      const checkQSCenter = setInterval(() => {
+        const qsCenter = innerDoc.querySelector('.qs-toolbar__center');
+        const qsLeft = innerDoc.querySelector('.qs-toolbar__left');
+        if (qsCenter) {
+          qsCenter.style.display = 'none';
+          qsLeft.style.display = 'none';
+          clearInterval(checkQSCenter);
+        } else {
+          console.log('qs_center bulunamadı, tekrar denenecek...');
+        }
+      }, 100); // 100 ms aralıklarla kontrol et
+    }
+  };
+  const handleClose = () => setShowWarningModal(false);
+
+  // Sheet'leri yükleyen fonksiyon
+  function loadSheets(_app) {
+    _app.getList("sheet", function (reply) {
+      const sheetsData = reply.qAppObjectList.qItems;
+      const sheetArray = sheetsData.map(sheet => ({
+        appId: appId,
+        sheetId: sheet.qInfo.qId,
+        name: sheet.qMeta.title,
+        publishTime: sheet.qMeta.publishTime,
+        thumbnail: sheet.qData.thumbnail.qStaticContentUrl.qUrl,
+        description: sheet.qMeta.description
+      }));
+
+      // Rank'e göre sıralama
+      const sortedSheetArray = sheetArray.sort((a, b) => {
+        const rankA = sheetsData.find(sheet => sheet.qInfo.qId === a.sheetId).qData.rank;
+        const rankB = sheetsData.find(sheet => sheet.qInfo.qId === b.sheetId).qData.rank;
+        return rankA - rankB; // Küçükten büyüğe sıralama
+      });
+
+      // console.log(sortedSheetArray);
+      setSheets(sortedSheetArray);
+      setTimeout(() => {
+        setLoading(false);
+      }, 2000);
+    });
+  }
+
+  return (
+    <div className="list-section-wrapper" style={{ padding: iframeData ? '0' : '2rem' }}>
+      {isLoading ? (
+        <div className="fixed-loader">
+          <Loader />
+        </div>
+      ) :
+        <>
+          {
+            iframeSrc !== "" ?
+              <div className="d-flex flex-column flex-grow-1"><iframe src={iframeSrc} className="iframe-area" onLoad={handleIframeLoad}></iframe></div> :
+              <div className="list-section sheets">
+                <div className="d-flex align-items-center gap-2">
+                  <div className="title-icon"><Sheets /></div>
+                  <div className="title">Sheet</div>
+                </div>
+                <div className="sheet-card-wrapper">
+                  {sheetsData && sheetsData.length > 0 ? (
+                    sheetsData.map((item, i) => (
+                      <SheetCard
+                        key={i}
+                        appId={item.appId}
+                        sheetId={item.sheetId}
+                        title={item.name}
+                        date={item.publishTime}
+                        thumbnail={item.thumbnail}
+                        description={item.description}
+                      />
+                    ))
+                  ) : (
+                    <div style={{position:'absolute' , left:'50%'}}> ⚠️ Sheet listesi bulunamadı</div>
+                  )}
+                </div>
+              </div>}
+        </>
+      }
+    </div>
+
+  );
+}
