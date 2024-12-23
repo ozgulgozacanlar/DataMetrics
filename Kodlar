@@ -1,26 +1,35 @@
 function loadSheets(_app) {
-  _app.getList("sheet", function(reply) {
-      const sheetsData = reply.qAppObjectList.qItems;
-      const sheetArray = sheetsData.map(sheet => ({
-          appId: appId,
-          sheetId: sheet.qInfo.qId,
-          name: sheet.qMeta.title,
-          publishTime: sheet.qMeta.publishTime,
-          thumbnail: sheet.qData.thumbnail.qStaticContentUrl.qUrl,
-          description: sheet.qMeta.description
-      }));
-
-      // Rank'e göre sıralama
-      const sortedSheetArray = sheetArray.sort((a, b) => {
-          const rankA = sheetsData.find(sheet => sheet.qInfo.qId === a.sheetId).qData.rank;
-          const rankB = sheetsData.find(sheet => sheet.qInfo.qId === b.sheetId).qData.rank;
-          return rankA - rankB; // Küçükten büyüğe sıralama
-      });
-
-      // console.log(sortedSheetArray);
-      setSheets(sortedSheetArray);
+  _app.getList("sheet", function(reply, error) {
+    // Hata kontrolü
+    if (error) {
+      // Hata durumunda modal göster
+      showModal("Bir hata oluştu, veriler yüklenemedi.");
       setTimeout(() => {
-          setLoading(false);
+        setLoading(false);
       }, 2000);
+      return;
+    }
+    
+    const sheetsData = reply.qAppObjectList.qItems;
+    const sheetArray = sheetsData.map(sheet => ({
+        appId: appId,
+        sheetId: sheet.qInfo.qId,
+        name: sheet.qMeta.title,
+        publishTime: sheet.qMeta.publishTime,
+        thumbnail: sheet.qData.thumbnail.qStaticContentUrl.qUrl,
+        description: sheet.qMeta.description
+    }));
+
+    // Rank'e göre sıralama
+    const sortedSheetArray = sheetArray.sort((a, b) => {
+        const rankA = sheetsData.find(sheet => sheet.qInfo.qId === a.sheetId).qData.rank;
+        const rankB = sheetsData.find(sheet => sheet.qInfo.qId === b.sheetId).qData.rank;
+        return rankA - rankB; // Küçükten büyüğe sıralama
+    });
+
+    setSheets(sortedSheetArray);
+    setTimeout(() => {
+        setLoading(false);
+    }, 2000);
   });
 }
