@@ -1,6 +1,31 @@
- .catch((error) => {
-      console.log("Error in getStreamById: " + error);
-      setTimeout(() => {
-        setLoading(false);
-      }, 2000);
-    });
+// Hata yönetimi fonksiyonu
+function handleError(error) {
+    if (error.response) {
+        // Sunucudan gelen hata kodları (örneğin 404, 403 vs.)
+        const statusCode = error.response.status;
+
+        // 404 - Not Found hatası
+        if (statusCode === 404) {
+            console.error("Hata 404: Kaynak bulunamadı!");
+            throw new Error("Kaynak bulunamadı!"); // Burada hata fırlatıyoruz
+        }
+
+        // 403 - Forbidden hatası
+        if (statusCode === 403) {
+            console.error("Hata 403: Erişim reddedildi!");
+            return error.response.data; // 403 hatasında response verisini geri döndürüyoruz
+        }
+
+        // Diğer hata durumlarını burada ele alabilirsiniz
+        console.error(`Hata ${statusCode}: ${error.response.data}`);
+        throw new Error(`Beklenmeyen hata: ${error.response.data}`);
+    } else if (error.request) {
+        // Eğer istek yapılmış ancak yanıt alınamamışsa
+        console.error("Sunucuya istek gönderilemedi");
+        throw new Error("Sunucuya istek gönderilemedi.");
+    } else {
+        // Hata başka bir sebepten dolayı oluştuysa
+        console.error("Hata oluştu: ", error.message);
+        throw new Error(error.message);
+    }
+}
