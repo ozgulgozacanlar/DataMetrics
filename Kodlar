@@ -1,18 +1,12 @@
-export async function getStreamById(id) {
-    try {
-        const queryFilter = `(stream.id eq ${id}) or (stream.id eq ${id})`;
-        const res = await axiosIns.get(`qrs/app/full?xrfkey=${xrfKey}&filter=${queryFilter}&orderby=name asc`);
-        return res.data; 
-    } catch (error) {
-        console.log("getStreamById : " + error);
-    }   
-}
-
-export async function getStream(id) {
-    try {
-        const res = await axiosIns.get(`qrs/app/full?xrfkey=${xrfKey}&filter=(stream.id eq ${id})`);
-        return res.data; 
-    } catch (error) {
-        console.log(error);
-    }   
-}
+ {favorites && favorites.length > 0 ? (
+                        favorites.map((item, i) => (
+                          <FavoriteCard
+                            key={i}
+                            title={item.name}
+                            date={item.publishTime}
+                            thunmnail={item.thunmnail}
+                            description={item.description}
+                            id={item.id}
+                            onToggle={handleAddRemoveFavoriteApp}
+                          />
+                        ))
