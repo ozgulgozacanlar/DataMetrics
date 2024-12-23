@@ -1,37 +1,6 @@
- try {
-        getStreamById(streamId != null ? streamId : lastSelectedStreamId ).then((apps) => {
-          getFavorites().then((favArr) => {
-           for (let i = 0; i < apps.length; i++) {
-            var objApp = {name:"", publishTime:"",thumbnail :"",description:"",favStatus:false,id:""};
-            objApp.name = apps[i].name;
-            objApp.publishTime =  apps[i].publishTime;
-            objApp.thumbnail =  apps[i].thumbnail;
-            objApp.description =  apps[i].description;
-            objApp.id =  apps[i].id;
-            if(favArr.length > 0){
-              for (let j = 0; j < favArr.length; j++) {   
-                if(apps[i].id == favArr[j]){
-                  objApp.favStatus = true;
-                }
-              }
-            }
-         
-            appsArray.push(objApp);
-
-            
-           }
-           setApps(appsArray);
-           setTimeout(() => {      
-            setLoading(false);
-           }, 2000);
-           
-          //  console.log(appsArray)
-  
-          });
-        })
-      } catch (error) {
-         console.log("App Page Error : " + error);
-         setTimeout(() => {      
-          setLoading(false);
-         },2000);
-      }
+ .catch((error) => {
+      console.log("Error in getStreamById: " + error);
+      setTimeout(() => {
+        setLoading(false);
+      }, 2000);
+    });
