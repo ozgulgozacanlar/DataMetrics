@@ -1,10 +1,18 @@
-export async function openApp(appId) {
-  try {
-    const qlik = await qlikAPI;  // qlikAPI'yi çöz
-    const app = await qlik.openApp(appId, config);  // openApp çağrısını bekle
-    return app;  // Başarıyla çözülürse uygulama döndürülür
-  } catch (error) {
-    console.error('Uygulama açılırken hata oluştu:', error);
-    throw error;  // Hata fırlatılır, böylece catch ile yakalanabilir
-  }
+export async function getStreamById(id) {
+    try {
+        const queryFilter = `(stream.id eq ${id}) or (stream.id eq ${id})`;
+        const res = await axiosIns.get(`qrs/app/full?xrfkey=${xrfKey}&filter=${queryFilter}&orderby=name asc`);
+        return res.data; 
+    } catch (error) {
+        console.log("getStreamById : " + error);
+    }   
+}
+
+export async function getStream(id) {
+    try {
+        const res = await axiosIns.get(`qrs/app/full?xrfkey=${xrfKey}&filter=(stream.id eq ${id})`);
+        return res.data; 
+    } catch (error) {
+        console.log(error);
+    }   
 }
