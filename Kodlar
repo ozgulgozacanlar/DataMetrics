@@ -1,5 +1,17 @@
-<div className="list-section apps">
-            <div className="app-card-wrapper">
-              {(favorites && favorites.length != undefined ? favorites.map((item, i) => <AppCard key={i} title={item.name} date={item.publishTime} thunmnail={item.thunmnail} description={item.description} id={item.id} favStatu={item.favStatus} />) : <></>)}
-            </div>
-          </div>
+  <div className="app-card-wrapper">
+    {favorites && favorites.length > 0 ? (
+      favorites.map((item, i) => (
+        <AppCard
+          key={i}
+          title={item.name}
+          date={item.publishTime}
+          thunmnail={item.thunmnail}
+          description={item.description}
+          id={item.id}
+          favStatu={item.favStatus}
+        />
+      ))
+    ) : (
+      <div className="no-favorites-message">Favori bulunamadı</div>
+    )}
+  </div>
