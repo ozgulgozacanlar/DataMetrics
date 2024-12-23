@@ -1,16 +1,21 @@
-export function openApp(appId) {
-  return new Promise((resolve, reject) => {
-    qlikAPI.then((qlik) => {
-      try {
-        const app = qlik.openApp(appId, config);
-        resolve(app);  // Uygulama başarılı şekilde açılırsa çözülür
-      } catch (error) {
-        console.error('openApp çağrılırken hata:', error);  // Hata detaylarını konsola yazdırıyoruz
-        reject(error);  // Hata burada reddedilir
-      }
-    }).catch((error) => {
-      console.error('qlikAPI ile ilgili hata:', error);  // qlikAPI hatasını loglarız
-      reject(error); // `qlikAPI`'den gelen hata
-    });
-  });
-}
+ useEffect(() => {
+    dispatch(setName('home'));
+    dispatch(setIframeData(null));
+    sessionStorage.removeItem("lastSelectedAppId");
+    sessionStorage.removeItem("lastSelectedStreamId");
+
+    if (!app) {
+      openApp(import.meta.env.VITE_APP_APP1)
+        .then((_app) => {
+        
+          setApp(_app);
+        })
+        .catch((error) => {
+          //*** warning start ***
+          setModalText(error.message);
+          setShowWarningModal(true);
+          setTimeout(() => { setLoading(false); }, 25);
+          //*** warning end ***
+          console.error('Uygulama başlatma hatası:', error);
+        });
+    }
