@@ -1,12 +1,15 @@
- {favorites && favorites.length > 0 ? (
-                        favorites.map((item, i) => (
-                          <FavoriteCard
-                            key={i}
-                            title={item.name}
-                            date={item.publishTime}
-                            thunmnail={item.thunmnail}
-                            description={item.description}
-                            id={item.id}
-                            onToggle={handleAddRemoveFavoriteApp}
-                          />
-                        ))
+{favorites && favorites.length > 0 ? (
+  favorites.map((item, i) => {
+    console.log(item);  // Burada her bir 'item' konsola yazdırılır
+    return (
+      <FavoriteCard
+        key={i}
+        title={item.name}
+        date={item.publishTime}
+        thunmnail={item.thunmnail}
+        description={item.description}
+        id={item.id}
+        onToggle={handleAddRemoveFavoriteApp}
+      />
+    );
+  })
