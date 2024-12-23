@@ -1,22 +1,29 @@
-  const getFavoriteApps = async () => {
-    
-    getFavorites().then(async (favArr) => {
-      const favoriteArray = [];
-      for (const favId of favArr) {
-        const appArr = await getAppById(favId);
-        if (appArr) {
-          favoriteArray.push({
-            name: appArr.name,
-            publishTime: appArr.publishTime,
-            thunmnail: appArr.thumbnail,
-            description: appArr.description,
-            favStatus: true,
-            id: appArr.id,
-          });
-        }
+const getFavoriteApps = async () => {
+  try {
+    const favArr = await getFavorites(); // getFavorites'ı bekle
+    const favoriteArray = [];
+
+    for (const favId of favArr) {
+      const appArr = await getAppById(favId);
+      
+      // Uygulama verisi var mı diye kontrol et
+      if (appArr) {
+        favoriteArray.push({
+          name: appArr.name,
+          publishTime: appArr.publishTime,
+          thumbnail: appArr.thumbnail,
+          description: appArr.description,
+          favStatus: true,
+          id: appArr.id,
+        });
       }
-      setFavorites(favoriteArray);
-    }).catch((error) => {
-      console.error('Favori data hatası:', error);
-    });
+    }
+
+    // Favori uygulamalarını state'e aktar
+    setFavorites(favoriteArray);
+  } catch (error) {
+    // Hata durumunda loglama ve kullanıcıya bildirim
+    console.error('Favori data hatası:', error);
+    // Burada kullanıcıya modal veya toast bildirim ekleyebilirsiniz.
   }
+};
