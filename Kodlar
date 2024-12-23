@@ -1,35 +1,22 @@
-function loadSheets(_app) {
-  _app.getList("sheet", function(reply, error) {
-    // Hata kontrolü
-    if (error) {
-      // Hata durumunda modal göster
-      showModal("Bir hata oluştu, veriler yüklenemedi.");
-      setTimeout(() => {
-        setLoading(false);
-      }, 2000);
-      return;
-    }
+  const getFavoriteApps = async () => {
     
-    const sheetsData = reply.qAppObjectList.qItems;
-    const sheetArray = sheetsData.map(sheet => ({
-        appId: appId,
-        sheetId: sheet.qInfo.qId,
-        name: sheet.qMeta.title,
-        publishTime: sheet.qMeta.publishTime,
-        thumbnail: sheet.qData.thumbnail.qStaticContentUrl.qUrl,
-        description: sheet.qMeta.description
-    }));
-
-    // Rank'e göre sıralama
-    const sortedSheetArray = sheetArray.sort((a, b) => {
-        const rankA = sheetsData.find(sheet => sheet.qInfo.qId === a.sheetId).qData.rank;
-        const rankB = sheetsData.find(sheet => sheet.qInfo.qId === b.sheetId).qData.rank;
-        return rankA - rankB; // Küçükten büyüğe sıralama
+    getFavorites().then(async (favArr) => {
+      const favoriteArray = [];
+      for (const favId of favArr) {
+        const appArr = await getAppById(favId);
+        if (appArr) {
+          favoriteArray.push({
+            name: appArr.name,
+            publishTime: appArr.publishTime,
+            thunmnail: appArr.thumbnail,
+            description: appArr.description,
+            favStatus: true,
+            id: appArr.id,
+          });
+        }
+      }
+      setFavorites(favoriteArray);
+    }).catch((error) => {
+      console.error('Favori data hatası:', error);
     });
-
-    setSheets(sortedSheetArray);
-    setTimeout(() => {
-        setLoading(false);
-    }, 2000);
-  });
-}
+  }
