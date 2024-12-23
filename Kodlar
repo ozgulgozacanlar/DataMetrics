@@ -1,12 +1,17 @@
- {
-            iframeSrc !== "" ?
-              <div className="d-flex flex-column flex-grow-1"><iframe src={iframeSrc} className="iframe-area" onLoad={handleIframeLoad}></iframe></div> :
-              <div className="list-section sheets">
-                <div className="d-flex align-items-center gap-2">
-                  <div className="title-icon"><Sheets /></div>
-                  <div className="title">Sheet</div>
-                </div>
-                <div className="sheet-card-wrapper">
-                  {(sheetsData && sheetsData.length != undefined ? sheetsData.map((item, i) => <SheetCard key={i} appId={item.appId} sheetId={item.sheetId} title={item.name} date={item.publishTime} thumbnail={item.thumbnail} description={item.description} />) : <></>)}
-                </div>
-              </div>}
+  <div className="sheet-card-wrapper">
+        {sheetsData && sheetsData.length > 0 ? (
+          sheetsData.map((item, i) => (
+            <SheetCard
+              key={i}
+              appId={item.appId}
+              sheetId={item.sheetId}
+              title={item.name}
+              date={item.publishTime}
+              thumbnail={item.thumbnail}
+              description={item.description}
+            />
+          ))
+        ) : (
+          <div className="no-sheets-message">Sheet listesi bulunamadı</div>
+        )}
+      </div>
