@@ -1,47 +1,9 @@
-return (
-  <div className="list-section-wrapper" style={{ padding: iframeData ? '0' : '2rem' }}>
-    {isLoading ? (
-      <div className="fixed-loader">
-        <Loader />
-      </div>
-    ) : (
-      <>
-        {
-          iframeSrc !== "" ? (
-            <div className="d-flex flex-column flex-grow-1">
-              <iframe src={iframeSrc} className="iframe-area" onLoad={handleIframeLoad}></iframe>
-            </div>
-          ) : (
-            <div className="list-section sheets">
-              <div className="d-flex align-items-center gap-2">
-                <div className="title-icon"><Sheets /></div>
-                <div className="title">Sheet</div>
-              </div>
-              <div className="sheet-card-wrapper">
-                {/* Eğer sheetsData yüklendiyse, verileri kontrol et */}
-                {sheetsData && sheetsData.length > 0 ? (
-                  sheetsData.map((item, i) => (
-                    <SheetCard
-                      key={i}
-                      appId={item.appId}
-                      sheetId={item.sheetId}
-                      title={item.name}
-                      date={item.publishTime}
-                      thumbnail={item.thumbnail}
-                      description={item.description}
-                    />
-                  ))
-                ) : (
-                  // Yalnızca veri yüklendikten sonra gösterilecek mesaj
-                  <div style={{ position: 'absolute', left: '50%' }}>
-                    ⚠️ Sheet listesi bulunamadı
-                  </div>
-                )}
-              </div>
-            </div>
-          )
-        }
-      </>
-    )}
-  </div>
-);
+export async function getStreamById(id) {
+    try {
+        const queryFilter = `(stream.id eq ${id}) or (stream.id eq ${id})`;
+        const res = await axiosIns.get(`qrs/app/full?xrfkey=${xrfKey}&filter=${queryFilter}&orderby=name asc`);
+        return res.data; 
+    } catch (error) {
+        console.log("getStreamById : " + error);
+    }   
+}
