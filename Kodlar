@@ -1,21 +1,5 @@
- {warning && (
-    <div className="warning-message">Uyarı: Favori öğeleri yüklenemedi.</div>
-  )}
-
-  <CarouselWrapper>
-    {favorites && favorites.length > 0 ? (
-      favorites.map((item, i) => (
-        <FavoriteCard
-          key={i}
-          title={item.name}
-          date={item.publishTime}
-          thunmnail={item.thunmnail}
-          description={item.description}
-          id={item.id}
-          onToggle={handleAddRemoveFavoriteApp}
-        />
-      ))
-    ) : (
-      <></>
-    )}
-  </CarouselWrapper>
+<div className="list-section apps">
+            <div className="app-card-wrapper">
+              {(favorites && favorites.length != undefined ? favorites.map((item, i) => <AppCard key={i} title={item.name} date={item.publishTime} thunmnail={item.thunmnail} description={item.description} id={item.id} favStatu={item.favStatus} />) : <></>)}
+            </div>
+          </div>
