@@ -5,9 +5,11 @@ export function openApp(appId) {
         const app = qlik.openApp(appId, config);
         resolve(app);  // Uygulama başarılı şekilde açılırsa çözülür
       } catch (error) {
-        reject(error);  // Eğer bir hata oluşursa reddedilir
+        console.error('openApp çağrılırken hata:', error);  // Hata detaylarını konsola yazdırıyoruz
+        reject(error);  // Hata burada reddedilir
       }
     }).catch((error) => {
+      console.error('qlikAPI ile ilgili hata:', error);  // qlikAPI hatasını loglarız
       reject(error); // `qlikAPI`'den gelen hata
     });
   });
