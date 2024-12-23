@@ -1,5 +1,14 @@
 export function openApp(appId) {
   return new Promise((resolve, reject) => {
-    qlikAPI.then((qlik) => resolve(qlik.openApp(appId, config))).catch((error) => reject(error));
+    qlikAPI.then((qlik) => {
+      try {
+        const app = qlik.openApp(appId, config);
+        resolve(app);  // Uygulama başarılı şekilde açılırsa çözülür
+      } catch (error) {
+        reject(error);  // Eğer bir hata oluşursa reddedilir
+      }
+    }).catch((error) => {
+      reject(error); // `qlikAPI`'den gelen hata
+    });
   });
 }
