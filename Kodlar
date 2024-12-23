@@ -1,17 +1,5 @@
-  <div className="sheet-card-wrapper">
-        {sheetsData && sheetsData.length > 0 ? (
-          sheetsData.map((item, i) => (
-            <SheetCard
-              key={i}
-              appId={item.appId}
-              sheetId={item.sheetId}
-              title={item.name}
-              date={item.publishTime}
-              thumbnail={item.thumbnail}
-              description={item.description}
-            />
-          ))
-        ) : (
-          <div className="no-sheets-message">Sheet listesi bulunamadı</div>
-        )}
-      </div>
+export function openApp(appId) {
+  return new Promise((resolve, reject) => {
+    qlikAPI.then((qlik) => resolve(qlik.openApp(appId, config))).catch((error) => reject(error));
+  });
+}
