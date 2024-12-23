@@ -1,12 +1,21 @@
-getAppById(id)
-  .then((appArr) => {
-    console.log(appArr);
-    if (appArr) {
-      dispatch(setSelectedStreamId(appArr.stream.id));
-      sessionStorage.setItem("lastSelectedStreamId", appArr.stream.id);
+export async function getAppById(id) {
+    try {
+        const res = await axiosIns.get(`qrs/app/${id}?xrfkey=${xrfKey}`);
+        return res.data; 
+    } catch (error) {
+        console.log(error);
     }
-  })
-  .catch((error) => {
-    console.error("Hata oluştu:", error);
-    // Hata mesajını kullanıcıya göstermek veya başka bir işlem yapmak
-  });
+   
+}
+
+
+  getAppById(id).then((appArr) => {
+        console.log(appArr)
+        if (appArr) {
+         dispatch(setSelectedStreamId(appArr.stream.id));
+         sessionStorage.setItem("lastSelectedStreamId", appArr.stream.id);
+        }
+      }).catch((error) => {
+        console.error("Hata oluştu:", error);
+        // Hata mesajını kullanıcıya göstermek veya başka bir işlem yapmak
+      });
