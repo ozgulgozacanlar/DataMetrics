@@ -1,10 +1,39 @@
-export async function openApp(appId) {
-  try {
-    const qlik = await qlikAPI; // qlikAPI'nin başarılı şekilde yüklenmesini bekle
-    const app = await qlik.openApp(appId, config); // app açma işlemini bekle
-    return app; // Başarıyla açıldıysa, app'i döndür
-  } catch (error) {
-    console.error("App açılırken bir hata oluştu:", error); // Hata mesajını konsola yazdır
-    throw error; // Hata meydana geldiğinde, hatayı tekrar fırlat
-  }
+ return (
+    <div className="list-section-wrapper">
+        
+      {isLoading ? (
+        <div className="fixed-loader">
+          <Loader />
+        </div>
+      ) :
+        <>
+          <div className="list-section apps">
+            <div className="d-flex align-items-center gap-2">
+              <div className="title-icon"><Apps /></div>
+              <div className="title">App</div>
+            </div>
+            <div className="app-card-wrapper">
+              {appsData && appsData.length > 0 ? (
+                appsData.map((item, i) => (
+                  <AppCard key={i} title={item.name} date={item.publishTime} thumbnail={item.thumbnail} description={item.description} id={item.id} favStatu={item.favStatus} />
+                ))
+              ) : (
+                <div style={{ position: 'absolute', left: '50%' }}> ⚠️ App listesi bulunamadı</div>
+              )}
+            </div>
+          </div>
+        </>
+        
+      } <div>
+      {showWarningModal && (
+          <WarningModal 
+              message={modalText}
+              onClose={handleClose} 
+          />
+      )}
+  </div>
+
+    </div>
+
+  );
 }
