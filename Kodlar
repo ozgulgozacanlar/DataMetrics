@@ -1,9 +1,18 @@
 const qlikAPI = new Promise((resolve, reject) => {
-  try {
-    window.require(['js/qlik'], (qlik) => {
-      resolve(qlik);
+  // RequireJS ile Qlik kütüphanesini yükle
+  requirejs(["js/qlik"], function (qlik) {
+    // Qlik yükleme başarılıysa, resolve ile döndür
+    qlik.setOnError(function (error) {
+      // Hata alındığında callback fonksiyonu ile hata mesajını ilet
+      me.props.callback({ errorMessage: 'Error on loading QVF from Qlik: ' + error, app: null });
+      console.log(error); // Konsola yazdır
+      reject(error); // Promise'e hata ilet
     });
-  } catch (error) {
-    reject(error);
-  }
-});
+
+    resolve(qlik); // Eğer Qlik başarıyla yüklendiyse, resolve ile döndür
+  }, function (error) {
+    // RequireJS'in kendisi de hata verebilir, bu durumda reject ile hata döndür
+    me.props.callback({ errorMessage: 'Error loading Qlik library: ' + error, app: null });
+    console.log(error);
+    reject(error); // Promise'e hata ilet
+  })
