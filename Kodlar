@@ -1,8 +1,9 @@
-Error: Forbidden
-    at e.we (2446.c027d01f7b02f8bcf1b3.js:2:61669)
-    at require.js:2:128080
-    at require.js:2:128218
-    at l.$digest (require.js:2:133581)
-    at require.js:2:135367
-    at __webpack_modules__.55002.t.completeTask (require.js:2:156253)
-    at require.js:2:66948
+const qlikAPI = new Promise((resolve, reject) => {
+  try {
+    window.require(['js/qlik'], (qlik) => {
+      resolve(qlik);
+    });
+  } catch (error) {
+    reject(error);
+  }
+});
