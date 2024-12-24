@@ -1,72 +1,8 @@
- const getFavoriteApps = async () => {
-    try {
-      const favArr = await getFavorites();
-      const favoriteArray = [];
-      for (const favId of favArr) {
-        const appArr = await getAppById(favId);
-        console.log(appArr)
-        if (appArr !== 'Forbidden') {
-          favoriteArray.push({
-            name: appArr.name,
-            publishTime: appArr.publishTime,
-            thumbnail: appArr.thumbnail,
-            description: appArr.description,
-            favStatus: true,
-            id: appArr.id,
-          });
-        }
-      } 
-      setFavorites(favoriteArray);
-    } catch (error) {
-      //*** warning start ***
-      setModalText("Qlik favori app bilgisi alınırken hata oluştu!");
-      setShowWarningModal(true);
-      setTimeout(() => { setLoading(false); }, 25);
-      //*** warning end ***
-      console.error('Favori data hatası:', error);
+catch (error) {
+    const result = handleError(error); // handleError çağrıldığında 403 hatasında 'Forbidden' dönecek
+    if (result === 'Forbidden') {
+      return 'Forbidden'; // Eğer 'Forbidden' dönerse, bu durumu belirleyelim
     }
-  };
-
-// Hata yönetimi fonksiyonu
-
-export function  handleError(error) {
-    if (error.response) {
-        // Sunucudan gelen hata kodları (örneğin 404, 403 vs.)
-        const statusCode = error.response.status;
-
-        // 404 - Not Found hatası
-        if (statusCode === 404) {
-            console.error("Hata 404: Kaynak bulunamadı!");
-            throw new Error("Hata 404: Kaynak bulunamadı!"); // Burada hata fırlatıyoruz
-        }
-
-        // 403 - Forbidden hatası
-        if (statusCode === 403) {
-            console.error("Hata 403: Erişim reddedildi!");
-            return error.response.data; // 403 hatasında response verisini geri döndürüyoruz
-        }
-        
-        // Diğer hata durumları
-        console.error(`Hata ${statusCode}: ${error.response.data}`);
-        throw new Error(`Beklenmeyen hata: ${error.response.data}`);
-    } else if (error.request) {
-        // Eğer istek yapılmış ancak yanıt alınamamışsa
-        console.error("Sunucuya istek gönderilemedi");
-        throw new Error("Sunucuya istek gönderilemedi.");
-    } else {
-        // Hata başka bir sebepten dolayı oluştuysa
-        console.error("Hata oluştu: ", error.message);
-        throw new Error(error.message);
-    }
-}
-export async function getAppById(id) {
-    try {
-        const res = await axiosIns.get(`qrs/app/${id}?xrfkey=${xrfKey}`);
-        return res.data; 
-    } catch (error) {
-        handleError(error);
-         //console.log("getAppById : " + error);
-        //return error.response.data;
-    }
-   
-}
+    // Diğer hatalarda, error'u yeniden fırlatalım
+    throw error;  
+  }
