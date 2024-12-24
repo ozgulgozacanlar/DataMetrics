@@ -1,1 +1,6 @@
-      setModalText("Qlik favori app bilgisi alınırken hata oluştu!\n (" + error.message + ")");
+setModalText(
+  <>
+    Qlik favori app bilgisi alınırken hata oluştu!<br />
+    ({error.message})
+  </>
+);
