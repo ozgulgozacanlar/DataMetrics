@@ -1,9 +1,10 @@
-export function openApp(appId) {
-  return new Promise((resolve, reject) => {
-    qlikAPI.then((qlik) => resolve(qlik.openApp(appId, config)))
-      .catch((error) => {
-        console.error("App açılırken bir hata oluştu:", error); // Hata mesajını konsola yazdırıyoruz
-        reject(error); // Hata ile promis'i reddediyoruz
-      });
-  });
+export async function openApp(appId) {
+  try {
+    const qlik = await qlikAPI; // qlikAPI'nin başarılı şekilde yüklenmesini bekle
+    const app = await qlik.openApp(appId, config); // app açma işlemini bekle
+    return app; // Başarıyla açıldıysa, app'i döndür
+  } catch (error) {
+    console.error("App açılırken bir hata oluştu:", error); // Hata mesajını konsola yazdır
+    throw error; // Hata meydana geldiğinde, hatayı tekrar fırlat
+  }
 }
