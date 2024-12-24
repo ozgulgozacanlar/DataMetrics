@@ -1,8 +1,1 @@
-catch (error) {
-    const result = handleError(error); // handleError çağrıldığında 403 hatasında 'Forbidden' dönecek
-    if (result === 'Forbidden') {
-      return 'Forbidden'; // Eğer 'Forbidden' dönerse, bu durumu belirleyelim
-    }
-    // Diğer hatalarda, error'u yeniden fırlatalım
-    throw error;  
-  }
+      setModalText("Qlik favori app bilgisi alınırken hata oluştu!\n (" + error.message + ")");
