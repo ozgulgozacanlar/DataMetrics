@@ -1,6 +1,22 @@
-setModalText(
-  <>
-    Qlik favori app bilgisi alınırken hata oluştu!<br />
-    ({error.message})
-  </>
-);
+    if (!app) {
+      openApp(import.meta.env.VITE_APP_APP1)
+        .then((_app) => {
+          _app.clearAll(true).then(() => {
+            setApp(_app);
+            setTimeout(() => {
+              setLoading(false);  
+            }, 750);
+          });
+         
+        })
+        .catch((error) => {
+          //setError(true);
+          console.error('Uygulama başlatma hatası:', error);
+        });
+    }
+
+export function openApp(appId) {
+  return new Promise((resolve, reject) => {
+    qlikAPI.then((qlik) => resolve(qlik.openApp(appId, config))).catch((error) => reject(error));
+  });
+}
