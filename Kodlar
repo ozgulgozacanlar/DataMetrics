@@ -1,22 +1,34 @@
-    if (!app) {
-      openApp(import.meta.env.VITE_APP_APP1)
-        .then((_app) => {
-          _app.clearAll(true).then(() => {
-            setApp(_app);
-            setTimeout(() => {
-              setLoading(false);  
-            }, 750);
-          });
-         
-        })
-        .catch((error) => {
-          //setError(true);
-          console.error('Uygulama başlatma hatası:', error);
-        });
-    }
-
 export function openApp(appId) {
   return new Promise((resolve, reject) => {
-    qlikAPI.then((qlik) => resolve(qlik.openApp(appId, config))).catch((error) => reject(error));
+    qlikAPI
+      .then((qlik) => qlik.openApp(appId, config))  // openApp fonksiyonu çalıştırılır
+      .then((app) => resolve(app))  // Başarılıysa app döndürülür
+      .catch((error) => {
+        // Hata oluşursa daha ayrıntılı bilgi yazdırılır
+        console.error("Uygulama açılırken hata oluştu:", error);
+        reject(error);  // Hata fırlatılır
+      });
   });
 }
+
+openApp(import.meta.env.VITE_APP_APP1)
+  .then((_app) => {
+    _app.clearAll(true).then(() => {
+      setApp(_app);
+      setTimeout(() => {
+        setLoading(false);
+      }, 750);
+    });
+  })
+  .catch((error) => {
+    console.error('Uygulama başlatma hatası:', error);
+
+    // Eğer hata 403 (Forbidden) ise, kullanıcıya uyarı göster
+    if (error.message.includes('Forbidden')) {
+      setModalText('Erişim reddedildi: Bu uygulamaya yetkiniz yok.');
+      setShowWarningModal(true);
+    } else {
+      setModalText('Uygulama başlatılırken bilinmeyen bir hata oluştu.');
+      setShowWarningModal(true);
+    }
+  });
