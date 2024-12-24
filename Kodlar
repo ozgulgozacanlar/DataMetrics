@@ -1,34 +1,8 @@
-export function openApp(appId) {
-  return new Promise((resolve, reject) => {
-    qlikAPI
-      .then((qlik) => qlik.openApp(appId, config))  // openApp fonksiyonu çalıştırılır
-      .then((app) => resolve(app))  // Başarılıysa app döndürülür
-      .catch((error) => {
-        // Hata oluşursa daha ayrıntılı bilgi yazdırılır
-        console.error("Uygulama açılırken hata oluştu:", error);
-        reject(error);  // Hata fırlatılır
-      });
-  });
-}
-
-openApp(import.meta.env.VITE_APP_APP1)
-  .then((_app) => {
-    _app.clearAll(true).then(() => {
-      setApp(_app);
-      setTimeout(() => {
-        setLoading(false);
-      }, 750);
-    });
-  })
-  .catch((error) => {
-    console.error('Uygulama başlatma hatası:', error);
-
-    // Eğer hata 403 (Forbidden) ise, kullanıcıya uyarı göster
-    if (error.message.includes('Forbidden')) {
-      setModalText('Erişim reddedildi: Bu uygulamaya yetkiniz yok.');
-      setShowWarningModal(true);
-    } else {
-      setModalText('Uygulama başlatılırken bilinmeyen bir hata oluştu.');
-      setShowWarningModal(true);
-    }
-  });
+Error: Forbidden
+    at e.we (2446.c027d01f7b02f8bcf1b3.js:2:61669)
+    at require.js:2:128080
+    at require.js:2:128218
+    at l.$digest (require.js:2:133581)
+    at require.js:2:135367
+    at __webpack_modules__.55002.t.completeTask (require.js:2:156253)
+    at require.js:2:66948
