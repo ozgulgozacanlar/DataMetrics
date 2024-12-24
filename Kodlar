@@ -29,3 +29,14 @@ function handleError(error) {
         throw new Error(error.message);
     }
 }
+export async function getAppById(id) {
+    try {
+        const res = await axiosIns.get(`qrs/app/${id}?xrfkey=${xrfKey}`);
+        return res.data; 
+    } catch (error) {
+        handleError(error)
+         //console.log("getAppById : " + error);
+        //return error.response.data;
+    }
+   
+}
