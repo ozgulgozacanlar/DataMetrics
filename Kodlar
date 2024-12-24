@@ -1,5 +1,9 @@
 export function openApp(appId) {
   return new Promise((resolve, reject) => {
-    qlikAPI.then((qlik) => resolve(qlik.openApp(appId, config))).catch((error) => reject(error));
+    qlikAPI.then((qlik) => resolve(qlik.openApp(appId, config)))
+      .catch((error) => {
+        console.error("App açılırken bir hata oluştu:", error); // Hata mesajını konsola yazdırıyoruz
+        reject(error); // Hata ile promis'i reddediyoruz
+      });
   });
 }
