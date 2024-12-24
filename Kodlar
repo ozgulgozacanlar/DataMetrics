@@ -1,6 +1,17 @@
-    window.errorOccurred = true;
- // Global errorOccurred değişkenini kontrol et
+  // window.errorOccurred durumu değiştiğinde tetiklenecek şekilde kontrol ekleyin
     if (window.errorOccurred) {
+      setErrorOccurred(true); // Eğer hata oluşursa, React state'ini güncelleyin
       setErrorMessage('Qlik bağlantısı sırasında bir hata oluştu.'); // Hata mesajını göster
-      setLoading(false);
+      setLoading(false); // Yükleme durumunu sonlandır
     }
+
+    // Eğer window.errorOccurred global değişkeninin değeri true olduğunda yeniden kontrol edilmesini sağlamak için
+    const interval = setInterval(() => {
+      if (window.errorOccurred) {
+        setErrorOccurred(true);
+        setErrorMessage('Qlik bağlantısı sırasında bir hata oluştu.');
+        setLoading(false);
+      }
+    }, 500); // 500ms aralıklarla kontrol et
+
+    return () => clearInterval(interval); // Component unmount olduğunda interval'i temizle
