@@ -1,20 +1,22 @@
 const renderHighlightedText = (text, searchTerm) => {
   if (!searchTerm) return text; // Eğer arama terimi yoksa orijinal metni döndür
 
-  const normalizedSearchTerm = searchTerm.replace(/\s+/g, '').toLowerCase(); // Arama terimini normalize et
-  const normalizedText = text.replace(/\s+/g, '').toLowerCase(); // Metni normalize et
+  // Arama terimi ve metni normalize et: küçük harfe çevir, boşlukları kaldır
+  const normalizedSearchTerm = searchTerm.replace(/\s+/g, '').toLowerCase();
+  const normalizedText = text.replace(/\s+/g, '').toLowerCase();
 
-  // Arama terimi, metinde bulunuyor mu?
+  // Arama terimi, metnin içinde herhangi bir yerde geçiyor mu?
   if (!normalizedText.includes(normalizedSearchTerm)) return text;
 
-  // Eğer metin ve arama terimi eşleşiyorsa, parçalara ayırıyoruz
+  // Arama teriminin metin içinde kısımlara bölünmesi
   const parts = text.split(new RegExp(`(${searchTerm})`, 'gi'));
 
   return parts.map((part, index) => {
-    // Her parçayı normalize edip, eşleşmeye göre vurgulama yapıyoruz
+    // Parçayı normalize edip, eşleşmeye göre renklendirme yapıyoruz
     const normalizedPart = part.replace(/\s+/g, '').toLowerCase();
-    return normalizedPart.includes(normalizedSearchTerm) ? (
-      <strong className='search-selection' key={index}>{part}</strong> // Eşleşen kısmı kalın yap
-    ) : part;
+    if (normalizedPart.includes(normalizedSearchTerm)) {
+      return <strong className='search-selection' key={index}>{part}</strong>; // Eşleşen kısmı kalın yap
+    }
+    return part;
   });
 };
