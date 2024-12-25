@@ -1,11 +1,11 @@
 const renderHighlightedText = (text, searchTerm) => {
   if (!searchTerm) return text; // Eğer arama terimi yoksa orijinal metni döndür
 
-  // Arama terimini ve metni normalize et (boşlukları kaldır, küçük harfe çevir)
+  // Boşlukları kaldırarak ve küçük harfe çevirerek normalleştiriyoruz
   const normalizedSearchTerm = searchTerm.replace(/\s+/g, '').toLowerCase(); 
   const normalizedText = text.replace(/\s+/g, '').toLowerCase();
 
-  // Arama teriminin metin içinde eşleşen kısmını bul
+  // Arama teriminin metin içinde eşleşip eşleşmediğini kontrol et
   let matchIndex = normalizedText.indexOf(normalizedSearchTerm);
 
   if (matchIndex === -1) return text; // Eşleşme yoksa orijinal metni döndür
@@ -13,20 +13,25 @@ const renderHighlightedText = (text, searchTerm) => {
   const parts = [];
   let lastIndex = 0;
 
-  // Eşleşen her parçayı bul ve "strong" etiketi ile vurgula
+  // Eşleşen her parçayı bulup "strong" ile vurgula
   while (matchIndex !== -1) {
     // Eşleşen kısmı "strong" içine alıyoruz
     const matchedText = text.substring(matchIndex, matchIndex + searchTerm.length);
 
-    parts.push(text.substring(lastIndex, matchIndex)); // Önceki kısmı ekle
-    parts.push(<strong className="search-selection" key={lastIndex}>{matchedText}</strong>); // Eşleşen kısmı ekle
+    // Önceki kısmı ekliyoruz
+    parts.push(text.substring(lastIndex, matchIndex)); 
+
+    // Eşleşen kısmı ekliyoruz
+    parts.push(<strong className="search-selection" key={lastIndex}>{matchedText}</strong>); 
+
     lastIndex = matchIndex + searchTerm.length; // Yeni başlangıç noktasını belirle
 
     // Sonraki eşleşmeyi arıyoruz
     matchIndex = normalizedText.indexOf(normalizedSearchTerm, lastIndex);
   }
 
-  // Sonraki kısmı da ekle
+  // Sonraki kısmı da ekliyoruz
   parts.push(text.substring(lastIndex));
+
   return parts;
 };
