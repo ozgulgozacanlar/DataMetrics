@@ -1,6 +1,8 @@
- const filteredApps = qlikTableArray.flatMap(item =>
-      item.apps.filter(app =>
-        isMatch(app.appName, searchTerm) &&
-        app.appName.toLowerCase().includes(searchTerm.toLowerCase()) // Tam eşleşme ve arama için bu kontrolü koruyoruz.
-      )
-    )  
+const filteredApps = qlikTableArray.flatMap(item =>
+  item.apps.filter(app => {
+    const normalizedAppName = app.appName.replace(/\s+/g, '').toLowerCase(); // Boşlukları kaldırıp küçük harfe çeviriyoruz
+    const normalizedSearchTerm = searchTerm.replace(/\s+/g, '').toLowerCase(); // Aynı şekilde arama terimini normalize ediyoruz
+    
+    return isMatch(normalizedAppName, normalizedSearchTerm) && normalizedAppName.includes(normalizedSearchTerm);
+  })
+);
