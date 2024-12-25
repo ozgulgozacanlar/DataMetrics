@@ -1,3 +1,5 @@
+  'reject' is not defined  no-undef
+
 export function getFilterList(app, fieldName){
   return new Promise((resolve) => {
      // Call to createList
