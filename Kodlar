@@ -1,4 +1,48 @@
-   (<td key={index}><div key={index} className="line-chart-area"
-                    onClick={() => handleRowClick(item)}
-                    onMouseEnter={() => console.log('Hovered on the line-chart-area')}
-                        style={{
+export function getFilterList(app, fieldName){
+  return new Promise((resolve) => {
+     // Call to createList
+     if(app){
+      app.createList(
+        {
+          "qFrequencyMode": "V",
+          "qDef": {
+            "qFieldDefs": [fieldName]
+          },
+          "qExpressions": [],
+          "qInitialDataFetch": [
+            {
+              "qHeight": 10000,
+              "qWidth": 1
+            }
+          ],
+          "qLibraryId": null,
+          "qShowAlternatives": true
+        },
+        function (reply) {
+          // Ensure we have the necessary data
+          if (reply.qListObject && reply.qListObject.qDataPages && reply.qListObject.qDataPages[0].qMatrix) {
+            // Process the data
+            const options = reply.qListObject.qDataPages[0].qMatrix.map((value) => {
+              const optionValue = value[0].qText;
+              return {
+                value: optionValue,
+                text: optionValue,
+                selected: value[0].qState === "S"
+              };
+            });
+  
+            // Resolve the promise with the options
+            resolve(options);
+          } else {
+            // Reject the promise if the data format is not valid
+            reject(new Error("Invalid data format"));
+          }
+  
+          // Cleanup
+          app.destroySessionObject(reply.qInfo.qId);
+        }
+      );
+     }
+    
+  });
+}
