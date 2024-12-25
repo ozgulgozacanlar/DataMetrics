@@ -1,3 +1,3 @@
- // const filtered = qlikTableArray.filter(item =>
-    //   isMatch(item.streamName, searchTerm)
-    // );
+const filtered = qlikTableArray.filter(item =>
+  isMatch(item.streamName.replace(/\s+/g, '').toLowerCase(), searchTerm.replace(/\s+/g, '').toLowerCase())
+);
