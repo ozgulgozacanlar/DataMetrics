@@ -1,34 +1,44 @@
-  useEffect(() => {
-    const updatedMenuItems = menuItems.map(item => {
-      const matchesMainText = item.text.toLowerCase().includes(searchTerm.toLowerCase()); // Ana düğüm text'i ile  arama terimini kontrol eder
-      // Alt düğümlerdeki text'leri kontrol eder
-      const matchesSubNodes = item.subNodes.some(subItem =>
-        subItem.text.toLowerCase().includes(searchTerm.toLowerCase())
-      );
-      // Ana düğüm veya alt düğümlerde eşleşme varsa, ilgili bölümü aç
-      return {
-        ...item,
-        isOpen: searchTerm === '' ? false : (matchesMainText || matchesSubNodes), // Eğer ana ya da alt düğümde eşleşme varsa açık
-      };
+useEffect(() => {
+  // Normalize edilmiş searchTerm (boşluklar kaldırılacak ve küçük harfe çevrilecek)
+  const normalizedSearchTerm = searchTerm.replace(/\s+/g, '').toLowerCase();
+
+  const updatedMenuItems = menuItems.map(item => {
+    // Ana düğüm text'inin normalize edilmesi ve arama terimi ile karşılaştırılması
+    const normalizedMainText = item.text.replace(/\s+/g, '').toLowerCase();
+    const matchesMainText = normalizedMainText.includes(normalizedSearchTerm);
+
+    // Alt düğümlerdeki text'lerin normalize edilmesi ve arama terimi ile karşılaştırılması
+    const matchesSubNodes = item.subNodes.some(subItem => {
+      const normalizedSubText = subItem.text.replace(/\s+/g, '').toLowerCase();
+      return normalizedSubText.includes(normalizedSearchTerm);
     });
-    // Eşleşen ana öğeleri ve alt öğeleri filtrele
-    // const filtered = updatedMenuItems.filter(item => item.isOpen || item.subNodes.some(subItem => subItem.isOpen));
-    const filtered = searchTerm === ''
-      ? updatedMenuItems // Arama terimi boşsa tüm öğeleri tut
-      : updatedMenuItems.filter(item => item.isOpen || item.subNodes.some(subItem => subItem.isOpen));
-      // Home sayfasından stream seçip app sayfasına geçmişse sol menüde ilgili stream'in submenülerinin açılması için 
-    filtered.forEach(item => {
-      if (item.menuId === selectedStreamId) {
-        item.isOpen = true;
+
+    // Ana düğüm veya alt düğümlerde eşleşme varsa, ilgili bölümü aç
+    return {
+      ...item,
+      isOpen: searchTerm === '' ? false : (matchesMainText || matchesSubNodes),
+    };
+  });
+
+  // Arama terimi boşsa tüm öğeleri tut, değilse sadece eşleşenleri filtrele
+  const filtered = searchTerm === ''
+    ? updatedMenuItems
+    : updatedMenuItems.filter(item => item.isOpen || item.subNodes.some(subItem => subItem.isOpen));
+
+  // Home sayfasından stream seçip app sayfasına geçmişse, ilgili stream'in submenülerinin açılması
+  filtered.forEach(item => {
+    if (item.menuId === selectedStreamId) {
+      item.isOpen = true;
+    }
+
+    item.subNodes.forEach(subItem => {
+      item.isOpen = true;
+      if (subItem.id === selectedAppId) {
+        item.isOpen = true; // Eğer subNode ile eşleşiyorsa ana öğeyi açık yap
       }
-
-      item.subNodes.forEach(subItem => {
-        item.isOpen = true;
-        if (subItem.id === selectedAppId) {
-          item.isOpen = true; // Eğer subNode ile eşleşiyorsa ana öğeyi açık yap
-        }
-      });
-
     });
-    setFilteredItems(filtered);
-  }, [searchTerm,selectedStreamId,selectedAppId,menuItems]);
+  });
+
+  // Filtrelenmiş öğeleri güncelle
+  setFilteredItems(filtered);
+}, [searchTerm, selectedStreamId, selectedAppId, menuItems]);
