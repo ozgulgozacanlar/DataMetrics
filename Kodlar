@@ -1,20 +1,37 @@
 const renderHighlightedText = (text, searchTerm) => {
   if (!searchTerm) return text; // Eğer arama terimi yoksa orijinal metni döndür
 
-  const regex = new RegExp(searchTerm, 'gi'); // Küçük büyük harfe duyarsız eşleşme
-  const parts = text.split(regex); // Eşleşen kısımları ayır
+  // Küçük harfe dönüştürülmüş metni ve arama terimini al
+  const lowerCaseText = text.toLowerCase();
+  const lowerCaseSearchTerm = searchTerm.toLowerCase();
 
-  // Metindeki her kısmı kontrol et
-  return parts.map((part, index) => {
-    // Eşleşen kısmı bulup, <strong> etiketi ile sar
-    const match = text.match(regex);
-    if (match && match[index]) {
-      return (
-        <span key={index}>
-          <strong className='search-selection'>{match[index]}</strong>{part}
-        </span>
-      );
-    }
-    return <span key={index}>{part}</span>;
-  });
+  // Arama teriminin bulunduğu yerleri bul
+  let index = 0;
+  const result = [];
+  
+  while (index < lowerCaseText.length) {
+    const matchIndex = lowerCaseText.indexOf(lowerCaseSearchTerm, index);
+    if (matchIndex === -1) break; // Eğer eşleşme yoksa döngüyü kır
+
+    // Eşleşen kısmı ve kalan kısmı ayır
+    const beforeMatch = text.slice(index, matchIndex);
+    const match = text.slice(matchIndex, matchIndex + searchTerm.length);
+
+    // Kalan kısmı ve eşleşmeyi result'a ekle
+    result.push(beforeMatch);
+    result.push(<strong className="search-selection" key={matchIndex}>{match}</strong>);
+
+    // Yeni arama başlangıç indeksini ayarla
+    index = matchIndex + searchTerm.length;
+  }
+
+  // Kalan kısmı ekle
+  result.push(text.slice(index));
+
+  // Sonuçları döndür
+  return result;
 };
+
+{item.route ? 
+  <Link to={item.routeText}>{item.text}</Link> : 
+  <a onClick={() => handleClickSubMenu(item.streamId, item.id)}>{renderHighlightedText(item.text, searchTerm)}</a>}
