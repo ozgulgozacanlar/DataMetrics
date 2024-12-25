@@ -1,3 +1,2 @@
-const filtered = qlikTableArray.filter(item =>
-  isMatch(item.streamName.replace(/\s+/g, '').toLowerCase(), searchTerm.replace(/\s+/g, '').toLowerCase())
-);
+{data.subNodes && (activeMenuId === data.menuId) && isOpen && (
+        <SubMenu subNodes={data.subNodes} searchTerm={searchTerm} />
