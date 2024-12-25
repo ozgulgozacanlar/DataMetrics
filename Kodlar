@@ -1,3 +1,10 @@
-{(data.subNodes && ((activeMenuId === data.menuId && isOpen) || (activeMenuId !== data.menuId && isOpen))) && (
-  <SubMenu subNodes={data.subNodes} searchTerm={searchTerm} />
-)}
+const renderHighlightedText = (text,searchTerm) => {
+  if (!searchTerm) return text; // Eğer arama terimi yoksa orijinal metni döndür
+
+  const parts = text.split(new RegExp(`(${searchTerm})`, 'gi')); // Arama terimini metinden ayır
+  return parts.map((part, index) => 
+    part.toLowerCase() === searchTerm.toLowerCase() ? (
+      <strong className='search-selection' key={index}>{part}</strong> // Eşleşen kısmı kalın yap
+    ) : part 
+  );
+};
