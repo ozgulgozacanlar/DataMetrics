@@ -1,32 +1,22 @@
 const renderHighlightedText = (text, searchTerm) => {
   if (!searchTerm) return text; // Eğer arama terimi yoksa orijinal metni döndür
 
-  // Boşlukları kaldırıyoruz ve her iki metni de küçük harfe çeviriyoruz
-  const normalizedSearchTerm = searchTerm.replace(/\s+/g, '').toLowerCase(); 
+  // Arama terimini ve metni boşluksuz hale getirip küçük harfe çeviriyoruz
+  const normalizedSearchTerm = searchTerm.replace(/\s+/g, '').toLowerCase();
   const normalizedText = text.replace(/\s+/g, '').toLowerCase();
 
-  // Arama teriminin metinde yerini bulmak için
-  let matchIndex = normalizedText.indexOf(normalizedSearchTerm);
+  // Arama teriminin metinde yerini buluyoruz
+  const matchIndex = normalizedText.indexOf(normalizedSearchTerm);
 
-  if (matchIndex === -1) return text; // Eşleşme yoksa orijinal metni döndür
+  // Eğer eşleşme yoksa orijinal metni döndür
+  if (matchIndex === -1) return text;
 
-  // Eşleşen kısmı bulup renklendirmek için parçaları ayırıyoruz
-  const parts = [];
-  let lastIndex = 0;
+  // Eşleşen kısmı "strong" içine alıyoruz
+  const parts = text.split(new RegExp(`(${searchTerm})`, 'gi')); // Arama terimini metinden ayır
 
-  while (matchIndex !== -1) {
-    // Eşleşen kısmı "strong" içine alıyoruz
-    const matchedText = text.substring(matchIndex, matchIndex + searchTerm.length);
-    parts.push(text.substring(lastIndex, matchIndex)); // Önceki kısımları ekliyoruz
-    parts.push(<strong className="search-selection" key={lastIndex}>{matchedText}</strong>); // Eşleşen kısmı ekliyoruz
-    lastIndex = matchIndex + searchTerm.length;
-
-    // Sonraki eşleşmeyi arıyoruz
-    matchIndex = normalizedText.indexOf(normalizedSearchTerm, lastIndex);
-  }
-
-  // Sonraki kısmı da ekliyoruz
-  parts.push(text.substring(lastIndex));
-
-  return parts;
+  return parts.map((part, index) =>
+    part.toLowerCase() === searchTerm.toLowerCase() ? (
+      <strong className="search-selection" key={index}>{part}</strong> // Eşleşen kısmı kalın yap
+    ) : part
+  );
 };
