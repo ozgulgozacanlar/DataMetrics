@@ -1,27 +1,18 @@
 const renderHighlightedText = (text, searchTerm) => {
   if (!searchTerm) return text; // Eğer arama terimi yoksa orijinal metni döndür
 
-  const lowerCaseText = text.toLowerCase();
-  const lowerCaseSearchTerm = searchTerm.toLowerCase();
-  const result = [];
-  let index = 0;
+  // Arama terimini kelimelere ayır ve bunları düzenle
+  const normalizedSearchTerm = searchTerm.toLowerCase().trim().replace(/\s+/g, ''); // Boşlukları kaldırarak
+  const regex = new RegExp(normalizedSearchTerm.split('').join('.*?'), 'gi'); // Arama terimini küçük/büyük harfe duyarsız şekilde arar ve kısımları da kapsar
 
-  // Arama terimini küçük harfe dönüştürülerek, metinde parça parça eşleştiririz
-  while (index < lowerCaseText.length) {
-    const matchIndex = lowerCaseText.indexOf(lowerCaseSearchTerm, index);
-    if (matchIndex === -1) {
-      // Eğer eşleşme yoksa kalan metni ekle ve döngüyü bitir
-      result.push(text.slice(index));
-      break;
-    }
+  const parts = text.split(regex); // Metni, arama terimi ile böler
 
-    // Eşleşen kısmı ve öncesindeki kısmı ayır
-    result.push(text.slice(index, matchIndex));
-    result.push(<strong className="search-selection" key={matchIndex}>{text.slice(matchIndex, matchIndex + searchTerm.length)}</strong>);
-
-    // Yeni arama başlangıç indeksini güncelle
-    index = matchIndex + searchTerm.length;
-  }
-
-  return result;
+  return parts.map((part, index) => {
+    const matched = regex.test(part); // Eşleşen metin var mı kontrol et
+    return matched ? (
+      <strong className='search-selection' key={index}>{part}</strong> // Eşleşen kısmı kalın yap
+    ) : (
+      part
+    );
+  });
 };
