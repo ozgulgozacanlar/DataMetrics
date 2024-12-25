@@ -1,14 +1,21 @@
 const renderHighlightedText = (text, searchTerm) => {
   if (!searchTerm) return text; // Eğer arama terimi yoksa orijinal metni döndür
 
-  // Arama terimini metinden ayırmak için boşlukları da dahil etmek üzere RegExp kullanıyoruz
-  const parts = text.split(new RegExp(`(\\s*${searchTerm}\\s*)`, 'gi')); // Boşlukları da dahil ederek bölüyoruz
+  // Normalize etme: Hem arama terimi hem de metni küçük harfe çeviriyoruz
+  const normalizedSearchTerm = searchTerm.toLowerCase();
+  const normalizedText = text.toLowerCase();
 
-  return parts.map((part, index) =>
-    part.toLowerCase().trim() === searchTerm.toLowerCase() ? (
-      <strong className='search-selection' key={index}>{part}</strong> // Eşleşen kısmı kalın yap
-    ) : (
-      part // Eşleşmeyen kısımları olduğu gibi döndür
-    )
-  );
+  // Arama terimini metinde bulalım. Regex'e arama terimini, büyük/küçük harf farkı olmadan yerleştiriyoruz.
+  const regex = new RegExp(`(${normalizedSearchTerm})`, 'gi');
+
+  // Metni arama terimine göre bölelim
+  const parts = text.split(regex);
+
+  return parts.map((part, index) => {
+    // Eşleşen kısmı buluyoruz
+    if (part.toLowerCase() === normalizedSearchTerm) {
+      return <strong className="search-selection" key={index}>{part}</strong>;
+    }
+    return part; // Eşleşmeyen kısımlar olduğu gibi döndürülür
+  });
 };
