@@ -1,12 +1,20 @@
-const renderHighlightedText = (text,searchTerm) => {
+const renderHighlightedText = (text, searchTerm) => {
   if (!searchTerm) return text; // Eğer arama terimi yoksa orijinal metni döndür
 
-  const parts = text.split(new RegExp(`(${searchTerm})`, 'gi')); // Arama terimini metinden ayır
-  return parts.map((part, index) => 
-    part.toLowerCase() === searchTerm.toLowerCase() ? (
-      <strong className='search-selection' key={index}>{part}</strong> // Eşleşen kısmı kalın yap
-    ) : part 
-  );
-};
+  const regex = new RegExp(searchTerm, 'gi'); // Küçük büyük harfe duyarsız eşleşme
+  const parts = text.split(regex); // Eşleşen kısımları ayır
 
-      {item.route ? <Link to={item.routeText}>{item.text}</Link> : <a onClick={() => handleClickSubMenu(item.streamId, item.id)}>{renderHighlightedText(item.text,searchTerm)}</a>}
+  // Metindeki her kısmı kontrol et
+  return parts.map((part, index) => {
+    // Eşleşen kısmı bulup, <strong> etiketi ile sar
+    const match = text.match(regex);
+    if (match && match[index]) {
+      return (
+        <span key={index}>
+          <strong className='search-selection'>{match[index]}</strong>{part}
+        </span>
+      );
+    }
+    return <span key={index}>{part}</span>;
+  });
+};
