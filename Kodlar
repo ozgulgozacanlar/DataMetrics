@@ -1,22 +1,12 @@
-const renderHighlightedText = (text, searchTerm) => {
+const renderHighlightedText = (text,searchTerm) => {
   if (!searchTerm) return text; // Eğer arama terimi yoksa orijinal metni döndür
 
-  // Arama terimi ve metni normalize et: küçük harfe çevir, boşlukları kaldır
-  const normalizedSearchTerm = searchTerm.replace(/\s+/g, '').toLowerCase();
-  const normalizedText = text.replace(/\s+/g, '').toLowerCase();
-
-  // Arama terimi, metnin içinde herhangi bir yerde geçiyor mu?
-  if (!normalizedText.includes(normalizedSearchTerm)) return text;
-
-  // Arama teriminin metin içinde kısımlara bölünmesi
-  const parts = text.split(new RegExp(`(${searchTerm})`, 'gi'));
-
-  return parts.map((part, index) => {
-    // Parçayı normalize edip, eşleşmeye göre renklendirme yapıyoruz
-    const normalizedPart = part.replace(/\s+/g, '').toLowerCase();
-    if (normalizedPart.includes(normalizedSearchTerm)) {
-      return <strong className='search-selection' key={index}>{part}</strong>; // Eşleşen kısmı kalın yap
-    }
-    return part;
-  });
+  const parts = text.split(new RegExp(`(${searchTerm})`, 'gi')); // Arama terimini metinden ayır
+  return parts.map((part, index) => 
+    part.toLowerCase() === searchTerm.toLowerCase() ? (
+      <strong className='search-selection' key={index}>{part}</strong> // Eşleşen kısmı kalın yap
+    ) : part 
+  );
 };
+
+      {item.route ? <Link to={item.routeText}>{item.text}</Link> : <a onClick={() => handleClickSubMenu(item.streamId, item.id)}>{renderHighlightedText(item.text,searchTerm)}</a>}
