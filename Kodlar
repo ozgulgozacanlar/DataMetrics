@@ -1,37 +1,34 @@
-const renderHighlightedText = (text, searchTerm) => {
-  if (!searchTerm) return text; // Eğer arama terimi yoksa orijinal metni döndür
+  useEffect(() => {
+    const updatedMenuItems = menuItems.map(item => {
+      const matchesMainText = item.text.toLowerCase().includes(searchTerm.toLowerCase()); // Ana düğüm text'i ile  arama terimini kontrol eder
+      // Alt düğümlerdeki text'leri kontrol eder
+      const matchesSubNodes = item.subNodes.some(subItem =>
+        subItem.text.toLowerCase().includes(searchTerm.toLowerCase())
+      );
+      // Ana düğüm veya alt düğümlerde eşleşme varsa, ilgili bölümü aç
+      return {
+        ...item,
+        isOpen: searchTerm === '' ? false : (matchesMainText || matchesSubNodes), // Eğer ana ya da alt düğümde eşleşme varsa açık
+      };
+    });
+    // Eşleşen ana öğeleri ve alt öğeleri filtrele
+    // const filtered = updatedMenuItems.filter(item => item.isOpen || item.subNodes.some(subItem => subItem.isOpen));
+    const filtered = searchTerm === ''
+      ? updatedMenuItems // Arama terimi boşsa tüm öğeleri tut
+      : updatedMenuItems.filter(item => item.isOpen || item.subNodes.some(subItem => subItem.isOpen));
+      // Home sayfasından stream seçip app sayfasına geçmişse sol menüde ilgili stream'in submenülerinin açılması için 
+    filtered.forEach(item => {
+      if (item.menuId === selectedStreamId) {
+        item.isOpen = true;
+      }
 
-  // Boşlukları kaldırarak ve küçük harfe çevirerek normalleştiriyoruz
-  const normalizedSearchTerm = searchTerm.replace(/\s+/g, '').toLowerCase(); 
-  const normalizedText = text.replace(/\s+/g, '').toLowerCase();
+      item.subNodes.forEach(subItem => {
+        item.isOpen = true;
+        if (subItem.id === selectedAppId) {
+          item.isOpen = true; // Eğer subNode ile eşleşiyorsa ana öğeyi açık yap
+        }
+      });
 
-  // Arama teriminin metin içinde eşleşip eşleşmediğini kontrol et
-  let matchIndex = normalizedText.indexOf(normalizedSearchTerm);
-
-  if (matchIndex === -1) return text; // Eşleşme yoksa orijinal metni döndür
-
-  const parts = [];
-  let lastIndex = 0;
-
-  // Eşleşen her parçayı bulup "strong" ile vurgula
-  while (matchIndex !== -1) {
-    // Eşleşen kısmı "strong" içine alıyoruz
-    const matchedText = text.substring(matchIndex, matchIndex + searchTerm.length);
-
-    // Önceki kısmı ekliyoruz
-    parts.push(text.substring(lastIndex, matchIndex)); 
-
-    // Eşleşen kısmı ekliyoruz
-    parts.push(<strong className="search-selection" key={lastIndex}>{matchedText}</strong>); 
-
-    lastIndex = matchIndex + searchTerm.length; // Yeni başlangıç noktasını belirle
-
-    // Sonraki eşleşmeyi arıyoruz
-    matchIndex = normalizedText.indexOf(normalizedSearchTerm, lastIndex);
-  }
-
-  // Sonraki kısmı da ekliyoruz
-  parts.push(text.substring(lastIndex));
-
-  return parts;
-};
+    });
+    setFilteredItems(filtered);
+  }, [searchTerm,selectedStreamId,selectedAppId,menuItems]);
