@@ -1,2 +1,3 @@
-{data.subNodes && (activeMenuId === data.menuId) && isOpen && (
-        <SubMenu subNodes={data.subNodes} searchTerm={searchTerm} />
+{(data.subNodes && ((activeMenuId === data.menuId && isOpen) || (activeMenuId !== data.menuId && isOpen))) && (
+  <SubMenu subNodes={data.subNodes} searchTerm={searchTerm} />
+)}
