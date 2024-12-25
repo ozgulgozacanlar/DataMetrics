@@ -1,22 +1,3 @@
-const renderHighlightedText = (text, searchTerm) => {
-  if (!searchTerm) return text; // Eğer arama terimi yoksa orijinal metni döndür
-
-  // Arama terimini ve metni boşluksuz hale getirip küçük harfe çeviriyoruz
-  const normalizedSearchTerm = searchTerm.replace(/\s+/g, '').toLowerCase();
-  const normalizedText = text.replace(/\s+/g, '').toLowerCase();
-
-  // Arama teriminin metinde yerini buluyoruz
-  const matchIndex = normalizedText.indexOf(normalizedSearchTerm);
-
-  // Eğer eşleşme yoksa orijinal metni döndür
-  if (matchIndex === -1) return text;
-
-  // Eşleşen kısmı "strong" içine alıyoruz
-  const parts = text.split(new RegExp(`(${searchTerm})`, 'gi')); // Arama terimini metinden ayır
-
-  return parts.map((part, index) =>
-    part.toLowerCase() === searchTerm.toLowerCase() ? (
-      <strong className="search-selection" key={index}>{part}</strong> // Eşleşen kısmı kalın yap
-    ) : part
-  );
-};
+ // const filtered = qlikTableArray.filter(item =>
+    //   isMatch(item.streamName, searchTerm)
+    // );
