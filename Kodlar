@@ -1,18 +1,175 @@
+import { useState , useEffect} from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import { setSelectedAppId, setSelectedStreamId, setIframeData } from '../../app/features/data';
+import { DownChevron } from '@/assets/svg';
+import './MenuItem.css';
+import { useDispatch, useSelector } from "react-redux";
+
+//Search barına yazılan kelime bulunan kelime içinde geçiyorsa bold olarak yazılır.
+// const renderHighlightedText = (text,searchTerm) => {
+//   if (!searchTerm) return text; // Eğer arama terimi yoksa orijinal metni döndür
+
+//   const parts = text.split(new RegExp(`(${searchTerm})`, 'gi')); // Arama terimini metinden ayır
+//   return parts.map((part, index) => 
+//     part.toLowerCase() === searchTerm.toLowerCase() ? (
+//       <strong className='search-selection' key={index}>{part}</strong> // Eşleşen kısmı kalın yap
+//     ) : part 
+//   );
+// };
 const renderHighlightedText = (text, searchTerm) => {
   if (!searchTerm) return text; // Eğer arama terimi yoksa orijinal metni döndür
 
-  // Arama terimini kelimelere ayır ve bunları düzenle
-  const normalizedSearchTerm = searchTerm.toLowerCase().trim().replace(/\s+/g, ''); // Boşlukları kaldırarak
-  const regex = new RegExp(normalizedSearchTerm.split('').join('.*?'), 'gi'); // Arama terimini küçük/büyük harfe duyarsız şekilde arar ve kısımları da kapsar
+  // Boşlukları kaldırıyoruz ve her iki metni de küçük harfe çeviriyoruz
+  const normalizedSearchTerm = searchTerm.replace(/\s+/g, '').toLowerCase(); 
+  const normalizedText = text.replace(/\s+/g, '').toLowerCase();
+  // Arama teriminin metinde yerini bulmak için
+  let matchIndex = normalizedText.indexOf(searchTerm);
 
-  const parts = text.split(regex); // Metni, arama terimi ile böler
+  if (matchIndex === -1) return text; // Eşleşme yoksa orijinal metni döndür
 
-  return parts.map((part, index) => {
-    const matched = regex.test(part); // Eşleşen metin var mı kontrol et
-    return matched ? (
-      <strong className='search-selection' key={index}>{part}</strong> // Eşleşen kısmı kalın yap
-    ) : (
-      part
-    );
-  });
+  // Eşleşen kısmı bulup renklendirmek için parçaları ayırıyoruz
+  const parts = [];
+  let lastIndex = 0;
+
+  while (matchIndex !== -1) {
+    console.log(text)
+    console.log(matchIndex)
+    console.log(searchTerm.length)
+    // Eşleşen kısmı "strong" içine alıyoruz
+    const matchedText = text.substring(matchIndex, matchIndex + searchTerm.length + 1);
+    console.log(matchedText)
+    parts.push(text.substring(lastIndex, matchIndex)); // Önceki kısımları ekliyoruz
+    parts.push(<strong className="search-selection" key={lastIndex}>{matchedText}</strong>); // Eşleşen kısmı ekliyoruz
+    lastIndex = matchIndex + searchTerm.length + 1;
+
+    // Sonraki eşleşmeyi arıyoruz
+    matchIndex = normalizedText.indexOf(searchTerm, lastIndex);
+  }
+
+  // Sonraki kısmı da ekliyoruz
+  parts.push(text.substring(lastIndex));
+  console.log(parts)
+  return parts;
 };
+// Alt menü öğesi bileşeni
+function SubMenuItem({ item , searchTerm }) {
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
+  const datas = useSelector((state) => state.data);
+  const selectedAppId = datas.selectedAppId;
+
+  const handleClickSubMenu = (streamId, appId) => {
+    //Sol menüde en altta usefull links bölümü oluşturuldu. Oradaki linklere tıklandığında yan sekmede ilgili siteyi açmaktadır.
+    if(appId.includes("https")){
+      window.open(appId , '_blank');
+    }
+    else{
+      sessionStorage.setItem("lastSelectedStreamId", streamId);
+      sessionStorage.setItem("lastSelectedAppId", appId);
+      if(selectedAppId != appId){  //Sol menuden seçili app önceden seçili app ise dispatch parametreler tekrar çağırılmıyor.
+        dispatch(setIframeData(null));
+        dispatch(setSelectedAppId(appId));
+        setTimeout(() => {
+          navigate("sheets");
+        }, 250);
+      }
+      
+    }
+  };
+  
+
+  return (
+    <li>
+      {/* Eğer bir "route" belirtilmişse, bir Link kullanarak yönlendirme yap */}
+      {item.route ? <Link to={item.routeText}>{item.text}</Link> : <a onClick={() => handleClickSubMenu(item.streamId, item.id)}>{renderHighlightedText(item.text,searchTerm)}</a>}
+    </li>
+  );
+}
+
+// Alt menü bileşeni
+function SubMenu({ subNodes , searchTerm }) {
+  return (
+    <ul className="submenu-indent">
+      {subNodes.map((item, index) => (
+        // Her alt menü öğesi için SubMenuItem bileşenini kullan
+        <SubMenuItem key={index} item={item} searchTerm={searchTerm}/>
+      ))}
+    </ul>
+  );
+}
+
+// Yan menü öğesi bileşeni
+export default function MenuItem({ data , searchTerm , activeMenuId , setActiveMenuId}) {
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
+  const [isOpen, setIsOpen] = useState(false);
+
+  useEffect(() => { //Arama ile bulunan kelimeler alt menüde ise ilgili menülerin açılması için bu değişken tutuldu. 
+    setIsOpen(data.isOpen)
+    setActiveMenuId(sessionStorage.getItem("lastSelectedStreamId")); // Seçilen streamId'nin menü id'si de aynı olduğundan aktif olan menü belirleniyor.
+    
+    if(searchTerm === '') {
+      setIsOpen(false)
+  }
+  
+  }, [searchTerm]);
+  // Alt menüyü açma / kapama işlevi  
+  const toggleSubMenu = (id) => {
+
+    if (activeMenuId === id) {
+      // console.log("Menü kapatılıyor");
+      setActiveMenuId(null); // Aynı menü tıklandıysa kapat
+    } else {
+      // console.log("Yeni menü açılıyor");
+      setActiveMenuId(id); // Yeni menü aktif yap
+    }
+  };
+
+  const handleClickMenu = (streamId) => {
+    sessionStorage.setItem("lastSelectedStreamId",streamId);
+    sessionStorage.setItem("lastSelectedAppId",null);
+    dispatch(setSelectedStreamId(streamId));
+    dispatch(setSelectedAppId(null));
+    dispatch(setIframeData(null));
+    setTimeout(() => {
+      navigate("apps");
+    }, 250);
+  };
+  // Menü öğesi sınıfı, alt menü açık olduğunda "active" sınıfını ekler
+  const menuItemClass = (activeMenuId === data.menuId) ? "menu-item active" : "menu-item";
+
+  return (
+    <li className={menuItemClass}>
+      {data.route ? (
+        // Eğer bir "route" belirtilmişse, bir Link kullanarak yönlendirme yap
+        <Link to={data.routeText}>
+          <div className="menu-item-icon">
+            <data.svg />
+          </div>
+          <span onClick={() => handleClickMenu(data.menuId)}>{renderHighlightedText(data.text,searchTerm)}</span>
+          {data.subNodes && <DownChevron isActive={activeMenuId === data.menuId} />}
+        </Link>
+      ) : (
+        // Aksi takdirde, alt menüyü açma / kapama işlevini çalıştıran bir tıklama olayı ekler
+        <a href={data.routeText} >
+          <div className="menu-item-icon">
+            <data.svg />
+          </div>
+          <span onClick={() => handleClickMenu(data.menuId)}>{renderHighlightedText(data.text,searchTerm)}</span>
+          {data.subNodes && 
+          <div onClick={() => toggleSubMenu(data.menuId)}>
+              <DownChevron isActive={activeMenuId === data.menuId} />
+          </div>
+          }
+        </a>
+      )}
+
+
+      {/* Eğer alt menü öğeleri varsa ve isOpen durumu true ise alt menüyü göster */}
+            {/* {data.subNodes && isSubmenuActive && <SubMenu subNodes={data.subNodes} />} */}
+
+            {data.subNodes && (activeMenuId === data.menuId || isOpen)  && (
+        <SubMenu subNodes={data.subNodes} searchTerm={searchTerm} />
+      )}    </li>
+  );
+}
