@@ -1,26 +1,55 @@
-React does not recognize the `closeButton` prop on a DOM element. If you intentionally want it to appear in the DOM as a custom attribute, spell it as lowercase `closebutton` instead. If you accidentally passed it from a parent component, remove it from the DOM element.
-    at div
-import React from 'react'
-import Button from 'react-bootstrap/Button';
-import Modal from 'react-bootstrap/Modal';
+  useEffect(() => {
+    dispatch(setName('home'));
+    dispatch(setIframeData(null));
+    sessionStorage.removeItem("lastSelectedAppId");
+    sessionStorage.removeItem("lastSelectedStreamId");
 
-import './ModalComp.css';
+    if (!app) {
+      openApp(import.meta.env.VITE_APP_APP1)
+        .then((_app) => {
+          setApp(_app);
+        })
+        .catch((error) => {
+          //*** warning start ***
+          setModalText("Qlik app bilgisi alınırken hata oluştu!");
+          setShowWarningModal(true);
+          setTimeout(() => { setLoading(false); }, 25);
+          //*** warning end ***
+          console.error('Homen : OpenApp Uygulama başlatma hatası:', error);
+        });
+    } else {
+      setLoading(true);
+      getObjectData(app, 'jpmS')
+        .then((data) => {
+          setData(data);
 
-export default function ModalComp({ show , onCancel , onConfirm , appName }) {
-    return (
-        <Modal show={show} onHide={onCancel}>
-            <Modal.Header closeButton>
-            </Modal.Header>
-            <Modal.Body closeButton><b>"{appName}"</b> app'ni favoriden kaldırmak istiyor musunuz?</Modal.Body>
-            <Modal.Footer>
-                <Button className="secondary-btn" onClick={onCancel}>
-                    Hayır
-                </Button>
-                <Button className="primary-btn" onClick={onConfirm}>
-                    Evet
-                </Button>
-            </Modal.Footer>
-        </Modal>
-    );
-    
-}
+        })
+        .catch((error) => {
+          //*** warning start ***
+          setModalText("Qlik object bilgisi alınırken hata oluştu!");
+          setShowWarningModal(true);
+          setTimeout(() => { setLoading(false); }, 25);
+          //*** warning end ***
+          console.error('Home : Sol Menü Tablo verisi alma hatası:', error);
+        });
+
+      //Sık kullanılanlar tablo datası
+      getObjectData(app, 'bZjSh')
+        .then((data) => {
+          setFrequentlyUsingData(data);
+        })
+        .catch((error) => {
+          //*** warning start ***
+          setModalText("Qlik object bilgisi alınırken hata oluştu!");
+          setShowWarningModal(true);
+          setTimeout(() => { setLoading(false); }, 25);
+          //*** warning end ***
+          console.error('Home : Sık Kullanılanlar Tablo verisi alma hatası:', error);
+        });
+      //*** favorite card işlemleri start ***
+      getFavoriteAppsFromTable();
+      getFavoriteApps();
+      //*** favorite card işlemleri end ***
+
+    }
+  }, [dispatch, app])
