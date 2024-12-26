@@ -1,55 +1,5 @@
-  useEffect(() => {
-    dispatch(setName('home'));
-    dispatch(setIframeData(null));
-    sessionStorage.removeItem("lastSelectedAppId");
-    sessionStorage.removeItem("lastSelectedStreamId");
+  const isFirstVisitToHome = sessionStorage.getItem('isFirstVisitToHome') !== 'false';
 
-    if (!app) {
-      openApp(import.meta.env.VITE_APP_APP1)
-        .then((_app) => {
-          setApp(_app);
-        })
-        .catch((error) => {
-          //*** warning start ***
-          setModalText("Qlik app bilgisi alınırken hata oluştu!");
-          setShowWarningModal(true);
-          setTimeout(() => { setLoading(false); }, 25);
-          //*** warning end ***
-          console.error('Homen : OpenApp Uygulama başlatma hatası:', error);
-        });
-    } else {
-      setLoading(true);
-      getObjectData(app, 'jpmS')
-        .then((data) => {
-          setData(data);
-
-        })
-        .catch((error) => {
-          //*** warning start ***
-          setModalText("Qlik object bilgisi alınırken hata oluştu!");
-          setShowWarningModal(true);
-          setTimeout(() => { setLoading(false); }, 25);
-          //*** warning end ***
-          console.error('Home : Sol Menü Tablo verisi alma hatası:', error);
-        });
-
-      //Sık kullanılanlar tablo datası
-      getObjectData(app, 'bZjSh')
-        .then((data) => {
-          setFrequentlyUsingData(data);
-        })
-        .catch((error) => {
-          //*** warning start ***
-          setModalText("Qlik object bilgisi alınırken hata oluştu!");
-          setShowWarningModal(true);
-          setTimeout(() => { setLoading(false); }, 25);
-          //*** warning end ***
-          console.error('Home : Sık Kullanılanlar Tablo verisi alma hatası:', error);
-        });
-      //*** favorite card işlemleri start ***
-      getFavoriteAppsFromTable();
-      getFavoriteApps();
-      //*** favorite card işlemleri end ***
-
-    }
-  }, [dispatch, app])
+  if (isFirstVisitToHome) {
+    // Home sayfasına ilk kez gidiliyorsa, işlemi yap
+    sessionStorage.setItem('isFirstVisitToHome', 'false'); // Sonraki ziyaretlerde çalışmasın
