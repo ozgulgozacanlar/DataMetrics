@@ -1,1 +1,6 @@
-const favoriteIds = objectData[2] ? [objectData[2].qText] : []; // 3. elemandan qText'i al
+  // objectData içindeki her bir alt dizinin 2. indeksindeki qText değerlerini al
+    const favoriteIds = objectData
+      .map(innerArray => innerArray[2]?.qText) // İç array'in 2. indeksindeki qText alınır
+      .filter(qText => qText && qText !== 'NaN'); // Boş veya 'NaN' olmayan değerleri al
+
+    console.log(favoriteIds);  // favoriteIds içinde id'leri kontrol et
