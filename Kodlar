@@ -1,8 +1,26 @@
 React does not recognize the `closeButton` prop on a DOM element. If you intentionally want it to appear in the DOM as a custom attribute, spell it as lowercase `closebutton` instead. If you accidentally passed it from a parent component, remove it from the DOM element.
     at div
-useEffect(() => {
-  if (clickAddRemoveApp) {
-    // getFavoriteApps çağrılacak sadece clickAddRemoveApp true olduğunda
-    getFavoriteApps();
-  }
-}, [clickAddRemoveApp]);  // clickAddRemoveApp değiştiğinde bu effect tetiklenir
+import React from 'react'
+import Button from 'react-bootstrap/Button';
+import Modal from 'react-bootstrap/Modal';
+
+import './ModalComp.css';
+
+export default function ModalComp({ show , onCancel , onConfirm , appName }) {
+    return (
+        <Modal show={show} onHide={onCancel}>
+            <Modal.Header closeButton>
+            </Modal.Header>
+            <Modal.Body closeButton><b>"{appName}"</b> app'ni favoriden kaldırmak istiyor musunuz?</Modal.Body>
+            <Modal.Footer>
+                <Button className="secondary-btn" onClick={onCancel}>
+                    Hayır
+                </Button>
+                <Button className="primary-btn" onClick={onConfirm}>
+                    Evet
+                </Button>
+            </Modal.Footer>
+        </Modal>
+    );
+    
+}
