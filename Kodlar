@@ -1,44 +1,105 @@
-useEffect(() => {
-  // Normalize edilmiş searchTerm (boşluklar kaldırılacak ve küçük harfe çevrilecek)
-  const normalizedSearchTerm = searchTerm.replace(/\s+/g, '').toLowerCase();
-
-  const updatedMenuItems = menuItems.map(item => {
-    // Ana düğüm text'inin normalize edilmesi ve arama terimi ile karşılaştırılması
-    const normalizedMainText = item.text.replace(/\s+/g, '').toLowerCase();
-    const matchesMainText = normalizedMainText.includes(normalizedSearchTerm);
-
-    // Alt düğümlerdeki text'lerin normalize edilmesi ve arama terimi ile karşılaştırılması
-    const matchesSubNodes = item.subNodes.some(subItem => {
-      const normalizedSubText = subItem.text.replace(/\s+/g, '').toLowerCase();
-      return normalizedSubText.includes(normalizedSearchTerm);
-    });
-
-    // Ana düğüm veya alt düğümlerde eşleşme varsa, ilgili bölümü aç
-    return {
-      ...item,
-      isOpen: searchTerm === '' ? false : (matchesMainText || matchesSubNodes),
-    };
-  });
-
-  // Arama terimi boşsa tüm öğeleri tut, değilse sadece eşleşenleri filtrele
-  const filtered = searchTerm === ''
-    ? updatedMenuItems
-    : updatedMenuItems.filter(item => item.isOpen || item.subNodes.some(subItem => subItem.isOpen));
-
-  // Home sayfasından stream seçip app sayfasına geçmişse, ilgili stream'in submenülerinin açılması
-  filtered.forEach(item => {
-    if (item.menuId === selectedStreamId) {
-      item.isOpen = true;
-    }
-
-    item.subNodes.forEach(subItem => {
-      item.isOpen = true;
-      if (subItem.id === selectedAppId) {
-        item.isOpen = true; // Eğer subNode ile eşleşiyorsa ana öğeyi açık yap
+  const getFavoriteApps = async () => {
+    try {
+      const favArr = await getFavorites();
+      const favoriteArray = [];
+      for (const favId of favArr) {
+        const appArr = await getAppById(favId);
+        if (appArr !== 'Forbidden') {
+          favoriteArray.push({
+            name: appArr.name,
+            publishTime: appArr.publishTime,
+            thumbnail: appArr.thumbnail,
+            description: appArr.description,
+            favStatus: true,
+            id: appArr.id,
+          });
+        }
       }
-    });
-  });
+      console.log(favoriteArray)
+      setFavorites(favoriteArray);
+    } catch (error) {
+      //*** warning start ***
+      setModalText(<>Qlik favori app bilgisi alınırken hata oluştu!<br />({error.message}) </>);
+      setShowWarningModal(true);
+      setTimeout(() => { setLoading(false); }, 25);
+      //*** warning end ***
+      console.error('Favori data hatası:', error);
+    }
+  };
+  useEffect(() => {
+    dispatch(setName('home'));
+    dispatch(setIframeData(null));
+    sessionStorage.removeItem("lastSelectedAppId");
+    sessionStorage.removeItem("lastSelectedStreamId");
 
-  // Filtrelenmiş öğeleri güncelle
-  setFilteredItems(filtered);
-}, [searchTerm, selectedStreamId, selectedAppId, menuItems]);
+    if (!app) {
+      openApp(import.meta.env.VITE_APP_APP1)
+        .then((_app) => {
+          setApp(_app);
+        })
+        .catch((error) => {
+          //*** warning start ***
+          setModalText("Qlik app bilgisi alınırken hata oluştu!");
+          setShowWarningModal(true);
+          setTimeout(() => { setLoading(false); }, 25);
+          //*** warning end ***
+          console.error('Homen : OpenApp Uygulama başlatma hatası:', error);
+        });
+    } else {
+      setLoading(true);
+      getObjectData(app, 'jpmS')
+        .then((data) => {
+          setData(data);
+
+        })
+        .catch((error) => {
+          //*** warning start ***
+          setModalText("Qlik object bilgisi alınırken hata oluştu!");
+          setShowWarningModal(true);
+          setTimeout(() => { setLoading(false); }, 25);
+          //*** warning end ***
+          console.error('Home : Sol Menü Tablo verisi alma hatası:', error);
+        });
+
+      //Sık kullanılanlar tablo datası
+      getObjectData(app, 'bZjSh')
+        .then((data) => {
+          setFrequentlyUsingData(data);
+        })
+        .catch((error) => {
+          //*** warning start ***
+          setModalText("Qlik object bilgisi alınırken hata oluştu!");
+          setShowWarningModal(true);
+          setTimeout(() => { setLoading(false); }, 25);
+          //*** warning end ***
+          console.error('Home : Sık Kullanılanlar Tablo verisi alma hatası:', error);
+        });
+
+      getObjectData(app, 'ZaXNhFC')
+        .then((data) => {
+          console.log(data)
+
+        })
+        .catch((error) => {
+          //*** warning start ***
+          setModalText("Qlik object bilgisi alınırken hata oluştu!");
+          setShowWarningModal(true);
+          setTimeout(() => { setLoading(false); }, 25);
+          //*** warning end ***
+          console.error('Home : Favoriler Tablo verisi alma hatası:', error);
+        });
+      //*** favorite card işlemleri start ***
+      getFavoriteApps();
+      //*** favorite card işlemleri end ***
+
+    }
+  }, [dispatch, app])
+export async function addfavorites(id) {
+    try {
+        const res = await axiosIns.put(`qrs/user/favorites/${id}?xrfkey=${xrfKey}`);
+        return res.data; 
+    } catch (error) {
+        console.log(error);
+    }
+   
+}
