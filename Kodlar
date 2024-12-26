@@ -1,6 +1,11 @@
-  // objectData içindeki her bir alt dizinin 2. indeksindeki qText değerlerini al
-    const favoriteIds = objectData
-      .map(innerArray => innerArray[2]?.qText) // İç array'in 2. indeksindeki qText alınır
-      .filter(qText => qText && qText !== 'NaN'); // Boş veya 'NaN' olmayan değerleri al
-
-    console.log(favoriteIds);  // favoriteIds içinde id'leri kontrol et
+  // Benzersiz id'leri eklemek için önce id'yi kontrol et
+        if (!favoriteArray.some(item => item.id === appArr.id)) {
+          favoriteArray.push({
+            name: appArr.name,
+            publishTime: appArr.publishTime,
+            thumbnail: appArr.thumbnail,
+            description: appArr.description,
+            favStatus: true,
+            id: appArr.id,
+          });
+        }
