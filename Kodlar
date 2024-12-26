@@ -1,59 +1,8 @@
 React does not recognize the `closeButton` prop on a DOM element. If you intentionally want it to appear in the DOM as a custom attribute, spell it as lowercase `closebutton` instead. If you accidentally passed it from a parent component, remove it from the DOM element.
     at div
-
-
- //#region Favorilerden çıkarma ekleme işlemleri
-  const handleAddRemoveFavoriteApp = async (id, isFav) => {
-    setClickAddRemoveApp(true);
-    console.log(clickAddRemoveApp)
-    await toggleFavorites(id, isFav);
-    // Favori listesini güncelle
+useEffect(() => {
+  if (clickAddRemoveApp) {
+    // getFavoriteApps çağrılacak sadece clickAddRemoveApp true olduğunda
     getFavoriteApps();
-  };
-
- const getFavoriteApps = async () => {
-    try {
-      console.log(clickAddRemoveApp)
-      if(!clickAddRemoveApp){
-        // Favoriler tablosundaki verilerin alınması
-        const objectData = await getObjectData(app, 'ZaXNhFC');
-        console.log(objectData);
-
-        if (objectData.length > 0) {
-          // objectData içindeki her bir alt dizinin 2. indeksindeki qText( app id ) değerlerini alır 
-          const favoriteIds = objectData
-            .map(innerArray => innerArray[2]?.qText)
-            .filter(qText => qText && qText !== 'NaN');
-          console.log(favoriteIds);
-          for (const id of favoriteIds) {
-            await addfavorites(id);
-          }
-        }
-      }  
-      const favArr = await getFavorites();
-      const favoriteArray = [];
-      console.log(favArr)
-      for (const favId of favArr) {
-        const appArr = await getAppById(favId);
-        if (appArr !== 'Forbidden') {
-          favoriteArray.push({
-            name: appArr.name,
-            publishTime: appArr.publishTime,
-            thumbnail: appArr.thumbnail,
-            description: appArr.description,
-            favStatus: true,
-            id: appArr.id,
-          });
-        }
-      }
-      console.log(favoriteArray)
-      setFavorites(favoriteArray);
-    } catch (error) {
-      //*** warning start ***
-      setModalText(<>Qlik favori app bilgisi alınırken hata oluştu!<br />({error.message}) </>);
-      setShowWarningModal(true);
-      setTimeout(() => { setLoading(false); }, 25);
-      //*** warning end ***
-      console.error('Favori data hatası:', error);
-    }
-  };
+  }
+}, [clickAddRemoveApp]);  // clickAddRemoveApp değiştiğinde bu effect tetiklenir
