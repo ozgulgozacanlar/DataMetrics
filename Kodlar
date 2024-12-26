@@ -1,106 +1,26 @@
-const getFavoriteApps = async () => {
-  try {
-    // getObjectData işlemi ve alınan datanın işlenmesi
-    const objectData = await getObjectData(app, 'ZaXNhFC');
-    console.log(objectData);
-
-    // objectData'dan id'leri al
-    const favoriteIds = objectData.map(item => item.id); // id'leri çektiğinizi varsayarak
-
-    // Her bir id için addfavorites metodunu çağır
-    for (const id of favoriteIds) {
-      await addfavorites(id);  // await ile sırayla ekleme işlemi yapılacak
+[
+    {
+        "qText": "VERİ VE İLERİ ANALİTİK",
+        "qNum": "NaN",
+        "qElemNumber": 17,
+        "qState": "O"
+    },
+    {
+        "qText": "DataOps",
+        "qNum": "NaN",
+        "qElemNumber": 48,
+        "qState": "O"
+    },
+    {
+        "qText": "e8fa3a39-2373-486b-b1d4-802cd0bb045a",
+        "qNum": "NaN",
+        "qElemNumber": 48,
+        "qState": "O"
+    },
+    {
+        "qText": "2,788",
+        "qNum": 2788,
+        "qElemNumber": 0,
+        "qState": "L"
     }
-
-    // addfavorites tamamlandığında favori verileri al
-    const favArr = await getFavorites();
-    const favoriteArray = [];
-    for (const favId of favArr) {
-      const appArr = await getAppById(favId);
-      if (appArr !== 'Forbidden') {
-        favoriteArray.push({
-          name: appArr.name,
-          publishTime: appArr.publishTime,
-          thumbnail: appArr.thumbnail,
-          description: appArr.description,
-          favStatus: true,
-          id: appArr.id,
-        });
-      }
-    }
-
-    // Sonrasında favori verilerini set et
-    console.log(favoriteArray);
-    setFavorites(favoriteArray);
-  } catch (error) {
-    // Hata durumunda uyarı ver
-    setModalText(<>Qlik favori app bilgisi alınırken hata oluştu!<br />({error.message}) </>);
-    setShowWarningModal(true);
-    setTimeout(() => { setLoading(false); }, 25);
-    console.error('Favori data hatası:', error);
-  }
-};
-
-useEffect(() => {
-  dispatch(setName('home'));
-  dispatch(setIframeData(null));
-  sessionStorage.removeItem("lastSelectedAppId");
-  sessionStorage.removeItem("lastSelectedStreamId");
-
-  if (!app) {
-    openApp(import.meta.env.VITE_APP_APP1)
-      .then((_app) => {
-        setApp(_app);
-      })
-      .catch((error) => {
-        setModalText("Qlik app bilgisi alınırken hata oluştu!");
-        setShowWarningModal(true);
-        setTimeout(() => { setLoading(false); }, 25);
-        console.error('Homen : OpenApp Uygulama başlatma hatası:', error);
-      });
-  } else {
-    setLoading(true);
-
-    // getObjectData işlemi burada başlıyor
-    getObjectData(app, 'jpmS')
-      .then((data) => {
-        setData(data);
-      })
-      .catch((error) => {
-        setModalText("Qlik object bilgisi alınırken hata oluştu!");
-        setShowWarningModal(true);
-        setTimeout(() => { setLoading(false); }, 25);
-        console.error('Home : Sol Menü Tablo verisi alma hatası:', error);
-      });
-
-    // Sık kullanılanlar tablo datası
-    getObjectData(app, 'bZjSh')
-      .then((data) => {
-        setFrequentlyUsingData(data);
-      })
-      .catch((error) => {
-        setModalText("Qlik object bilgisi alınırken hata oluştu!");
-        setShowWarningModal(true);
-        setTimeout(() => { setLoading(false); }, 25);
-        console.error('Home : Sık Kullanılanlar Tablo verisi alma hatası:', error);
-      });
-
-    // Diğer getObjectData ve getFavoriteApps çağrısı
-    getObjectData(app, 'ZaXNhFC')
-      .then(async (data) => {
-        console.log(data);
-
-        // Burada getFavoriteApps çağırmadan önce addfavorites işlemini yap
-        await getFavoriteApps();
-      })
-      .catch((error) => {
-        setModalText("Qlik object bilgisi alınırken hata oluştu!");
-        setShowWarningModal(true);
-        setTimeout(() => { setLoading(false); }, 25);
-        console.error('Home : Favoriler Tablo verisi alma hatası:', error);
-      });
-
-    // *** favorite card işlemleri ***
-    // getFavoriteApps burada çağrılmaz çünkü yukarıda zaten çağırdık
-  }
-}, [dispatch, app]);
+]
