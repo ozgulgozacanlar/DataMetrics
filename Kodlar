@@ -1,5 +1,127 @@
-  const isFirstVisitToHome = sessionStorage.getItem('isFirstVisitToHome') !== 'false';
+  const drawGaugeChart = () => {
+    if(gaugeData){
 
-  if (isFirstVisitToHome) {
-    // Home sayfasına ilk kez gidiliyorsa, işlemi yap
-    sessionStorage.setItem('isFirstVisitToHome', 'false'); // Sonraki ziyaretlerde çalışmasın
+    const svg = d3.select(svgRef.current);
+    svg.selectAll('*').remove(); // Önceki içerikleri temizle
+
+    const containerWidth = svg.node().parentNode.clientWidth || 400; // Varsayılan genişlik
+    const containerHeight = svg.node().parentNode.clientHeight || 400; // Varsayılan yükseklik
+
+    const gaugeWidth = containerWidth-10;
+    const gaugeHeight = Math.min(containerWidth, containerHeight);
+    const radius = Math.min(gaugeWidth, gaugeHeight) / 2.0; // Daha büyük bir grafik için 2.0
+
+    const arcWidth = 12; // Yay genişliği
+    const gap = -0.50; // Yaylar arasındaki boşluk
+
+    svg
+      .attr('width', gaugeWidth)
+      .attr('height', gaugeHeight)
+      .attr('viewBox', `0 0 ${gaugeWidth} ${gaugeHeight}`)
+      .attr('preserveAspectRatio', 'xMidYMid meet');
+
+    const chartGroup = svg
+      .append('g')
+      .attr('transform', `translate(${gaugeWidth / 2},${gaugeHeight * 0.7})`);
+
+    const scale = d3.scaleLinear().domain([0, 100]).range([0, Math.PI]);
+
+    const arc = d3.arc()
+      .innerRadius(radius - arcWidth)
+      .outerRadius(radius)
+      .startAngle(0)
+      .endAngle((d) => scale(d))
+      .cornerRadius(10);
+
+    const colors = ['#d46364', '#dc9465', '#7ca444'];
+    const totalValue = gaugeData.children[0].value1 + gaugeData.children[0].value2 + gaugeData.children[0].value3;
+    const angle1 = (gaugeData.children[0].value1 / totalValue) * Math.PI;
+    const angle2 = (gaugeData.children[0].value2 / totalValue) * Math.PI;
+    const angle3 = (gaugeData.children[0].value3 / totalValue) * Math.PI;
+    const gapAngle = (gap / 180) * Math.PI;
+
+    chartGroup.selectAll('.arc')
+      .data([
+        { value: gaugeData.children[0].value1, angle: angle1, color: colors[0] },
+        { value: gaugeData.children[0].value2, angle: angle2, color: colors[1] },
+        { value: gaugeData.children[0].value3, angle: angle3, color: colors[2] },
+      ])
+      .enter()
+      .append('path')
+      .attr('class', 'arc')
+      .attr('d', (d) => arc(d.value))
+      .attr('fill', (d) => d.color)
+      .attr('transform', (d, i) => {
+        const rotationAngle = i === 0 ? -90 :
+          i === 1 ? (angle1 + gapAngle - Math.PI / 2) * 180 / Math.PI :
+          (angle1 + angle2 - Math.PI / 2) * 180 / Math.PI ;
+        return `rotate(${rotationAngle})`;
+      });
+
+    // Target'ın doğru açısını hesapla
+    const totalAngle = angle1 + angle2 + angle3; // Tüm açıyı hesapla
+    const targetPercent = calculateTargetPercentage(gaugeData.startValue*100, gaugeData.endValue*100, gaugeData.target);
+    const targetAngle = (targetPercent / 100) * Math.PI - Math.PI / 2 + (3 * Math.PI / 2); // Rotate 270 degrees
+
+    // Target için küçük bir daire ekle
+    const addTargetCircle = (angle) => {
+    const x = ((radius - arcWidth*0.5) * Math.cos(angle)); // X koordinatı
+    const y = ((radius - arcWidth*0.5) * Math.sin(angle)); // Y koordinatı
+    chartGroup.append("circle")
+        .attr("cx", x )
+        .attr("cy", y)
+        .attr("r", 12)  // Küçük daire boyutu
+        .attr("fill", "#7ca444")  // Dairenin rengi
+        .style("transition", "opacity 0.3s ease-in-out");
+
+    // İçeride beyaz bir daire ekle
+    chartGroup.append("circle")
+        .attr("cx", x)
+        .attr("cy", y)
+        .attr("r", 5)  // Küçük iç daire boyutu
+        .attr("fill", "#FFFFFF")  // İç daire beyaz
+        .style("opacity", 1);  // Tam görünürlük
+    };
+
+    // Target circle'ını ekle
+    addTargetCircle(targetAngle);  // Bu fonksiyon artık 270 derece dönmüş olacak
+
+    chartGroup.append('text')
+      .attr('class', 'center-text')
+      .attr('x', 0)
+      .attr('y', -radius / 3)
+      .attr('text-anchor', 'middle')
+      .style('font-size', `${radius / 5}px`)
+      .style('font-weight', `900`)
+      .text(`${gaugeData.target}%`);
+
+    chartGroup.append('text')
+      .attr('class', 'center-text')
+      .attr('x', 0)
+      .attr('y', -radius / 10)
+      .attr('text-anchor', 'middle')
+      .style('font-size', `${radius / 10}px`)
+      .style('font-weight', `900`)
+      .text(centerText);
+
+    chartGroup.append('text')
+      .attr('x', -radius + 10)
+      .attr('y', 25)
+      .attr('text-anchor', 'middle')
+      .style('font-size', `${radius / 10}px`)
+      .style('font-weight', `600`)
+      .text(`${gaugeData.startValue*100}` + "%");
+
+    chartGroup.append('text')
+      .attr('x', radius- 11)
+      .attr('y', 25)
+      .attr('text-anchor', 'middle')
+      .style('font-size', `${radius / 10}px`)
+      .style('font-weight', `600`)
+      .text(`${gaugeData.endValue*100}` + "%");
+      
+    }else{
+      return <></>;
+    }
+    
+  };
