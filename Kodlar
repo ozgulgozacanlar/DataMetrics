@@ -1,17 +1,1 @@
-  11:28  error  `"` can be escaped with `&quot;`, `&ldquo;`, `&#34;`, `&rdquo;`  react/no-unescaped-entities
-  11:38  error  `"` can be escaped with `&quot;`, `&ldquo;`, `&#34;`, `&rdquo;`  react/no-unescaped-entities
-  11:47  error  `'` can be escaped with `&apos;`, `&lsquo;`, `&#39;`, `&rsquo;`  react/no-unescaped-entities
-
- <Modal show={show} onHide={onCancel}>
-            <Modal.Header closeButton>
-            </Modal.Header>
-            <Modal.Body><b>"{appName}"</b> app'ni favoriden kaldırmak istiyor musunuz?</Modal.Body>
-            <Modal.Footer>
-                <Button className="secondary-btn" onClick={onCancel}>
-                    Hayır
-                </Button>
-                <Button className="primary-btn" onClick={onConfirm}>
-                    Evet
-                </Button>
-            </Modal.Footer>
-        </Modal>
+        <b>&quot;{appName}&quot;</b> app&apos;ni favoriden kaldırmak istiyor musunuz?
