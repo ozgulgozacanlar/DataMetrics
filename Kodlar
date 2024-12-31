@@ -1,9 +1,11 @@
-npm install eslint-plugin-import --save-dev
-{
-  "plugins": [
-    "import"
-  ],
-  "rules": {
-    "import/prefer-default-export": "off"
-  }
-}
+      'no-console': ['error', { allow: ['warn', 'error', 'info'] }],
+  getStreamById(datas.selectedStreamId).then((apps) => {
+        if (apps.length > 0) {
+          const selectedApp = apps.find(app => app.id === datas.selectedAppId);
+          setStreamName(apps[0].stream.name);
+          setAppName(selectedApp != undefined ? selectedApp.name : "");
+
+        }
+      }).catch((error) => {
+        console.log("Error in Navbar GetStreamById: " + error);
+      });  
