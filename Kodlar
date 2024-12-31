@@ -1,24 +1,9 @@
-/* eslint-disable import/prefer-default-export */
-
-import { configureStore } from '@reduxjs/toolkit';
-import menuReducer from './features/menu';
-import filterReducer from './features/filter';
-import pageReducer from './features/page';
-import dataReducer  from './features/data';
-import navbarReducer from './features/navbar';
-import  userReducer  from './features/user';
-import modalReducer from './features/modal';
-// Redux store'unu yapılandırır
-export const store = configureStore({
-  reducer: {
-    menu: menuReducer,
-    filter: filterReducer,
-    page: pageReducer,
-    data: dataReducer,
-    navbar: navbarReducer,
-    user:userReducer,
-    modal:modalReducer
-  },
-  middleware: (getDefaultMiddleware) => getDefaultMiddleware({ serializableCheck: false }),
-});
-  1:1  error  Definition for rule 'import/prefer-default-export' was not found  import/prefer-default-export
+npm install eslint-plugin-import --save-dev
+{
+  "plugins": [
+    "import"
+  ],
+  "rules": {
+    "import/prefer-default-export": "off"
+  }
+}
