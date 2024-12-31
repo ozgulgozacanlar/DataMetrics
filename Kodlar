@@ -1,11 +1,1 @@
-export async function logout() {
-    try {
-        //const res = await axiosIns.delete(`qps/user?xrfkey=${xrfKey}`);
-        return true;
-    } catch (error) {
-        console.log(error);
-    }
-   
-}
-
-  191:21  error  Unreachable code  no-unreachable
+https://qlikprod/extensions/BolgeButceGMMashup/index.html?qlikTicket=ZEk3KJsJpUBhlXWV#/
