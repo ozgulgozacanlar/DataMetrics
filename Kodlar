@@ -1,2 +1,58 @@
+import { useEffect, useState } from 'react';
 
-https://qliktest/extensions/Tuzel-360-v3/Tuzel-360-v3.html?customer-num=30408
+function MyComponent() {
+  const [params, setParams] = useState({});
+
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search); // URL query parametrelerini alıyoruz
+    const paramsObject = {};
+
+    // Tüm parametreleri iterasyonla alıyoruz
+    urlParams.forEach((value, key) => {
+      paramsObject[key] = value;
+    });
+
+    setParams(paramsObject); // Parametreleri state'e set ediyoruz
+  }, []);
+
+  return (
+    <div>
+      <h3>Query Parametreleri:</h3>
+      <pre>{JSON.stringify(params, null, 2)}</pre>
+    </div>
+  );
+}
+
+export default MyComponent;
+
+
+import { useEffect, useState } from 'react';
+
+function MyComponent() {
+  const [params, setParams] = useState({});
+  
+  useEffect(() => {
+    // URL'i string olarak burada tanımlıyoruz
+    const urlString = "https://qliktest/extensions/Tuzel-360-v3/Tuzel-360-v3.html?customer-num=30408&customer-name=JohnDoe&order-id=12345";
+
+    // URL'den query parametrelerini almak için URLSearchParams kullanıyoruz
+    const urlParams = new URLSearchParams(urlString.split('?')[1]); // ? işaretinden sonrasını alıyoruz
+    const paramsObject = {};
+
+    // Parametreleri forEach ile iterasyon yaparak alıyoruz
+    urlParams.forEach((value, key) => {
+      paramsObject[key] = value;
+    });
+
+    setParams(paramsObject); // Parametreleri state'e kaydediyoruz
+  }, []);
+
+  return (
+    <div>
+      <h3>Query Parametreleri:</h3>
+      <pre>{JSON.stringify(params, null, 2)}</pre>
+    </div>
+  );
+}
+
+export default MyComponent;
