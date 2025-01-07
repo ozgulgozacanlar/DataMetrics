@@ -1,12 +1,24 @@
- useEffect(() => {
-    // _app nesnesinin nasıl erişileceği burada belirlenmelidir
-    // _app'in geçerli ve önceden yüklenmiş bir nesne olduğundan emin olun.
+Card: `key` is not a prop. Trying to access it will result in `undefined` being returned. If you need to access the same value within the child component, you should pass it as a different prop. 
 
-    // Parametrelerin her birini dinamik şekilde işliyoruz
-    Object.entries(params).forEach(([key, value]) => {
-      // Dinamik parametre ismi ile selectMatch çağrısı yapıyoruz
-      _app.field(key).selectMatch(value).then(() => {
-        console.log(`${key} parametresi seçildi: ${value}`);
-      });
-    });
-  }, [params]); // params state'i değiştiğinde bu useEffect tetiklenecek
+              <Card key={`${card.objectId}-${rndKey}`} objectId={card.objectId} app={app} title={card.title} />
+
+export default function Card({ key, app, objectId, title }) {
+    const [data, setData] = useState();
+
+    useEffect(() => {
+        if (app) {
+            getObjectData(app, objectId)
+                .then((response) => {
+                    setData(response[0])
+                    if(objectId == "vHfhH"){
+                        console.log(response)
+                    }
+                    // console.log(`Qlik Sense object ${objectId} rendered successfully.`);
+                })
+                .catch((error) => {
+                    console.error('Error rendering Qlik Sense object:', error);
+                });
+        } else {
+            console.error('Qlik Sense app is not loaded yet');
+        }
+    }, [app, objectId, key]);
