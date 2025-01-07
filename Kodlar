@@ -1,1 +1,7 @@
-Each child in a list should have a unique "key" prop.
+  <div className="progressbar-inner" 
+                        style={{
+                        width: data[0].qText.includes('%') 
+                            ? `${parseFloat(data[0].qText.replace('%', ''))}%`  // Eğer yüzde ise, olduğu gibi kullan
+                            : `${(parseFloat(data[0].qText) / parseFloat(data[3].qText)) * 100}%`  // Eğer düz sayı ise, oranla hesapla
+                        }}>
+                    </div>
