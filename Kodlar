@@ -1,82 +1,79 @@
-[
-    [
-        {
-            "qText": "Üye İşyeri Stok Aktivasyon",
-            "qNum": "NaN",
-            "qElemNumber": 0,
-            "qState": "O"
-        },
-        {
-            "qText": "76",
-            "qNum": 75.83,
-            "qElemNumber": 0,
-            "qState": "L"
-        },
-        {
-            "qText": "78",
-            "qNum": 77.87,
-            "qElemNumber": 0,
-            "qState": "L"
-        }
-    ],
-    [
-        {
-            "qText": "Ticari Kart Verimlilik",
-            "qNum": "NaN",
-            "qElemNumber": 1,
-            "qState": "O"
-        },
-        {
-            "qText": "44",
-            "qNum": 43.5,
-            "qElemNumber": 0,
-            "qState": "L"
-        },
-        {
-            "qText": "44",
-            "qNum": 44.37,
-            "qElemNumber": 0,
-            "qState": "L"
-        }
-    ],
-    [
-        {
-            "qText": "Bireysel Kart Verimlilik",
-            "qNum": "NaN",
-            "qElemNumber": 2,
-            "qState": "O"
-        },
-        {
-            "qText": "43",
-            "qNum": 43.3,
-            "qElemNumber": 0,
-            "qState": "L"
-        },
-        {
-            "qText": "42",
-            "qNum": 41.51,
-            "qElemNumber": 0,
-            "qState": "L"
-        }
-    ],
-    [
-        {
-            "qText": "Anında Kart Satış Payı",
-            "qNum": "NaN",
-            "qElemNumber": 3,
-            "qState": "O"
-        },
-        {
-            "qText": "78",
-            "qNum": 77.69,
-            "qElemNumber": 0,
-            "qState": "L"
-        },
-        {
-            "qText": "65",
-            "qNum": 65.23,
-            "qElemNumber": 0,
-            "qState": "L"
-        }
-    ]
-]
+import React, { useRef, useEffect } from 'react';
+import * as d3 from 'd3';
+
+const data = [
+  [
+    { "qText": "Üye İşyeri Stok Aktivasyon", "qNum": "NaN", "qElemNumber": 0, "qState": "O" },
+    { "qText": "76", "qNum": 75.83, "qElemNumber": 0, "qState": "L" },
+    { "qText": "78", "qNum": 77.87, "qElemNumber": 0, "qState": "L" }
+  ],
+  [
+    { "qText": "Ticari Kart Verimlilik", "qNum": "NaN", "qElemNumber": 1, "qState": "O" },
+    { "qText": "44", "qNum": 43.5, "qElemNumber": 0, "qState": "L" },
+    { "qText": "44", "qNum": 44.37, "qElemNumber": 0, "qState": "L" }
+  ],
+  [
+    { "qText": "Bireysel Kart Verimlilik", "qNum": "NaN", "qElemNumber": 2, "qState": "O" },
+    { "qText": "43", "qNum": 43.3, "qElemNumber": 0, "qState": "L" },
+    { "qText": "42", "qNum": 41.51, "qElemNumber": 0, "qState": "L" }
+  ],
+  [
+    { "qText": "Anında Kart Satış Payı", "qNum": "NaN", "qElemNumber": 3, "qState": "O" },
+    { "qText": "78", "qNum": 77.69, "qElemNumber": 0, "qState": "L" },
+    { "qText": "65", "qNum": 65.23, "qElemNumber": 0, "qState": "L" }
+  ]
+];
+
+const MultiBarChart = () => {
+  const svgRef = useRef(null);
+
+  useEffect(() => {
+    const svg = d3.select(svgRef.current)
+      .attr('width', 600)
+      .attr('height', 400);
+
+    const margin = { top: 20, right: 30, bottom: 40, left: 40 };
+    const width = +svg.attr('width') - margin.left - margin.right;
+    const height = +svg.attr('height') - margin.top - margin.bottom;
+
+    const x0 = d3.scaleBand().rangeRound([0, width]).padding(0.1);
+    const x1 = d3.scaleBand().padding(0.05);
+    const y = d3.scaleLinear().rangeRound([height, 0]);
+
+    const categories = data.map(d => d[0].qText);
+    const series = data[0].slice(1).map((d, i) => i);
+
+    // Set domains
+    x0.domain(categories);
+    x1.domain(series).rangeRound([0, x0.bandwidth()]);
+    y.domain([0, d3.max(data, d => d3.max(d.slice(1), e => e.qNum))]);
+
+    svg.append('g')
+      .selectAll('g')
+      .data(data)
+      .enter().append('g')
+      .attr('transform', (d, i) => `translate(${x0(categories[i])}, 0)`)
+      .selectAll('rect')
+      .data(d => d.slice(1))
+      .enter().append('rect')
+      .attr('x', (d, i) => x1(i))
+      .attr('y', d => y(d.qNum))
+      .attr('width', x1.bandwidth())
+      .attr('height', d => height - y(d.qNum))
+      .attr('fill', (d, i) => i % 2 === 0 ? 'steelblue' : 'orange');
+
+    svg.append('g')
+      .attr('class', 'x-axis')
+      .attr('transform', `translate(0,${height})`)
+      .call(d3.axisBottom(x0));
+
+    svg.append('g')
+      .attr('class', 'y-axis')
+      .call(d3.axisLeft(y));
+
+  }, []);
+
+  return <svg ref={svgRef}></svg>;
+};
+
+export default MultiBarChart;
