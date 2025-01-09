@@ -1,7 +1,4 @@
-  getObjectModel(app, objectId).then((model) => { 
-            console.log(model.layout.qHyperCube.qMeasureInfo)
-            let array = [];
-            model.layout.qHyperCube.qMeasureInfo.map(item => ({
-              array.push(item.qFallbackTitle)
-              
-          }));
+const legendData = model.layout.qHyperCube.qMeasureInfo.map(item => item.qFallbackTitle);
+
+  // legendData'yı set ediyoruz
+  setLegendData(legendData);  // Burada setLegendData, state setter fonksiyonunuz olabilir
