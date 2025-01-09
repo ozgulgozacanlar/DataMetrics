@@ -1,10 +1,28 @@
-    // Y ekseni tick'lerini X eksenine paralel uzat
-    yAxis.selectAll(".tick line")
-      .attr("x2", width)  // X eksenine kadar uzat
-      .attr("stroke", "gray")  // Rengi gri yap
-      .attr("stroke-opacity", 0.3);  // Hafif gri tonunda yap (şeffaflık ekleyelim)
+   // Legend'ı SVG'ye ekleme
+    const legendData = [
+      { label: 'Steelblue', color: 'steelblue' },
+      { label: 'Orange', color: 'orange' }
+    ];
 
-    // Y ekseni tick'lerinin çizgileri çubukların altına gelmesi için, çubuklardan önce çizilsin diye z-index gibi bir şey var:
-    yAxis.selectAll(".tick line")
-      .lower();  // Çizgiler, çubuklardan önce çizilsin
-  };
+    const legendContainer = chartGroup.append('g')
+      .attr('transform', `translate(${margin.left}, ${height + 30})`); // Legend'ı alt tarafa yerleştir
+
+    const legendItems = legendContainer
+      .selectAll('.legend-item')
+      .data(legendData)
+      .enter()
+      .append('g')
+      .attr('class', 'legend-item')
+      .attr('transform', (d, i) => `translate(${i * 100}, 0)`); // Yatayda aralarına mesafe koyuyoruz
+
+    legendItems.append('rect')
+      .attr('width', 20)
+      .attr('height', 20)
+      .style('fill', d => d.color);
+
+    legendItems.append('text')
+      .attr('x', 25)
+      .attr('y', 15)
+      .text(d => d.label)
+      .style('fill', '#fff')
+      .style('font-size', '12px');
