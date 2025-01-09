@@ -1,3 +1,10 @@
-  yAxis.selectAll(".tick line")
-      .attr("x2", width);  // X eksenine kadar uzat
+    // Y ekseni tick'lerini X eksenine paralel uzat
+    yAxis.selectAll(".tick line")
+      .attr("x2", width)  // X eksenine kadar uzat
+      .attr("stroke", "gray")  // Rengi gri yap
+      .attr("stroke-opacity", 0.3);  // Hafif gri tonunda yap (şeffaflık ekleyelim)
+
+    // Y ekseni tick'lerinin çizgileri çubukların altına gelmesi için, çubuklardan önce çizilsin diye z-index gibi bir şey var:
+    yAxis.selectAll(".tick line")
+      .lower();  // Çizgiler, çubuklardan önce çizilsin
   };
