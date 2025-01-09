@@ -1,11 +1,82 @@
-     <div className="progressbar my-2">
-                    <div className="progressbar-inner" 
-                        style={{
-                            width: objectId === 'vHfhH' && activeTab === 'Tab_VeriAmbar'
-                            ? `${Math.max(1, 100 - (parseFloat(data[0].qText) / parseFloat(data[3].qText)) * 100)}%` // Ters orantı mantığı: hedefe yakınsan çubuk daha az dolacak
-                            : data[0].qText.includes('%')
-                                ? `${parseFloat(data[0].qText.replace('%', ''))}%` // Eğer yüzde ise, olduğu gibi kullan
-                                : `${(parseFloat(data[0].qText) / parseFloat(data[3].qText)) * 100}%`  // Eğer düz sayı ise, oranla hesapla
-                        }}>
-                    </div>
-                </div>
+[
+    [
+        {
+            "qText": "Üye İşyeri Stok Aktivasyon",
+            "qNum": "NaN",
+            "qElemNumber": 0,
+            "qState": "O"
+        },
+        {
+            "qText": "76",
+            "qNum": 75.83,
+            "qElemNumber": 0,
+            "qState": "L"
+        },
+        {
+            "qText": "78",
+            "qNum": 77.87,
+            "qElemNumber": 0,
+            "qState": "L"
+        }
+    ],
+    [
+        {
+            "qText": "Ticari Kart Verimlilik",
+            "qNum": "NaN",
+            "qElemNumber": 1,
+            "qState": "O"
+        },
+        {
+            "qText": "44",
+            "qNum": 43.5,
+            "qElemNumber": 0,
+            "qState": "L"
+        },
+        {
+            "qText": "44",
+            "qNum": 44.37,
+            "qElemNumber": 0,
+            "qState": "L"
+        }
+    ],
+    [
+        {
+            "qText": "Bireysel Kart Verimlilik",
+            "qNum": "NaN",
+            "qElemNumber": 2,
+            "qState": "O"
+        },
+        {
+            "qText": "43",
+            "qNum": 43.3,
+            "qElemNumber": 0,
+            "qState": "L"
+        },
+        {
+            "qText": "42",
+            "qNum": 41.51,
+            "qElemNumber": 0,
+            "qState": "L"
+        }
+    ],
+    [
+        {
+            "qText": "Anında Kart Satış Payı",
+            "qNum": "NaN",
+            "qElemNumber": 3,
+            "qState": "O"
+        },
+        {
+            "qText": "78",
+            "qNum": 77.69,
+            "qElemNumber": 0,
+            "qState": "L"
+        },
+        {
+            "qText": "65",
+            "qNum": 65.23,
+            "qElemNumber": 0,
+            "qState": "L"
+        }
+    ]
+]
