@@ -1,4 +1,4 @@
-const legendData = model.layout.qHyperCube.qMeasureInfo.map(item => item.qFallbackTitle);
-
-  // legendData'yı set ediyoruz
-  setLegendData(legendData);  // Burada setLegendData, state setter fonksiyonunuz olabilir
+  const legendDataArray = model.layout.qHyperCube.qMeasureInfo.map(item => ({
+    label: item.qFallbackTitle,   // qFallbackTitle'ı label olarak ekliyoruz
+    color: "red"                  // Burada her legend için 'red' rengini ayarlıyoruz
+  }));
