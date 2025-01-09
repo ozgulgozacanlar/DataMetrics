@@ -1,4 +1,6 @@
-  const legendDataArray = model.layout.qHyperCube.qMeasureInfo.map(item => ({
-    label: item.qFallbackTitle,   // qFallbackTitle'ı label olarak ekliyoruz
-    color: "red"                  // Burada her legend için 'red' rengini ayarlıyoruz
-  }));
+<div className="card">
+                    <div className="card-title">DENEME</div>
+                    <div className="card-content">
+                       <MultiBarChart app={app} objectId={"MjjweZ"} />
+                    </div>
+                </div>
