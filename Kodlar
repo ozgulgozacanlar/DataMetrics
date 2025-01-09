@@ -1,27 +1,3 @@
- const barsGroup = chartGroup.append('g')
-    .selectAll('g')
-    .data(data)
-    .enter().append('g')
-    .attr('transform', (d, i) => `translate(${x0(categories[i])}, 0)`); // Kategori grubu konumu
-
-
- // Çubukları oluştur
-  barsGroup.selectAll('rect')
-    .data(d => d.slice(1))
-    .enter().append('rect')
-    .attr('x', (d, i) => x1(i) + (x1.bandwidth() * 0.2)) // Çubuğun konumunu biraz sağa kaydırıyoruz
-    .attr('y', d => y(d.qNum)) // Çubuğun üst kısmı, y değerine göre hesaplanır
-    .attr('width', x1.bandwidth() * 0.6) // Çubuğun genişliğini %60 yapıyoruz
-    .attr('height', d => height - y(d.qNum)) // Çubuğun yüksekliği
-    .attr('fill', (d, i) => i % 2 === 0 ? 'steelblue' : 'orange');
-
-  // Çubukların üzerine değerleri ekleyelim
-  barsGroup.selectAll('text')
-    .data(d => d.slice(1))
-    .enter().append('text')
-    .attr('x', (d, i) => x1(i) + (x1.bandwidth() * 0.2) + (x1.bandwidth() * 0.6) / 2) // Çubuğun ortasına yerleştiriyoruz
-    .attr('y', d => y(d.qNum) - 5) // Çubuğun hemen üstüne yerleştiriyoruz
-    .attr('text-anchor', 'middle') // Metni ortalayalım
-    .text(d => d.qNum.toFixed(2)) // Değerin kendisini yazdıralım
-    .style('fill', 'black') // Metnin rengini siyah yapalım
-    .style('font-size', '12px'); // Metnin boyutunu ayarlayalım
+ // Y ekseninin domain değerini en büyük `qNum` değerine göre ayarlıyoruz
+  const maxYValue = d3.max(data, d => d3.max(d.slice(1), e => e.qNum));
+  const y = d3.scaleLinear().rangeRound([height, 0]).domain([0, maxYValue]);
