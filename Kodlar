@@ -1,16 +1,8 @@
-app.getObject(objectId).then((model) => {
-  console.log(model.layout.qHyperCube.qDimensionInfo);
-  console.log(model.layout.qHyperCube.qMeasureInfo);
-
-  // `qDimensionInfo` ve `qMeasureInfo` öğelerinin `qFallbackTitle` değerlerini alıp birleştiriyoruz.
-  const dimensionTitles = model.layout.qHyperCube.qDimensionInfo.map(item => item.qFallbackTitle);
-  const measureTitles = model.layout.qHyperCube.qMeasureInfo.map(item => item.qFallbackTitle);
-
-  // `qDimensionInfo` öğelerini ilk sıraya, `qMeasureInfo` öğelerini sonra ekliyoruz.
-  const combinedTitles = [...dimensionTitles, ...measureTitles];
-
-  console.log(combinedTitles);  // Tüm başlıkları konsola yazdırıyoruz.
-
-  // Eğer setLegendData gibi bir fonksiyon varsa, buraya atayabilirsiniz.
-  setLegendData(combinedTitles);
-});
+ getObjectData(app, objectId).then((response) => {
+          console.log(response)
+          const datas = response.map(item => (
+            console.log(item)
+            
+        ));
+          
+        });
