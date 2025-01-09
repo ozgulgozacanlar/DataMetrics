@@ -1,1 +1,3 @@
-      .call(d3.axisLeft(y).tickSize(width)); // Y eksenindeki her tick'i X eksenine kadar uzatıyoruz
+  yAxis.selectAll(".tick line")
+      .attr("x2", width);  // X eksenine kadar uzat
+  };
