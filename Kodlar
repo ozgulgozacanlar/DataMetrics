@@ -1,6 +1,5 @@
-<div className="card">
-                    <div className="card-title">DENEME</div>
-                    <div className="card-content">
-                       <MultiBarChart app={app} objectId={"MjjweZ"} />
-                    </div>
-                </div>
+  app.getObject(objectId).then((model) => {
+          console.log(model.layout.qHyperCube.qDimensionInfo)
+          console.log(model.layout.qHyperCube.qMeasureInfo)
+          //setCombinedTableHeaderFirstData(model.layout.qHyperCube.qMeasureInfo);
+        })
