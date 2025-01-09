@@ -1,8 +1,4 @@
- getObjectData(app, objectId).then((response) => {
-          console.log(response)
-          const datas = response.map(item => (
-            console.log(item)
-            
-        ));
-          
-        });
+  const tableDatas = response.map(item => {
+    // Her item içindeki 7 elemandan qText değerlerini almak
+    return item.map(innerItem => innerItem.qText);  // innerItem içindeki qText değerini alıyoruz
+  });
