@@ -1,4 +1,37 @@
-  const tableDatas = response.map(item => {
-    // Her item içindeki 7 elemandan qText değerlerini almak
-    return item.map(innerItem => innerItem.qText);  // innerItem içindeki qText değerini alıyoruz
-  });
+  <div className="card-title">{tableTitle}</div>
+      <div className="card-content">
+        <table className="table table-striped">
+          <thead>
+            <tr>
+              {/* headers array'ini map ile döndürüp <th> öğelerine dönüştürüyoruz */}
+              {tableHeaderData && tableHeaderData.map((header, index) => (
+                <th scope="col" key={index}>
+                  {header}
+                </th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {tableDataArray && tableDataArray.map((row, rowIndex) => (
+              <tr key={rowIndex}>
+                {row.map((cell, cellIndex) => {
+                  return (
+                    <td key={cellIndex}>
+                      <span>{cell}</span>
+                    </td>
+                  );
+                })}
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+
+
+   <div className="row" style={{ marginLeft: '1rem', marginTop: '1rem' }}>
+      <div className="col-12 col-xl-4 d-flex">
+        <div className="card">
+          <TableChart app={app} objectId={"CvdJs"} />
+        </div>
+      </div>
+    </div>
