@@ -1,9 +1,10 @@
+
 .tab-options {
   display: flex;
   gap: 10px; /* Tablar arasındaki boşluğu azaltıyoruz */
   padding: 5px; /* Tab'lar arasındaki boşluğu azaltmak için padding */
   border-radius: 20px; /* Tab'ları çevreleyen mavi alanın köşelerini yuvarlatıyoruz */
-  background-color: #007bff; /* Mavi arka plan rengi */
+  background-color: rgba(173, 216, 230, 0.5); /* Soluk buz mavisi - rgba formatında */
 }
 
 .tab-option {
