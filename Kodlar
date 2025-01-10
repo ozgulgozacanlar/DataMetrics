@@ -1,9 +1,1 @@
-    <div className="progressbar-inner" 
-                        style={{
-                            width: data[4].qText === 'True'
-                            ? `${Math.max(1, 100 - (parseFloat(data[0].qText) / parseFloat(data[3].qText)) * 100)}%` // Ters orantı mantığı: hedefe yakınsan çubuk daha az dolacak
-                            : data[0].qText.includes('%')
-                                ? `${(parseFloat(data[0].qText.replace('%', '')) / parseFloat(data[3].qText.replace('%', ''))) * 100}%` // Eğer yüzde ise
-                                : `${(parseFloat(data[0].qText) / parseFloat(data[3].qText)) * 100}%`  // Eğer düz sayı ise, oranla hesapla
-                        }}>
-                    </div>
+        ? `${Math.max(1, (parseFloat(data[3].qText) - parseFloat(data[0].qText)) / parseFloat(data[3].qText) * 100)}%` // Hedefi geçtikçe daha az dolacak
