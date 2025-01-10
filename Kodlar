@@ -1,78 +1,19 @@
-        const svg = d3.select(svgRef.current);
-            svg.selectAll('*').remove();
+// Y eksenini çiziyoruz
+const yAxisGroup = g.append('g')
+    .attr('class', 'y-axis')
+    .call(yAxis)
+    .selectAll('.domain')
+    .remove();
 
-            const margin = { top: 30, right: 20, bottom: 60, left: 10 };
-            const width = svgSize.width - margin.left - margin.right;
-            const height = svgSize.height - margin.top - margin.bottom;
-            svg
-            .attr("width", svgSize.width)
-            .attr("height", svgSize.height);
+// Y eksenindeki tick'leri çizgilerle uzatıyoruz
+yAxisGroup.selectAll('.tick line')
+    .style('stroke', '#d3d3d3')  // Y eksenindeki tick çizgilerini gri yapıyoruz
+    .style('stroke-width', 1)
+    .style('shape-rendering', 'crispEdges') // Daha net çizgiler için
+    .attr('x2', width); // Burada tick'leri x ekseninin sonuna kadar uzatıyoruz
 
-            const g = svg.append('g').attr('transform', `translate(${margin.left}, ${margin.top})`);
-    
-            // Tarih formatını uygun bir Date objesine dönüştüren parse fonksiyonu
-            const parseDate = d3.timeParse("%b-%y");  // "%b-%y" Jan-23 gibi formatları işlemek için
-    
-            // Y ekseninin üst sınırını biraz genişletmek için maksimum değerin üzerine ekleme yapalım
-            const maxValue = d3.max(data, d => Math.max(d.value1, d.value2));
-            const yMax = Math.ceil(maxValue / 20) * 20 + 20;
-    
-            const x = d3.scaleTime()
-                .domain(d3.extent(data, d => parseDate(translateMonthToEnglish(d.date))))  // Türkçe tarihleri İngilizce'ye çevirip parse ediyoruz
-                .range([15, width]);
-    
-            const y = d3.scaleLinear()
-                .domain([0, yMax])
-                .nice()
-                .range([height, 0]);
-    
-            
-                
-            const xAxis = d3.axisBottom(x)
-                .tickValues(   // Her bir tarih sadece bir kez görünsün
-                    Array.from(new Set(data.map(d => {
-                        const translatedDate = translateMonthToEnglish(d.date);
-                        const parsedDate = parseDate(translatedDate);
-                        return parsedDate ? parsedDate.getTime() : null;  // null kontrolü ekleniyor
-                    })))
-                        .filter(d => d !== null)  // null değerleri atıyoruz
-                        .map(d => new Date(d))  // Set içerisindeki tarihleri tekrar Date objelerine dönüştürüyoruz
-                )
-                .tickFormat(d3.timeFormat("%b %y"))  // Ay ve yıl formatında gösterecek şekilde düzenliyoruz
-                .tickSize(0);
-    
-            // const yAxis = d3.axisLeft(y)
-            //     .tickValues(d3.range(0, yMax, 20))
-            //     .tickSize(-width);
-    
-            const yAxis = d3.axisLeft(y)
-                .tickSize(-width)  // Bu, Y eksenindeki çizgiyi yatay olarak çizecek
-                .tickFormat(d3.format('d'));  
-    
-            g.append('g')
-                .attr('class', 'x-axis')
-                .attr('transform', `translate(0, ${height})`)
-                .call(xAxis)
-                .selectAll('.domain')
-                .remove();;
-    
-            g.append('g')
-                .attr('class', 'y-axis')
-                .call(yAxis)
-                .selectAll('.domain')
-                .remove();
-             
-            // Y eksenindeki metinleri gizlemek için
-            g.selectAll('.y-axis .tick text')
-                .style('display', 'none');
-    
-            g.selectAll('.y-axis .tick line')
-                .style('stroke', '#d3d3d3')
-                .style('stroke-width', 1);
-    
-            // X eksenini yatay olarak genişletmek için yeni bir path ekleme
-            g.append('path')
-                .attr('class', 'x-axis-line')
-                .attr('d', `M0,${height} H${width}`)  // Bu, çizgiyi 0'dan width'e kadar uzatır
-                .attr('stroke', '#d3d3d3')
-                .attr('stroke-width', 1);
+// Y eksenindeki metinleri yerleştiriyoruz
+yAxisGroup.selectAll('.tick text')
+    .style('fill', '#333')  // Y ekseni metinlerini koyu gri renkte yapalım
+    .style('font-size', '12px')
+    .attr('x', -10);  // Metinleri sola kaydırıyoruz (daha iyi görünmesi için)
