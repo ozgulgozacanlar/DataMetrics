@@ -1,37 +1,9 @@
-  <div className="card-title">{tableTitle}</div>
-      <div className="card-content">
-        <table className="table table-striped">
-          <thead>
-            <tr>
-              {/* headers array'ini map ile döndürüp <th> öğelerine dönüştürüyoruz */}
-              {tableHeaderData && tableHeaderData.map((header, index) => (
-                <th scope="col" key={index}>
-                  {header}
-                </th>
-              ))}
-            </tr>
-          </thead>
-          <tbody>
-            {tableDataArray && tableDataArray.map((row, rowIndex) => (
-              <tr key={rowIndex}>
-                {row.map((cell, cellIndex) => {
-                  return (
-                    <td key={cellIndex}>
-                      <span>{cell}</span>
-                    </td>
-                  );
-                })}
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-
-
-   <div className="row" style={{ marginLeft: '1rem', marginTop: '1rem' }}>
-      <div className="col-12 col-xl-4 d-flex">
-        <div className="card">
-          <TableChart app={app} objectId={"CvdJs"} />
-        </div>
-      </div>
-    </div>
+    <div className="progressbar-inner" 
+                        style={{
+                            width: data[4].qText === 'True'
+                            ? `${Math.max(1, 100 - (parseFloat(data[0].qText) / parseFloat(data[3].qText)) * 100)}%` // Ters orantı mantığı: hedefe yakınsan çubuk daha az dolacak
+                            : data[0].qText.includes('%')
+                                ? `${(parseFloat(data[0].qText.replace('%', '')) / parseFloat(data[3].qText.replace('%', ''))) * 100}%` // Eğer yüzde ise
+                                : `${(parseFloat(data[0].qText) / parseFloat(data[3].qText)) * 100}%`  // Eğer düz sayı ise, oranla hesapla
+                        }}>
+                    </div>
