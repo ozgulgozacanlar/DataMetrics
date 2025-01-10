@@ -1,1 +1,5 @@
-const g = svg.append('g').attr('transform', `translate(${margin.left + 50}, ${margin.top})`); // Burada 50px sağa kaydırdık
+const yMax = Math.ceil(maxValue / 5) * 5 + 5; // Bu dinamik olarak ayarlanabilir
+const y = d3.scaleLinear()
+    .domain([0, yMax])  // Dinamik olarak hesaplanan yMax
+    .nice()  // Y ekseni aralıklarını düzenler
+    .range([height, 0]);
