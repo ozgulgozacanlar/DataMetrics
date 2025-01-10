@@ -1,5 +1,3 @@
-const yMax = Math.ceil(maxValue / 5) * 5 + 5; // Bu dinamik olarak ayarlanabilir
-const y = d3.scaleLinear()
-    .domain([0, yMax])  // Dinamik olarak hesaplanan yMax
-    .nice()  // Y ekseni aralıklarını düzenler
-    .range([height, 0]);
+    .ticks(Math.round(upperLimit / 0.2))  // Tick sayısını hesaplıyoruz
+    .tickValues(d3.range(0, upperLimit + 0.2, 0.2))  // 0 ile upperLimit arasında 0.2 aralıklarla değerler
+    .tickFormat(d3.format('.1f'));  // 1 ondalıklı formatta görünsün
