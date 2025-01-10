@@ -1,25 +1,29 @@
 .tab-options {
   display: flex;
   gap: 10px; /* Tablar arasındaki boşluğu azaltıyoruz */
+  padding: 5px; /* Tab'lar arasındaki boşluğu azaltmak için padding */
+  border-radius: 20px; /* Tab'ları çevreleyen mavi alanın köşelerini yuvarlatıyoruz */
+  background-color: #007bff; /* Mavi arka plan rengi */
 }
 
 .tab-option {
   cursor: pointer;
   padding: 5px 15px; /* Daha küçük padding ile tab boyutunu küçültüyoruz */
-  border: 1px solid #ccc;
+  border: 1px solid #007bff; /* Tab'ların kenarlarına da mavi renk */
   border-radius: 15px; /* Köşeleri yuvarlamak için border-radius ekliyoruz */
   transition: background-color 0.3s ease, transform 0.3s ease; /* Yumuşak geçiş efekti */
   font-size: 0.875rem; /* Font boyutunu küçültüyoruz */
+  color: white; /* Tab metni beyaz renk olacak */
+  background-color: transparent; /* Başlangıçta şeffaf arka plan */
 }
 
 .tab-option:hover {
-  background-color: #f0f0f0;
+  background-color: rgba(255, 255, 255, 0.2); /* Hover durumunda tab'ı biraz vurguluyoruz */
   transform: scale(1.05); /* Hover efekti ile tab'ın biraz büyümesini sağlıyoruz */
 }
 
 .tab-option.active {
-  background-color: #007bff;
-  color: white;
+  background-color: #0056b3; /* Aktif tab daha koyu mavi olacak */
   font-weight: bold;
-  border-color: #007bff;
+  border-color: #0056b3;
 }
