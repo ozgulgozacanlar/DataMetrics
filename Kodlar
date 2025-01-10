@@ -1,1 +1,42 @@
-const tickCount = Math.max(5, Math.floor((yMax - yMin) / 10)); // Her 10 birim için bir tick, en az 5 tick olacak şekilde ayarlıyoruz
+// Verinin en küçük değerini ve en büyük değerini hesaplıyoruz
+const minValue = Math.min(...data.map(d => Math.min(d.value1, d.value2)));
+const maxValue = Math.max(...data.map(d => Math.max(d.value1, d.value2)));
+
+// Min ve max arasındaki farkı kontrol ediyoruz
+const difference = maxValue - minValue;
+
+// Y eksenindeki minimum ve maksimum değeri hesaplıyoruz
+const yMin = Math.floor(minValue * 10) / 10;  // Burada 10 ile çarpıp, sonra 10'a bölerek bir önceki değere yuvarlıyoruz
+const yMax = Math.ceil(maxValue);  // En büyük değeri yuvarlıyoruz
+
+// Eğer fark çok küçükse, yMin'i başlangıç olarak minValue'yu alıyoruz
+const adjustedYMin = difference < 2 ? yMin : 0;
+
+// Y ekseni için scale oluşturuyoruz
+const y = d3.scaleLinear()
+    .domain([adjustedYMin, yMax])  // Domain min ve max arasında olacak şekilde
+    .range([height, 0]);  // Y eksenini ters yönde çiziyoruz
+
+// Y eksenini çiziyoruz
+const yAxis = d3.axisLeft(y)
+    .tickFormat(d3.format('.2f'));  // 2 ondalıklı sayılarla göstermek için formatlıyoruz
+
+// Y eksenini çizeceğiz
+g.append('g')
+    .attr('class', 'y-axis')
+    .call(yAxis)
+    .selectAll('.domain')
+    .remove();
+
+// Her zaman min'den başlamak için tick sayısını dinamik ayarlayabiliriz
+const tickCount = Math.max(5, Math.floor((yMax - adjustedYMin) / 10));  // Tick sayısını dinamik olarak hesaplıyoruz
+
+const dynamicYaxis = d3.axisLeft(y)
+    .ticks(tickCount)  // Dinamik olarak hesaplanan tick sayısını kullanıyoruz
+    .tickFormat(d3.format('.2f'));  // 2 ondalıklı format
+
+g.append('g')
+    .attr('class', 'y-axis')
+    .call(dynamicYaxis)
+    .selectAll('.domain')
+    .remove();
