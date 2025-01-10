@@ -1,42 +1,47 @@
-// Verinin en küçük değerini ve en büyük değerini hesaplıyoruz
-const minValue = Math.min(...data.map(d => Math.min(d.value1, d.value2)));
-const maxValue = Math.max(...data.map(d => Math.max(d.value1, d.value2)));
+import { useEffect, useState } from 'react';
+import { useSelector } from 'react-redux';
+import { useNavigate } from 'react-router-dom';
+import { UserCircle } from '@/components';
+import { GarantiLogo } from '@/assets/svg';
+import { getUser } from '@/util/qlikApi';
+import './NavBar.css';
 
-// Min ve max arasındaki farkı kontrol ediyoruz
-const difference = maxValue - minValue;
 
-// Y eksenindeki minimum ve maksimum değeri hesaplıyoruz
-const yMin = Math.floor(minValue * 10) / 10;  // Burada 10 ile çarpıp, sonra 10'a bölerek bir önceki değere yuvarlıyoruz
-const yMax = Math.ceil(maxValue);  // En büyük değeri yuvarlıyoruz
+export default function NavBar() {
+  const [user, setUser] = useState();
+  const [routeText, setRouteText] = useState("/");
+  const navigate = useNavigate();
+  const pageName = useSelector((state) => state.page.name);
+ console.log(pageName)
+  useEffect(() => {
+    getUser().then(reply => {
+      const cleanedUserName = reply.userName.replace(/\s*\(.*?\)\s*/g, '');
+      const words = cleanedUserName.split(' ');
+      const userName = words.map((word, index) => (index === 0 || index === words.length - 1 ? word.charAt(0).toUpperCase() : '')).join('');
+      setUser(userName);
+    })
 
-// Eğer fark çok küçükse, yMin'i başlangıç olarak minValue'yu alıyoruz
-const adjustedYMin = difference < 2 ? yMin : 0;
+  }, [])
 
-// Y ekseni için scale oluşturuyoruz
-const y = d3.scaleLinear()
-    .domain([adjustedYMin, yMax])  // Domain min ve max arasında olacak şekilde
-    .range([height, 0]);  // Y eksenini ters yönde çiziyoruz
+  function handleClickPage(route) {
+    setRouteText(route);
+    navigate(route);
+  }
+  return (
+    
+    <div className="container-fluid">
+      <div className="header-wrapper">
+          <div className="logo-wrapper"  onClick={() => handleClickPage("/")}><GarantiLogo /></div>
+          <div className="tab-wrapper">
+            <div className={routeText === '/' ? "tab-item active" : "tab-item"} onClick={() => handleClickPage("/")}>Kokpit</div>
+            <div className={routeText === '/mdsNtsHacim' ? "tab-item active" : "tab-item"} onClick={() => handleClickPage("/mdsNtsHacim")}>MDS/NTS/Hacim</div>
+            <div className={routeText === '/gosas-musteri' ? "tab-item active" : "tab-item"} onClick={() => handleClickPage("/gosas-musteri")}>GÖSAŞ/Müşteri</div>
+            <div className={routeText === '/npl-karlilik' ? "tab-item active" : "tab-item"} onClick={() => handleClickPage("/npl-karlilik")}>NPL/Kârlılık</div>
+            <div className={routeText === '/maas-karlilik' ? "tab-item active" : "tab-item"} onClick={() => handleClickPage("/maas-karlilik")}>Maaş Kârlılık</div>
+          </div>
+          <UserCircle user={user}/>
+      </div>
 
-// Y eksenini çiziyoruz
-const yAxis = d3.axisLeft(y)
-    .tickFormat(d3.format('.2f'));  // 2 ondalıklı sayılarla göstermek için formatlıyoruz
-
-// Y eksenini çizeceğiz
-g.append('g')
-    .attr('class', 'y-axis')
-    .call(yAxis)
-    .selectAll('.domain')
-    .remove();
-
-// Her zaman min'den başlamak için tick sayısını dinamik ayarlayabiliriz
-const tickCount = Math.max(5, Math.floor((yMax - adjustedYMin) / 10));  // Tick sayısını dinamik olarak hesaplıyoruz
-
-const dynamicYaxis = d3.axisLeft(y)
-    .ticks(tickCount)  // Dinamik olarak hesaplanan tick sayısını kullanıyoruz
-    .tickFormat(d3.format('.2f'));  // 2 ondalıklı format
-
-g.append('g')
-    .attr('class', 'y-axis')
-    .call(dynamicYaxis)
-    .selectAll('.domain')
-    .remove();
+    </div>
+  );
+}
