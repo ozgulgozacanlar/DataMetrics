@@ -1,3 +1,15 @@
-const formattedPageName = pageName.startsWith('/') ? pageName : `/${pageName}`;
-
-console.log(formattedPageName); // Örneğin '/kokpit'
+  <div className="row mt-3">
+            <div className="col-12 col-xxl-9">
+              {/* Ortalama Ürün Adedi */}
+              <div className="card">
+                <CardTitle app={app} objectId={'gPgfuZP'} />
+                <LineChart app={app} objectId={"gPgfuZP"} legendText={""} />
+              </div>
+            </div>
+            <div className="col-12 col-xxl-3">
+              <div className="card">   
+                <CardTitle app={app} objectId={'XJuPdCt'} />       
+                <TableChart app={app} objectId={"XJuPdCt"} />
+              </div>
+            </div>
+          </div>
