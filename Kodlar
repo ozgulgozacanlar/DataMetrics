@@ -1,1 +1,3 @@
-  const pageName = useSelector((state) => state.page.name);
+const formattedPageName = pageName.startsWith('/') ? pageName : `/${pageName}`;
+
+console.log(formattedPageName); // Örneğin '/kokpit'
