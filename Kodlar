@@ -1,8 +1,1 @@
-<thead>
-            <tr>
-              <th key={Math.random()}>{headerFirstText}</th>
-              {tableHeaderData != null ? tableHeaderData.map((item, index) => (
-                <th key={index}>{item.qFallbackTitle}</th>
-              )) : <></>}
-            </tr>
-          </thead>
+http://localhost:5173/extensions/BolgeButceGMMashup#/gosas-musteri
