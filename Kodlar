@@ -1,1 +1,19 @@
-http://localhost:5173/extensions/BolgeButceGMMashup#/gosas-musteri
+import { useLocation } from 'react-router-dom';
+
+const MyComponent = () => {
+  const location = useLocation();
+
+  React.useEffect(() => {
+    const currentPath = location.pathname;
+    if (currentPath.includes('/gosas-musteri')) {
+      console.log('URL içinde /gosas-musteri bulundu');
+      // Burada istediğiniz işlemi gerçekleştirebilirsiniz
+    }
+  }, [location]);
+
+  return (
+    <div>
+      {/* Diğer içerik */}
+    </div>
+  );
+};
