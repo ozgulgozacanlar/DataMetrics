@@ -1,3 +1,21 @@
- const [routeText, setRouteText] = useState(pageName || "/");
+ <tr key={rowIndex}>
+                {row.map((cell, cellIndex) => (
+                  <td key={cellIndex} className="" style={{ border: 'none' }}>
+                    {(cellIndex == 1 || cellIndex == 2 || cellIndex == 3) ? (
+                      <span
+                        style={{
+                          display: 'inline-block',
+                          width: '10px',
+                          height: '10px',
+                          borderRadius: '50%',
+                          backgroundColor: cell.qAttrExps.qValues[0].qText != null ? mapColorCode(cell.qAttrExps.qValues[0].qText) : "",
 
-   setRouteText(pageName);
+                        }}
+                      ></span>
+                    ) : (
+                      (cellIndex > 3 ? <span>{cell.qText}</span> : cell.qText)
+
+                    )}
+                  </td>
+                ))}
+              </tr>
