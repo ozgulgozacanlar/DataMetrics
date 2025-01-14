@@ -1,29 +1,15 @@
-[
-    {
-        "qText": "Oca-24",
-        "qNum": 45292,
-        "qElemNumber": 14,
-        "qState": "X"
-    },
-    {
-        "qText": "1.11",
-        "qNum": 1.1058333333333332,
-        "qElemNumber": 0,
-        "qState": "L"
-    },
-    {
-        "qText": "6046.0265930258",
-        "qNum": 6046.026593025833,
-        "qElemNumber": 0,
-        "qState": "L"
-    },
-    {
-        "qText": "1.05",
-        "qNum": 1.05,
-        "qElemNumber": 0,
-        "qState": "L"
-    }
-]
+const array = [
+  {
+    date: objeArray[0].qText,  // İlk elemandan tarihi alıyoruz
+    lineData: [  // Line chart verisi
+      { value1: objeArray[1].qText },  // lineData[0] -> qText 1.11
+      { value2: objeArray[3].qText }   // lineData[1] -> qText 1.05
+    ],
+    barData: [  // Bar chart verisi
+      { value: objeArray[2].qText }   // barData -> qText 6046.0265930258
+    ]
+  }
+];
 
     const drawComboChart = () => {
 
