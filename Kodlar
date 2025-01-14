@@ -24,3 +24,124 @@
         "qState": "L"
     }
 ]
+import React, { useRef, useEffect } from 'react';
+import * as d3 from 'd3';
+
+const App = () => {
+  const svgRef = useRef();
+
+  // Bar chart için veri (daha büyük sayılar)
+  const dataBar = [
+    { date: '2024-01-01', value: 6046 },
+    { date: '2024-02-01', value: 6987 },
+    { date: '2024-03-01', value: 5363 },
+    { date: '2024-04-01', value: 7654 },
+    { date: '2024-05-01', value: 8543 }
+  ];
+
+  // Line chart için veri (daha küçük sayılar)
+  const dataLine = [
+    { date: '2024-01-01', value1: 1.11, value2: 2.34 },
+    { date: '2024-02-01', value1: 2.51, value2: 2.80 },
+    { date: '2024-03-01', value1: 3.11, value2: 3.41 },
+    { date: '2024-04-01', value1: 3.45, value2: 4.11 },
+    { date: '2024-05-01', value1: 4.11, value2: 4.85 }
+  ];
+
+  useEffect(() => {
+    const svg = d3.select(svgRef.current)
+      .attr('width', 800)
+      .attr('height', 500)
+      .append('g')
+      .attr('transform', 'translate(50, 50)');
+
+    // Margin ve boyutlar
+    const margin = { top: 20, right: 50, bottom: 60, left: 50 };
+    const width = 800 - margin.left - margin.right;
+    const height = 500 - margin.top - margin.bottom;
+
+    // Zaman verisini parse etmek için yardımcı fonksiyon
+    const parseDate = d3.timeParse('%Y-%m-%d');
+
+    // Ortak X ekseni
+    const x = d3.scaleTime()
+      .domain(d3.extent([...dataBar, ...dataLine], d => parseDate(d.date)))
+      .range([0, width]);
+
+    // Y eksenleri
+    const yBar = d3.scaleLinear()
+      .domain([0, d3.max(dataBar, d => d.value)])
+      .nice()
+      .range([height, 0]);
+
+    const yLine1 = d3.scaleLinear()
+      .domain([0, d3.max(dataLine, d => d.value1)])
+      .nice()
+      .range([height, 0]);
+
+    const yLine2 = d3.scaleLinear()
+      .domain([0, d3.max(dataLine, d => d.value2)])
+      .nice()
+      .range([height, 0]);
+
+    // X ekseni çizimi
+    svg.append('g')
+      .attr('transform', `translate(0, ${height})`)
+      .call(d3.axisBottom(x));
+
+    // Y eksenleri
+    svg.append('g')
+      .call(d3.axisLeft(yBar));
+
+    // Sağ Y ekseni (line chart için)
+    svg.append('g')
+      .attr('transform', `translate(${width}, 0)`)
+      .call(d3.axisRight(yLine1));
+
+    // Bar Chart çizimi
+    svg.selectAll('.bar')
+      .data(dataBar)
+      .enter()
+      .append('rect')
+      .attr('class', 'bar')
+      .attr('x', d => x(parseDate(d.date)))
+      .attr('y', d => yBar(d.value))
+      .attr('width', width / dataBar.length - 10)
+      .attr('height', d => height - yBar(d.value))
+      .attr('fill', 'steelblue');
+
+    // Line Chart çizimi
+    const line1 = d3.line()
+      .x(d => x(parseDate(d.date)))
+      .y(d => yLine1(d.value1));
+
+    const line2 = d3.line()
+      .x(d => x(parseDate(d.date)))
+      .y(d => yLine2(d.value2));
+
+    svg.append('path')
+      .data([dataLine])
+      .attr('class', 'line1')
+      .attr('d', line1)
+      .attr('fill', 'none')
+      .attr('stroke', '#2b85c9')
+      .attr('stroke-width', 2);
+
+    svg.append('path')
+      .data([dataLine])
+      .attr('class', 'line2')
+      .attr('d', line2)
+      .attr('fill', 'none')
+      .attr('stroke', '#f06d06')
+      .attr('stroke-width', 2);
+
+  }, [dataBar, dataLine]);
+
+  return (
+    <div>
+      <svg ref={svgRef}></svg>
+    </div>
+  );
+};
+
+export default App;
