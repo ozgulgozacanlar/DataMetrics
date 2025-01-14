@@ -1,29 +1,3 @@
-[
-    {
-        "qText": "Oca-24",
-        "qNum": 45292,
-        "qElemNumber": 14,
-        "qState": "X"
-    },
-    {
-        "qText": "1.11",
-        "qNum": 1.1058333333333332,
-        "qElemNumber": 0,
-        "qState": "L"
-    },
-    {
-        "qText": "6046.0265930258",
-        "qNum": 6046.026593025833,
-        "qElemNumber": 0,
-        "qState": "L"
-    },
-    {
-        "qText": "1.05",
-        "qNum": 1.05,
-        "qElemNumber": 0,
-        "qState": "L"
-    }
-]
 import React, { useRef, useEffect } from 'react';
 import * as d3 from 'd3';
 
@@ -104,9 +78,9 @@ const App = () => {
       .enter()
       .append('rect')
       .attr('class', 'bar')
-      .attr('x', d => x(parseDate(d.date)))
+      .attr('x', (d, i) => x(parseDate(d.date)) - (width / dataBar.length) / 2) // Barın konumunu ortalayalım
       .attr('y', d => yBar(d.value))
-      .attr('width', width / dataBar.length - 10)
+      .attr('width', width / dataBar.length - 10) // Barların genişliği
       .attr('height', d => height - yBar(d.value))
       .attr('fill', 'steelblue');
 
