@@ -1,19 +1,23 @@
-import { useLocation } from 'react-router-dom';
+     g.selectAll('.circle1')
+            .data(data)
+            .enter()
+            .append('circle')
+            .attr('class', 'circle1')
+            .attr('cx', d => x(parseDate(translateMonthToEnglish(d.date))))
+            .attr('cy', d => y(d.value1))
+            .attr('r', 5)
+            .attr('fill', 'none')  // İçi boş 
+            .attr('stroke', '#2b85c9')  // Kenarlık rengi mavi 
+            .attr('stroke-width', 1.5);
 
-const MyComponent = () => {
-  const location = useLocation();
-
-  React.useEffect(() => {
-    const currentPath = location.pathname;
-    if (currentPath.includes('/gosas-musteri')) {
-      console.log('URL içinde /gosas-musteri bulundu');
-      // Burada istediğiniz işlemi gerçekleştirebilirsiniz
-    }
-  }, [location]);
-
-  return (
-    <div>
-      {/* Diğer içerik */}
-    </div>
-  );
-};
+        g.selectAll('.label1')
+            .data(data)
+            .enter()
+            .append('text')
+            .attr('class', 'label1')
+            .attr('x', d => x(parseDate(translateMonthToEnglish(d.date))))
+            .attr('y', d => y(d.value1) - 10)
+            .attr('text-anchor', 'middle')
+            .style('fill', '#2b85c9')
+            .style('font-size', '10px')
+            .text(d => (d.value1) + '%');
