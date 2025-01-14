@@ -1,16 +1,1 @@
-const formatNumber = (value) => {
-    if (value >= 1000) {
-        return (value / 1000).toFixed(1) + 'k';  // Binlik değer
-    }
-    return value;  // 1000'den küçükse direkt değeri döndür
-};
- // Y eksenleri (Bar Y ekseni)
-    chartGroup.append('g')
-        .attr('class', 'y-axis-left')
-        .call(d3.axisLeft(yBar).tickFormat(formatNumber));  // Y eksenine formatNumber ekliyoruz
-
-    // Sağ Y ekseni (Line Chart için)
-    chartGroup.append('g')
-        .attr('class', 'y-axis-right')
-        .attr('transform', `translate(${width}, 0)`)
-        .call(d3.axisRight(yLine1).tickFormat(formatNumber));  // Y eksenine formatNumber ekliyoruz
+tickFormat((d) => formatNumber(d)));
