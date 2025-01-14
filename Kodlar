@@ -1,1 +1,1 @@
-  .attr("fill", (_, i) => (i % 2 === 0 ? "#2c84cc" : "#a4c48c"));
+    .attr("fill", (_, i) => legendColor[i % legendColor.length]);  // Renkleri legendColor dizisinden alıyoruz
