@@ -1,1 +1,8 @@
-tickFormat((d) => formatNumber(d)));
+function customCeil(value, decimals) {
+    const multiplier = Math.pow(10, decimals);
+    return Math.ceil(value * multiplier) / multiplier;
+}
+
+console.log(customCeil(1.1, 1));  // 1.2
+console.log(customCeil(1.12, 1)); // 1.2
+console.log(customCeil(1.25, 1)); // 1.3
