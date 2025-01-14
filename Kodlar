@@ -1,23 +1,4 @@
-     g.selectAll('.circle1')
-            .data(data)
-            .enter()
-            .append('circle')
-            .attr('class', 'circle1')
-            .attr('cx', d => x(parseDate(translateMonthToEnglish(d.date))))
-            .attr('cy', d => y(d.value1))
-            .attr('r', 5)
-            .attr('fill', 'none')  // İçi boş 
-            .attr('stroke', '#2b85c9')  // Kenarlık rengi mavi 
-            .attr('stroke-width', 1.5);
-
-        g.selectAll('.label1')
-            .data(data)
-            .enter()
-            .append('text')
-            .attr('class', 'label1')
-            .attr('x', d => x(parseDate(translateMonthToEnglish(d.date))))
-            .attr('y', d => y(d.value1) - 10)
-            .attr('text-anchor', 'middle')
-            .style('fill', '#2b85c9')
-            .style('font-size', '10px')
-            .text(d => (d.value1) + '%');
+ .attr('y', d => {
+        // Eğer d.value1, d.value ile daha küçükse -10, daha büyükse +20
+        return y(Math.min(d.value, d.value1)) + (d.value1 > d.value ? 20 : -10);
+    })
