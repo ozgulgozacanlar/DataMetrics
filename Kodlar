@@ -1,193 +1,164 @@
-const array = [
-  {
-    date: objeArray[0].qText,  // İlk elemandan tarihi alıyoruz
-    lineData: [  // Line chart verisi
-      { value1: objeArray[1].qText },  // lineData[0] -> qText 1.11
-      { value2: objeArray[3].qText }   // lineData[1] -> qText 1.05
-    ],
-    barData: [  // Bar chart verisi
-      { value: objeArray[2].qText }   // barData -> qText 6046.0265930258
-    ]
-  }
-];
+const drawComboChart = () => {
 
-    const drawComboChart = () => {
+    if (data.length === 0) return;
 
-        if (dataBar.length === 0 && dataLine.length === 0) return;
+    const svg = d3.select(svgRef.current);
+    svg.selectAll("*").remove();
 
+    // Margin ve boyutlar
+    const margin = { top: 20, right: 80, bottom: 60, left: 80 }; // Sağda ve solda daha fazla boşluk
+    const width = svgSize.width - margin.left - margin.right;
+    const height = svgSize.height - margin.top - margin.bottom;
 
-        const svg = d3.select(svgRef.current)
+    svg.attr("width", svgSize.width)
+        .attr("height", svgSize.height)
+        .append('g')
+        .attr('transform', `translate(${margin.left}, ${margin.top})`);
 
-        svg.selectAll("*").remove()
+    // Zaman verisini parse etmek için yardımcı fonksiyon
+    const parseDate = d3.timeParse("%b-%y");
 
+    // Ortak X eksenis
+    const x = d3.scaleBand()
+        .domain(data.map(d => parseDate(translateMonthToEnglish(d.date))))  // Her bir tarihi domena ekliyoruz
+        .range([0, width])  // Eksenin genişliği
+        .padding(0.5);  // Barlar arasına boşluk bırakıyoruz
 
+    // Y eksenleri
+    const yBar = d3.scaleLinear()
+        .domain([0, d3.max(data, d => d.barData[0].value)])
+        .nice()
+        .range([height, 0]);
 
-        // Margin ve boyutlar
-        const margin = { top: 20, right: 80, bottom: 60, left: 80 }; // Sağda ve solda daha fazla boşluk
-        const width = svgSize.width - margin.left - margin.right;
-        const height = svgSize.height - margin.top - margin.bottom;
+    const yLine1 = d3.scaleLinear()
+        .domain([0, d3.max(data, d => d.lineData[0].value1)])
+        .nice()
+        .range([height, 0]);
 
-        svg
-            .attr("width", svgSize.width)
-            .attr("height", svgSize.height)
-            .append('g')
-            .attr('transform', `translate(${margin.left}, ${margin.top})`);
+    const yLine2 = d3.scaleLinear()
+        .domain([0, d3.max(data, d => d.lineData[1].value2)])
+        .nice()
+        .range([height, 0]);
 
+    const chartGroup = svg
+        .append("g")
+        .attr("transform", `translate(${margin.left}, ${margin.top})`);
 
-        // Zaman verisini parse etmek için yardımcı fonksiyon
-        const parseDate = d3.timeParse("%b-%y");  // "%b-%y" Jan-23 gibi formatları işlemek için
+    // X ekseni çizimi
+    const xAxis = d3.axisBottom(x)
+        .tickValues(   // Her bir tarih sadece bir kez görünsün
+            Array.from(new Set(data.map(d => {
+                const translatedDate = translateMonthToEnglish(d.date);
+                const parsedDate = parseDate(translatedDate);
+                return parsedDate ? parsedDate.getTime() : null;  // null kontrolü ekleniyor
+            })))
+            .filter(d => d !== null)  // null değerleri atıyoruz
+            .map(d => new Date(d))  // Set içerisindeki tarihleri tekrar Date objelerine dönüştürüyoruz
+        )
+        .tickFormat(d3.timeFormat("%b %y"))  // Ay ve yıl formatında gösterecek şekilde düzenliyoruz
+        .tickSize(0);
 
+    chartGroup.append('g')
+        .attr('transform', `translate(0, ${height})`)
+        .call(xAxis);
 
-        // Ortak X eksenis
-        const x = d3.scaleBand()
-            .domain(dataBar.map(d => parseDate(translateMonthToEnglish(d.date))))  // Her bir tarihi domena ekliyoruz
-            .range([0, width])  // Eksenin genişliği
-            .padding(0.5);  // Barlar arasına boşluk bırakıyoruz
+    // Y eksenleri
+    chartGroup.append('g')
+        .attr('class', 'y-axis-left')
+        .call(d3.axisLeft(yBar));
 
-        // Y eksenleri
-        const yBar = d3.scaleLinear()
-            .domain([0, d3.max(dataBar, d => d.value)])
-            .nice()
-            .range([height, 0]);
+    // Sağ Y ekseni (line chart için)
+    chartGroup.append('g')
+        .attr('class', 'y-axis-right')
+        .attr('transform', `translate(${width}, 0)`)
+        .call(d3.axisRight(yLine1));
 
-        const yLine1 = d3.scaleLinear()
-            .domain([0, d3.max(dataLine, d => d.value1)])
-            .nice()
-            .range([height, 0]);
+    // Bar Chart çizimi
+    chartGroup.selectAll('.bar')
+        .data(data)
+        .enter()
+        .append('rect')
+        .attr('class', 'bar')
+        .attr('x', (d) => x(parseDate(translateMonthToEnglish(d.date)))) // X koordinatı için bandwidth kullanıyoruz
+        .attr('y', d => yBar(d.barData[0].value))
+        .attr('width', x.bandwidth()) // Bar genişliğini bandwith ile alıyoruz
+        .attr('height', d => height - yBar(d.barData[0].value))
+        .attr('fill', '#dc9465');
 
-        const yLine2 = d3.scaleLinear()
-            .domain([0, d3.max(dataLine, d => d.value2)])
-            .nice()
-            .range([height, 0]);
+    // Line Chart çizimi
+    const line1 = d3.line()
+        .x(d => x(parseDate(translateMonthToEnglish(d.date))))
+        .y(d => yLine1(d.lineData[0].value1));
 
-        const chartGroup = svg
-            .append("g")
-            .attr("transform", `translate(${margin.left}, ${margin.top})`);
-        // X ekseni çizimi
-        const xAxis = d3.axisBottom(x)
-            .tickValues(   // Her bir tarih sadece bir kez görünsün
-                Array.from(new Set(dataBar.map(d => {
-                    const translatedDate = translateMonthToEnglish(d.date);
-                    const parsedDate = parseDate(translatedDate);
-                    return parsedDate ? parsedDate.getTime() : null;  // null kontrolü ekleniyor
-                })))
-                    .filter(d => d !== null)  // null değerleri atıyoruz
-                    .map(d => new Date(d))  // Set içerisindeki tarihleri tekrar Date objelerine dönüştürüyoruz
-            )
-            .tickFormat(d3.timeFormat("%b %y"))  // Ay ve yıl formatında gösterecek şekilde düzenliyoruz
-            .tickSize(0);
+    const line2 = d3.line()
+        .x(d => x(parseDate(translateMonthToEnglish(d.date))))
+        .y(d => yLine2(d.lineData[1].value2));
 
+    chartGroup.append('path')
+        .data([data])
+        .attr('class', 'line1')
+        .attr('d', line1)
+        .attr('fill', 'none')
+        .attr('stroke', '#2b85c9') // mavi line
+        .attr('stroke-width', 2);
 
-        chartGroup.append('g')
-            .attr('transform', `translate(0, ${height})`)
-            .call(xAxis)
+    chartGroup.append('path')
+        .data([data])
+        .attr('class', 'line2')
+        .attr('d', line2)
+        .attr('fill', 'none')
+        .attr('stroke', '#a1c789') // yeşil line
+        .attr('stroke-width', 2);
 
+    chartGroup.selectAll('.circle1')
+        .data(data)
+        .enter()
+        .append('circle')
+        .attr('class', 'circle1')
+        .attr('cx', d => x(parseDate(translateMonthToEnglish(d.date))))
+        .attr('cy', d => yLine1(d.lineData[0].value1))
+        .attr('r', 5)
+        .attr('fill', 'none')  // İçi boş 
+        .attr('stroke', '#2b85c9')  // Kenarlık rengi mavi 
+        .attr('stroke-width', 1.5);
 
-        // Y eksenleri
-        chartGroup.append('g')
-            .attr('class', 'y-axis-left')
-            .call(d3.axisLeft(yBar));
+    chartGroup.selectAll('.label1')
+        .data(data)
+        .enter()
+        .append('text')
+        .attr('class', 'label1')
+        .attr('x', d => x(parseDate(translateMonthToEnglish(d.date))))
+        .attr('y', d => {
+            return d.lineData[0].value1 > d.lineData[1].value2 ? yLine1(d.lineData[0].value1) - 10 : yLine1(d.lineData[0].value1) + 20;
+        })
+        .attr('text-anchor', 'middle')
+        .style('fill', '#2b85c9')
+        .style('font-size', '10px')
+        .text(d => (d.lineData[0].value1) + '%');
 
-        // Sağ Y ekseni (line chart için)
-        chartGroup.append('g')
-            .attr('class', 'y-axis-right')
-            .attr('transform', `translate(${width}, 0)`)
-            .call(d3.axisRight(yLine1));
+    chartGroup.selectAll('.circle2')
+        .data(data)
+        .enter()
+        .append('circle')
+        .attr('class', 'circle2')
+        .attr('cx', d => x(parseDate(translateMonthToEnglish(d.date))))
+        .attr('cy', d => yLine2(d.lineData[1].value2))
+        .attr('r', 5)
+        .attr('fill', 'none')  // İçi boş 
+        .attr('stroke', '#a1c789')  // Kenarlık rengi yeşil 
+        .attr('stroke-width', 1.5);
 
-        // Bar Chart çizimi
-        chartGroup.selectAll('.bar')
-            .data(dataBar)
-            .enter()
-            .append('rect')
-            .attr('class', 'bar')
-            .attr('x', (d) => x(parseDate(translateMonthToEnglish(d.date)))) // X koordinatı için bandwidth kullanıyoruz
-            .attr('y', d => yBar(d.value))
-            .attr('width', x.bandwidth()) // Bar genişliğini bandwith ile alıyoruz
-            .attr('height', d => height - yBar(d.value))
-            .attr('fill', '#dc9465');
-
-        // Line Chart çizimi
-        const line1 = d3.line()
-            .x(d => x(parseDate(translateMonthToEnglish(d.date))))
-            .y(d => yLine1(d.value1));
-
-        const line2 = d3.line()
-            .x(d => x(parseDate(translateMonthToEnglish(d.date))))
-            .y(d => yLine2(d.value2));
-
-        chartGroup.append('path')
-            .data([dataLine])
-            .attr('class', 'line1')
-            .attr('d', line1)
-            .attr('fill', 'none')
-            .attr('stroke', '#2b85c9') // mavi line
-            .attr('stroke-width', 2);
-
-        chartGroup.append('path')
-            .data([dataLine])
-            .attr('class', 'line2')
-            .attr('d', line2)
-            .attr('fill', 'none')
-            .attr('stroke', '#a1c789') // yeşil line
-            .attr('stroke-width', 2);
-
-            chartGroup.selectAll('.circle1')
-            .data(dataLine)
-            .enter()
-            .append('circle')
-            .attr('class', 'circle1')
-            .attr('cx', d => x(parseDate(translateMonthToEnglish(d.date))))
-            .attr('cy', d => yLine1(d.value1))
-            .attr('r', 5)
-            .attr('fill', 'none')  // İçi boş 
-            .attr('stroke', '#2b85c9')  // Kenarlık rengi mavi 
-            .attr('stroke-width', 1.5);
-
-            chartGroup.selectAll('.label1')
-            .data(dataLine)
-            .enter()
-            .append('text')
-            .attr('class', 'label1')
-            .attr('x', d => x(parseDate(translateMonthToEnglish(d.date))))
-            // .attr('y', d => y(d.value1) +20)
-            .attr('y', d => {
-                if(d.value1 == d.value2){
-                    return yLine1(d.value1) - 10;
-                }
-                //d.value1, d.value2 değerine göre circle üzerindeki text'lerin konum ayarlaması yapılır.
-                return d.value1 > d.value2 ? yLine1(d.value1) - 10 : yLine1(d.value1) + 20;
-            })
-            .attr('text-anchor', 'middle')
-            .style('fill', '#2b85c9')
-            .style('font-size', '10px')
-            .text(d => (d.value1) + '%');
-
-            chartGroup.selectAll('.circle2')
-            .data(dataLine)
-            .enter()
-            .append('circle')
-            .attr('class', 'circle2')
-            .attr('cx', d => x(parseDate(translateMonthToEnglish(d.date))))
-            .attr('cy', d => yLine2(d.value2))
-            .attr('r', 5)
-            .attr('fill', 'none')  // İçi boş 
-            .attr('stroke', '#a1c789')  // Kenarlık rengi yeşil 
-            .attr('stroke-width', 1.5);
-
-            chartGroup.selectAll('.label2')
-            .data(dataLine)
-            .enter()
-            .append('text')
-            .attr('class', 'label2')
-            .attr('x', d => x(parseDate(translateMonthToEnglish(d.date))))
-            // .attr('y', d => y(d.value2) - 10)
-            .attr('y', d => {
-                //d.value1, d.value2 değerine göre circle üzerindeki text'lerin konum ayarlaması yapılır.
-                return d.value2 > d.value1 ? yLine2(d.value2) - 10 : yLine2(d.value2) + 20;
-            })
-            .attr('text-anchor', 'middle')
-            .style('fill', '#a1c789')
-            .style('font-size', '10px')
-            .text(d => (d.value2) + '%');
-
-    }
+    chartGroup.selectAll('.label2')
+        .data(data)
+        .enter()
+        .append('text')
+        .attr('class', 'label2')
+        .attr('x', d => x(parseDate(translateMonthToEnglish(d.date))))
+        .attr('y', d => {
+            return d.lineData[1].value2 > d.lineData[0].value1 ? yLine2(d.lineData[1].value2) - 10 : yLine2(d.lineData[1].value2) + 20;
+        })
+        .attr('text-anchor', 'middle')
+        .style('fill', '#a1c789')
+        .style('font-size', '10px')
+        .text(d => (d.lineData[1].value2) + '%');
+};
