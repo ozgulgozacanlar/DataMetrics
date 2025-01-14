@@ -1,10 +1,4 @@
-  chartGroup.selectAll('.bar')
-    .data(dataBar)
-    .enter()
-    .append('rect')
-    .attr('class', 'bar')
-    .attr('x', (d) => x(parseDate(translateMonthToEnglish(d.date)))) // X koordinatı için bandwidth kullanıyoruz
-    .attr('y', d => yBar(d.value))
-    .attr('width', x.bandwidth()) // Bar genişliğini bandwith ile alıyoruz
-    .attr('height', d => height - yBar(d.value))
-    .attr('fill', 'steelblue');
+ const x = d3.scaleBand()
+    .domain(dataBar.map(d => parseDate(translateMonthToEnglish(d.date))))  // Her bir tarihi domena ekliyoruz
+    .range([0, width])  // Eksenin genişliği
+    .padding(0.1);  // Barlar arasına boşluk bırakıyoruz
