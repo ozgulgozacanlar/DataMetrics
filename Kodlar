@@ -1,12 +1,1 @@
-// Bar'ların üstüne değer yazalım
-chartGroup.selectAll('.bar-value')
-    .data(dataBar)
-    .enter()
-    .append('text')
-    .attr('class', 'bar-value')
-    .attr('x', (d) => x(parseDate(translateMonthToEnglish(d.date))) + x.bandwidth() / 2)  // Bar'ın ortasına yerleştiriyoruz
-    .attr('y', d => yLine(d.value) - 5)  // Bar'ın hemen üstüne yerleştiriyoruz
-    .attr('text-anchor', 'middle')
-    .style('fill', '#000')  // Yazı rengini siyah yapıyoruz
-    .style('font-size', '12px')
-    .text(d => d.value);  // Her bir bar'ın değerini yazdırıyoruz
+  .attr("fill", (_, i) => (i % 2 === 0 ? "#2c84cc" : "#a4c48c"));
