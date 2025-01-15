@@ -1,12 +1,41 @@
-   const legendContainer = svg
-            .append("g")
-            .attr("transform", `translate(${width/2 - 180}, ${height + 60})`);
-      
-          const legendItems = legendContainer
-            .selectAll(".legend-item")
-            .data(legendData)
-            .enter()
-            .append("g")
-            .attr("class", "legend-item")
-            .attr("transform", (_, i) => `translate(${i * 120}, 0)`);
-      
+// Her legend item'ının genişliğini hesapla
+const legendItemWidth = (d) => {
+  const text = svg.append("text")
+                  .attr("class", "legend-text")
+                  .text(d.name)  // d.name legend text'i
+                  .style("visibility", "hidden");
+  const width = text.node().getBBox().width;  // Genişliği al
+  text.remove();  // Geçici text elementini kaldır
+  return width;
+};
+
+// Legend container'ını oluştur
+const legendContainer = svg
+  .append("g")
+  .attr("transform", `translate(${width / 2 - 180}, ${height + 60})`);
+
+// Legend item'larını oluştur
+const legendItems = legendContainer
+  .selectAll(".legend-item")
+  .data(legendData)
+  .enter()
+  .append("g")
+  .attr("class", "legend-item")
+  .attr("transform", (_, i) => {
+    const itemWidth = legendItemWidth(legendData[i]);
+    return `translate(${i === 0 ? 0 : legendItemWidth(legendData[i-1]) + 40}, 0)`;  // Önceki öğenin genişliği ile mesafeyi ayarla
+  });
+
+// Legend metni ve şekli
+legendItems
+  .append("circle")
+  .attr("cx", 0)
+  .attr("cy", 0)
+  .attr("r", 6)
+  .style("fill", d => d.color);
+
+legendItems
+  .append("text")
+  .attr("x", 15)
+  .attr("y", 5)
+  .text(d => d.name);
