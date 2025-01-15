@@ -1,1 +1,12 @@
-    .attr("fill", (_, i) => legendColor[i % legendColor.length]);  // Renkleri legendColor dizisinden alıyoruz
+   const legendContainer = svg
+            .append("g")
+            .attr("transform", `translate(${width/2 - 180}, ${height + 60})`);
+      
+          const legendItems = legendContainer
+            .selectAll(".legend-item")
+            .data(legendData)
+            .enter()
+            .append("g")
+            .attr("class", "legend-item")
+            .attr("transform", (_, i) => `translate(${i * 120}, 0)`);
+      
