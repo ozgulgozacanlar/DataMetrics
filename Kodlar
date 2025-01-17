@@ -1,16 +1,15 @@
-const [loadedCount, setLoadedCount] = useState(0);
-const [loadedComponents, setLoadedComponents] = useState([]);  // Yüklenen bileşenleri sakla
+ getObjectData(app, objectId).then((response) => {
+          setData(response);
+        }).catch((error) => {
+          console.error('MultiBarChart Component : getObjectData() methodu veri alınırken hata oluştu:', error);
+        });
 
-const handleDataLoaded = (componentId) => {
-  if (!loadedComponents.includes(componentId)) {
-    setLoadedCount(prevCount => prevCount + 1);
-    setLoadedComponents(prev => [...prev, componentId]);  // Yüklenen bileşeni kaydet
-  }
-};
-
-<TableWithPoint
-  app={app}
-  objectId={"gWQgq"}
-  page={"gosas"}
-  onDataLoaded={() => handleDataLoaded('table1')}  // Bileşenin ID'sini geçir
-/>
+        getObjectModel(app, objectId).then((model) => {
+          const legendDataArray = model.layout.qHyperCube.qMeasureInfo.map(
+            (item) => item.qFallbackTitle
+          );
+          setLegendData(legendDataArray);
+          setChartTitle(model.layout.title);
+        }).catch((error) => {
+          console.error('MultiBarChart Component : getObjectModel() methodu veri alınırken hata oluştu:', error);
+        });
