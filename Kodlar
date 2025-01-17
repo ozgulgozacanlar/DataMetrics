@@ -1,28 +1,41 @@
-getObjectData(app, objectId).then((response) => {
-  // Eğer response boş veya tanımsızsa, işlem yapılmadan return yapıyoruz
-  if (!response) {
-    console.error('MultiBarChart Component : response verisi boş veya tanımsız.');
-    return;  // Eğer response boşsa, işlemi durduruyoruz
-  }
+export function getObjectData(app, objectId) {
+  return new Promise((resolve, reject) => {
+    getObjectModel(app, objectId).then((_model) => {
+      const qWidth = _model.layout.qHyperCube.qSize.qcx;
+      const totalRows = _model.layout.qHyperCube.qSize.qcy; // Toplam satır sayısı
+      const maxRowsPerFetch = Math.floor(10000 / qWidth);
 
-  setData(response);  // response doluysa, veriyi set ediyoruz
-}).catch((error) => {
-  console.error('MultiBarChart Component : getObjectData() methodu veri alınırken hata oluştu:', error);
-});
+      let qTop = 0;
+      const fetchedData = [];
 
-getObjectModel(app, objectId).then((model) => {
-  // Eğer model boş veya tanımsızsa, işlem yapılmadan return yapıyoruz
-  if (!model) {
-    console.error('MultiBarChart Component : model verisi boş veya tanımsız.');
-    return;  // Eğer model boşsa, işlemi durduruyoruz
-  }
+      function fetchChunk() {
+        const qHeight = Math.min(maxRowsPerFetch, totalRows - qTop);
 
-  // Eğer model doluysa, gerekli işlemleri yapıyoruz
-  const legendDataArray = model.layout.qHyperCube.qMeasureInfo.map(
-    (item) => item.qFallbackTitle
-  );
-  setLegendData(legendDataArray);
-  setChartTitle(model.layout.title);
-}).catch((error) => {
-  console.error('MultiBarChart Component : getObjectModel() methodu veri alınırken hata oluştu:', error);
-});
+        _model
+          .getHyperCubeData('/qHyperCubeDef', [
+            {
+              qTop,
+              qLeft: 0,
+              qWidth,
+              qHeight,
+            },
+          ])
+          .then((_data) => {
+            fetchedData.push(..._data[0].qMatrix); // Gelen veriyi birleştir
+            qTop += qHeight; // Bir sonraki başlangıç noktasını ayarla
+
+            if (qTop < totalRows) {
+              // Eğer tüm veri alınmadıysa, tekrar çağır
+              fetchChunk();
+            } else {
+              // Tüm veri alındığında çözümle
+              resolve(fetchedData);
+            }
+          })
+          .catch(reject);
+      }
+
+      fetchChunk();
+    }).catch(reject);
+  });
+}
