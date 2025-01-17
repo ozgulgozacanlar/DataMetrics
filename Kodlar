@@ -1,3 +1,21 @@
+  getObjectData(app, objectId).then((data) => {
+      if (!data || data.length === 0) {
+        console.log('Veri boş geldi');
+        return;
+      }
+      const combinedArr = data;
+      setTableData(combinedArr);
+      if (onDataLoaded) {
+        console.log('Veri yüklendi ve handleDataLoaded tetiklendi!');  // Burada logla
+        onDataLoaded();  // Veri yüklendikten sonra callback çağrılır
+      }
+    }).catch((error) => {
+      console.error('Veri alınırken hata oluştu:', error);  // Veriye erişimde hata olup olmadığını kontrol edin
+    });
+  }
+
+
+
 import React, { useState, useEffect } from 'react';
 import TableWithPoint from './TableWithPoint'; // TableWithPoint bileşenini import ediyoruz.
 
