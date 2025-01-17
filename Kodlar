@@ -1,15 +1,28 @@
- getObjectData(app, objectId).then((response) => {
-          setData(response);
-        }).catch((error) => {
-          console.error('MultiBarChart Component : getObjectData() methodu veri alınırken hata oluştu:', error);
-        });
+getObjectData(app, objectId).then((response) => {
+  // Eğer response boş veya tanımsızsa, işlem yapılmadan return yapıyoruz
+  if (!response) {
+    console.error('MultiBarChart Component : response verisi boş veya tanımsız.');
+    return;  // Eğer response boşsa, işlemi durduruyoruz
+  }
 
-        getObjectModel(app, objectId).then((model) => {
-          const legendDataArray = model.layout.qHyperCube.qMeasureInfo.map(
-            (item) => item.qFallbackTitle
-          );
-          setLegendData(legendDataArray);
-          setChartTitle(model.layout.title);
-        }).catch((error) => {
-          console.error('MultiBarChart Component : getObjectModel() methodu veri alınırken hata oluştu:', error);
-        });
+  setData(response);  // response doluysa, veriyi set ediyoruz
+}).catch((error) => {
+  console.error('MultiBarChart Component : getObjectData() methodu veri alınırken hata oluştu:', error);
+});
+
+getObjectModel(app, objectId).then((model) => {
+  // Eğer model boş veya tanımsızsa, işlem yapılmadan return yapıyoruz
+  if (!model) {
+    console.error('MultiBarChart Component : model verisi boş veya tanımsız.');
+    return;  // Eğer model boşsa, işlemi durduruyoruz
+  }
+
+  // Eğer model doluysa, gerekli işlemleri yapıyoruz
+  const legendDataArray = model.layout.qHyperCube.qMeasureInfo.map(
+    (item) => item.qFallbackTitle
+  );
+  setLegendData(legendDataArray);
+  setChartTitle(model.layout.title);
+}).catch((error) => {
+  console.error('MultiBarChart Component : getObjectModel() methodu veri alınırken hata oluştu:', error);
+});
