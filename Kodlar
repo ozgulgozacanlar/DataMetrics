@@ -1,6 +1,12 @@
 export function getObjectData(app, objectId) {
   return new Promise((resolve, reject) => {
     getObjectModel(app, objectId).then((_model) => {
+      // Eğer model null veya undefined ise hata fırlatalım
+      if (!_model || !_model.layout || !_model.layout.qHyperCube) {
+        reject(new Error('Geçersiz model veya qHyperCube bulunamadı.'));
+        return;
+      }
+
       const qWidth = _model.layout.qHyperCube.qSize.qcx;
       const totalRows = _model.layout.qHyperCube.qSize.qcy; // Toplam satır sayısı
       const maxRowsPerFetch = Math.floor(10000 / qWidth);
@@ -21,6 +27,11 @@ export function getObjectData(app, objectId) {
             },
           ])
           .then((_data) => {
+            if (!_data || !_data[0] || !_data[0].qMatrix) {
+              reject(new Error('Veri çekilirken sorun oluştu.'));
+              return;
+            }
+
             fetchedData.push(..._data[0].qMatrix); // Gelen veriyi birleştir
             qTop += qHeight; // Bir sonraki başlangıç noktasını ayarla
 
@@ -32,10 +43,14 @@ export function getObjectData(app, objectId) {
               resolve(fetchedData);
             }
           })
-          .catch(reject);
+          .catch((error) => {
+            reject(new Error(`getHyperCubeData hatası: ${error.message}`)); // Hata mesajını daha detaylı yazdırıyoruz
+          });
       }
 
       fetchChunk();
-    }).catch(reject);
+    }).catch((error) => {
+      reject(new Error(`getObjectModel hatası: ${error.message}`)); // Hata mesajını daha detaylı yazdırıyoruz
+    });
   });
 }
