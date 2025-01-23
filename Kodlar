@@ -1,18 +1,13 @@
-const DEFAULT_HOST = 'qlikprod';
-
-const qConfig = {
-  host: DEFAULT_HOST,
-  isSecure: true,
-  port: 443,
-  prefix: '/'
-};
+// Interface'ler ve Tip Tanımlamaları
 
 export interface QlikApp {
   getObject: (elementId: string, objectId: string, options?: { noSelections?: boolean }) => Promise<unknown>;
 }
+
 export interface Qlik {
   openApp: (appId: string, config: any) => QlikApp;
 }
+
 export interface HyperCubePivotData {
   qData: Array<Array<{ qText: string }>>;
   qLeft: Array<{ qText: string }>;
@@ -24,9 +19,11 @@ export interface QConfig {
   prefix: string;
   isSecure: boolean;
 }
+
 export interface HyperCubeData {
   qMatrix: Array<Array<{ qText: string; qNum: number }>>;
 }
+
 export interface QlikModel {
   layout: {
     qHyperCube: {
@@ -46,100 +43,19 @@ export interface QlikModel {
   ) => Promise<HyperCubePivotData>;
 }
 
-declare global {
-  interface Window {
-    require: {
-      config: (config: { baseUrl: string; paths: { [key: string]: string } }) => void;
-      (modules: string[], callback: (qlik: Qlik) => void): void;
-    };
-  }
-}
-//export const baseUrl = `${qConfig.isSecure ? 'https://' : 'http://'}${qConfig.host}${qConfig.port ? `:${qConfig.port}` : ''}${qConfig.prefix}resources`;
 
-//sayfa ilk yüklendiğinde çalışmasına gerek var mı? baseUrl buraya taşındı
 
-document.addEventListener('DOMContentLoaded', () => {
-  const baseUrl = `${qConfig.isSecure ? 'https://' : 'http://'}${qConfig.host}${qConfig.port ? `:${qConfig.port}` : ''}${qConfig.prefix}resources`;
 
-  window.require.config({
-    baseUrl,
-    paths: {
-      qlik: `${baseUrl}/js/qlik`
-    }
-  });
-});
+// Qlik API ile Uygulama Etkileşimi Fonksiyonları
 
 export function createQlikConfig(host?: string): QConfig {
   return {
     host: host ?? DEFAULT_HOST,
     isSecure: true,
     port: 443,
-    prefix: '/'
+    prefix: '/',
   };
 }
-
-
-
-// export function openApp(appId: string, hostOrConfig?: string | Partial<QConfig>): Promise<QlikApp> {
-//   let config: QConfig;
-
-//   if (typeof hostOrConfig === 'string') {
-//     config = createQlikConfig(hostOrConfig);
-//   } else if (typeof hostOrConfig === 'object') {
-//     config = { ...createQlikConfig(), ...hostOrConfig };
-//   } else {
-//     config = createQlikConfig();
-//   }
-
-//   // eslint-disable-next-line
-//   const baseUrl = `${config.isSecure ? 'https://' : 'http://'}${config.host}${config.port ? `:${config.port}` : ''}${config.prefix}resources`;
-
-//   document.addEventListener('DOMContentLoaded', () => {
-//     window.require.config({
-//       baseUrl,
-//       paths: {
-//         qlik: `${baseUrl}/js/qlik`
-//       }
-//     });
-//   });
-
-//   return new Promise((resolve, reject) => {
-//     qlikAPI.then((qlik) => resolve(qlik.openApp(appId, config))).catch((error) => reject(error));
-//   });
-// }
-
-export function configureRequireJs(baseUrl: string): void {
-  document.addEventListener('DOMContentLoaded', () => {
-    window.require.config({
-      baseUrl,
-      paths: {
-        qlik: `${baseUrl}/js/qlik`
-      }
-    });
-  });
-}
-
-export function createBaseUrl(config: QConfig): string {
-
-  return `${config.isSecure ? 'https://' : 'http://'}${config.host}${config.port ? `:${config.port}` : ''}${config.prefix}resources`;
-}
-
-export const qlikAPI: Promise<Qlik> = new Promise((resolve) => {
-  document.addEventListener('DOMContentLoaded', () => {
-    window.require(['js/qlik'], (qlik: Qlik) => {
-      resolve(qlik);
-    });
-  });
-});
-
-
-
-// Qlik API'yi kullanmak için bir fonksiyon
-// Varsayılan olarak qlikAPI kullanır, ancak isteğe bağlı olarak başka bir API de sağlanabilir
-export const useQlikAPI = (api: any) => {
-  // Sağlanan API'yi döndür
-  return api;
-};
 
 export async function openApp(appId: string, hostOrConfig?: string | any): Promise<any> {
   let config: any;
@@ -162,162 +78,27 @@ export async function getQlikApp(appId: string, config: any): Promise<any> {
 }
 
 
-/**
- * Döndürülen/Belirtilen nesnenin modelini alır
- *
- * @param {QlikApp} app Qlik App
- * @param {String} objectId Object ID
- * @returns {QlikObject} Qlik Object Layout
- *
- * @see {@link https://help.qlik.com/en-US/sense-developer/February2024/Subsystems/APIs/Content/Sense_ClientAPIs/CapabilityAPIs/AppAPI/getObject-method.htm}
- */
-export function getObjectModel(app: QlikApp, objectIdp: string): Promise<QlikModel> {
-  return new Promise((resolve, reject) => {
-    app.getObject("", objectIdp).then((_model: any) => {
-      resolve(_model);
-    }).catch((error) => {
-      reject(error);
+// API Yapılandırma ve Bağlantı Kurulumu
+
+export const qlikAPI: Promise<Qlik> = new Promise((resolve) => {
+  document.addEventListener('DOMContentLoaded', () => {
+    window.require(['js/qlik'], (qlik: Qlik) => {
+      resolve(qlik);
+    });
+  });
+});
+
+export function configureRequireJs(baseUrl: string): void {
+  document.addEventListener('DOMContentLoaded', () => {
+    window.require.config({
+      baseUrl,
+      paths: {
+        qlik: `${baseUrl}/js/qlik`,
+      },
     });
   });
 }
 
-/**
- * Döndürülen/Belirtilen nesnenin verilerini alır
- *
- * @param {QlikApp} app Qlik App
- * @param {String} objectId Object ID
- * @returns {Hypercube} Objenin hypercube verisi (qMatrix)
- *
- * @see {@link https://help.qlik.com/en-US/sense-developer/February2024/Subsystems/EngineJSONAPI/Content/service-genericobject-gethypercubedata.htm}
- */
-export function getObjectData(app: QlikApp, objectId: string): Promise<HyperCubeData> {
-  return new Promise((resolve) => {
-    getObjectModel(app, objectId).then((_model: QlikModel) => {
-      const qWidth = _model.layout.qHyperCube.qSize.qcx;
-      const qHeight = Math.floor(10000 / _model.layout.qHyperCube.qSize.qcx);
-
-      _model
-        .getHyperCubeData('/qHyperCubeDef', [
-          {
-            qTop: 0,
-            qLeft: 10,
-            qWidth,
-            qHeight
-          }
-        ])
-        .then((_data: any) => {
-          resolve(_data[0].qMatrix);
-        });
-    });
-  });
-}
-export function getObjectPivotTableData(app: QlikApp, objectId: string): Promise<HyperCubePivotData> {
-  return new Promise((resolve) => {
-    getObjectModel(app, objectId).then((_model: QlikModel) => {
-      const qWidth = _model.layout.qHyperCube.qSize.qcx;
-      const qHeight = Math.floor(10000 / _model.layout.qHyperCube.qSize.qcx);
-
-      _model
-        .getHyperCubePivotData('/qHyperCubeDef', [
-          {
-            qTop: 0,
-            qLeft: 0,
-            qWidth,
-            qHeight
-          }
-        ])
-        .then((_data: any) => {
-          resolve(_data[0] as HyperCubePivotData);
-        });
-    });
-  });
-}
-
-
-/** FOR UNIT TESTING
- * Döndürülen/Belirtilen nesnenin verilerini alır
- *
- * @param {QlikApp} app Qlik App
- * @param {String} objectId Object ID
- * @returns {Hypercube} Objenin hypercube verisi (qMatrix)
- *
- * @see {@link https://help.qlik.com/en-US/sense-developer/February2024/Subsystems/EngineJSONAPI/Content/service-genericobject-gethypercubedata.htm}
- */
-export function getObjectDataTrans(app: QlikApp, objectId: string): Promise<HyperCubeData> {
-  return new Promise((resolve) => {
-    getObjectModel(app, objectId).then((_model: any) => {
-    
-
-      _model
-        .getHyperCubeData('/qHyperCubeDefTrans', [
-          {
-            qTop: 0,
-            qLeft: 10,
-          
-          }
-        ])
-        .then((_data: any) => {
-          resolve(_data[0].qMatrix);
-        });
-    });
-  });
-}
-
-
-/** FOR UNIT TESTING
- * Döndürülen/Belirtilen nesnenin verilerini alır
- *
- * @param {QlikApp} app Qlik App
- * @param {String} objectId Object ID
- * @returns {Hypercube} Objenin hypercube verisi (qMatrix)
- *
- * @see {@link https://help.qlik.com/en-US/sense-developer/February2024/Subsystems/EngineJSONAPI/Content/service-genericobject-gethypercubedata.htm}
- */
-export function getObjectDataGen(app: QlikApp, objectId: string): Promise<HyperCubeData> {
-  return new Promise((resolve) => {
-    getObjectModel(app, objectId).then((_model: any) => {
-      const qWidth = _model.layout.qHyperCube.qSize.qcx;
-      const qHeight = Math.floor(10 / _model.layout.qHyperCube.qSize.qcx);
-
-      _model
-        .getHyperCubeData('/qHyperCubeDefGen', [
-          {
-            qWidth,
-            qHeight
-          }
-        ])
-        .then((_data: any) => {
-          resolve(_data[0].qMatrix);
-        });
-    });
-  });
-}
-
-
-
-/** FOR UNIT TESTING
- * Döndürülen/Belirtilen nesnenin verilerini alır
- *
- * @param {QlikApp} app Qlik App
- * @param {String} objectId Object ID
- * @returns {Hypercube} Objenin hypercube verisi (qMatrix)
- *
- * @see {@link https://help.qlik.com/en-US/sense-developer/February2024/Subsystems/EngineJSONAPI/Content/service-genericobject-gethypercubedata.htm}
- */
-export function getObjectDataRes(app: QlikApp, objectId: string): Promise<HyperCubeData> {
-  return new Promise((resolve) => {
-    getObjectModel(app, objectId).then((_model: any) => {
-      const qHeight = Math.floor(10 / _model.layout.qHyperCube.qSize.qcx);
-
-      _model
-        .getHyperCubeData('/qHyperCubeDefGen', [
-          {
-            qHeight
-          }
-        ])
-        .then((_data: any) => {
-          resolve(_data[0].qMatrix);
-        });
-    });
-  });
+export function createBaseUrl(config: QConfig): string {
+  return `${config.isSecure ? 'https://' : 'http://'}${config.host}${config.port ? `:${config.port}` : ''}${config.prefix}resources`;
 }
