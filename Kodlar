@@ -1,3 +1,7 @@
+
+Konfigürasyon ve API Yapılandırması
+
+// Qlik bağlantı konfigürasyonu için varsayılan değer
 const DEFAULT_HOST = 'qlikprod';
 
 const qConfig = {
@@ -6,505 +10,147 @@ const qConfig = {
   port: 443,
   prefix: '/'
 };
-//#region Tüm Interface'ler ve Tip Tanımlamaları
-
-/**
- * @interface QlikApp
- * @description
- * Qlik uygulaması nesnesi. Bu nesne, Qlik API'si ile etkileşime geçmek için gerekli metodları içerir.
- * Bu interface, Qlik uygulamasının temel işlevlerinden biri olan `getObject` metodunu tanımlar.
- */
-export interface QlikApp {
-  /**
-   * @description
-   * Qlik uygulamasındaki belirtilen objeyi alır.
-   * 
-   * @param {string} elementId - Objeyi render etmek için kullanılacak HTML elementinin ID'si.
-   * @param {string} objectId - Alınmak istenen Qlik objesinin kimliği.
-   * @param {object} [options] - Opsiyonel seçenekler. `noSelections` özelliği ile seçimler devre dışı bırakılabilir.
-   * @returns {Promise<unknown>} - Qlik objesini temsil eden bir Promise döner.
-   */
-  getObject: (elementId: string, objectId: string, options?: { noSelections?: boolean }) => Promise<unknown>;
-}
-/**
- * @interface Qlik
- * @description
- * Qlik uygulaması başlatma ve erişim sağlama işlevlerini tanımlar.
- * `openApp` metodu, belirli bir uygulamayı başlatır ve bu uygulama üzerinden işlemler yapmamıza olanak tanır.
- */
-export interface Qlik {
-  /**
-   * @description
-   * Belirtilen `appId` ile Qlik uygulamasını açar ve `QlikApp` nesnesini döndürür.
-   * 
-   * @param {string} appId - Açılacak Qlik uygulamasının kimliği.
-   * @param {any} config - Qlik uygulamasının konfigürasyon ayarlarını içeren nesne.
-   * @returns {QlikApp} - Başlatılan Qlik uygulaması nesnesini döner.
-   */
-  openApp: (appId: string, config: any) => QlikApp;
-}
-/**
- * @interface HyperCubePivotData
- * @description
- * Pivot verisi formatını tanımlar. Bu format, Qlik uygulamalarında veriyi dönüştürmek için kullanılır.
- * 
- * @property {Array<Array<{ qText: string }>>} qData - Pivot tablosundaki veri hücrelerini içerir.
- * @property {Array<{ qText: string }>} qLeft - Pivot tablosundaki sol sütun başlıklarını içerir.
- */
-export interface HyperCubePivotData {
-  qData: Array<Array<{ qText: string }>>;
-  qLeft: Array<{ qText: string }>;
-}
-/**
- * @interface QConfig
- * @description
- * Qlik uygulaması için konfigürasyon ayarlarını tanımlar.
- * Konfigürasyon, host, port, güvenli bağlantı ve prefix bilgilerini içerir.
- * 
- * @property {string} host - Qlik server'ının host adresi.
- * @property {number} port - Qlik server'ının port numarası.
- * @property {string} prefix - Qlik uygulaması için kullanılan URL prefix'i.
- * @property {boolean} isSecure - Bağlantının güvenli olup olmadığını belirten bayrak (HTTPS veya HTTP).
- */
-export interface QConfig {
-  host: string;
-  port: number;
-  prefix: string;
-  isSecure: boolean;
-}
-/**
- * @interface HyperCubeData
- * @description
- * HyperCube verisinin formatını tanımlar. Bu veri formatı, genellikle Qlik objelerindeki hücrelerin içeriklerini temsil eder.
- * 
- * @property {Array<Array<{ qText: string; qNum: number }>>} qMatrix - Veriyi temsil eden matris.
- */
-export interface HyperCubeData {
-  qMatrix: Array<Array<{ qText: string; qNum: number }>>;
-}
-/**
- * @interface QlikModel
- * @description
- * Qlik objesinin modelini tanımlar. Bu model, objenin layout ve veri alma işlemlerini içerir.
- * `getHyperCubeData` ve `getHyperCubePivotData` metodları, Qlik objesinin içeriğine dair veri çeker.
- * 
- * @property {object} layout - Qlik objesinin layout verilerini içerir.
- * @property {function} getHyperCubeData - Qlik objesindeki HyperCube verisini alır.
- * @property {function} getHyperCubePivotData - Qlik objesindeki HyperCube Pivot verisini alır.
- */
-export interface QlikModel {
-  layout: {
-    qHyperCube: {
-      qSize: {
-        qcx: number; // width
-        qcy: number; // height
-      };
-    };
-  };
-  
-  /**
-   * @description
-   * Qlik objesindeki HyperCube verisini alır.
-   * 
-   * @param {string} def - Veri tanımını içeren string. 
-   * @param {Array<{ qTop: number; qLeft: number; qWidth: number; qHeight: number }>} data - Alınacak verinin koordinatlarını içeren array.
-   * @returns {Promise<HyperCubeData>} - HyperCube verisini içeren bir Promise döner.
-   */
-  getHyperCubeData: (
-    def: string,
-    data: Array<{ qTop: number; qLeft: number; qWidth: number; qHeight: number }>
-  ) => Promise<HyperCubeData>;
-  
-  /**
-   * @description
-   * Qlik objesindeki HyperCube Pivot verisini alır.
-   * 
-   * @param {string} def - Veri tanımını içeren string.
-   * @param {Array<{ qTop: number; qLeft: number; qWidth: number; qHeight: number }>} data - Alınacak pivot verisinin koordinatlarını içeren array.
-   * @returns {Promise<HyperCubePivotData>} - HyperCube Pivot verisini içeren bir Promise döner.
-   */
-  getHyperCubePivotData: (
-    def: string,
-    data: Array<{ qTop: number; qLeft: number; qWidth: number; qHeight: number }>
-  ) => Promise<HyperCubePivotData>;
-}
-//#endregion
-
-/**
- * Global bir `require` tanımlaması yapılmaktadır. 
- * Bu tanımlama, Qlik Sense ile kullanılan RequireJS yapılandırmasını içermektedir.
- *
- * @interface Window
- * @property {function} config - RequireJS'in temel yapılandırma fonksiyonu. 
- * Bu fonksiyon, `baseUrl` ve `paths` gibi parametreleri alır.
- * @param {object} config - Yapılandırma ayarları.
- * @property {string} config.baseUrl - Kaynakların temel URL adresi.
- * @property {object} config.paths - Modüller için alternatif yolların belirtildiği bir obje.
- * @function
- * @param {string[]} modules - Yüklenmesi gereken modüllerin isimlerini içeren bir dizi.
- * @param {function} callback - Yüklenen modüller tamamlandıktan sonra çalıştırılan bir geri çağırma fonksiyonu.
- *
- * @see {@link https://requirejs.org/docs/api.html#config} RequireJS Config API
- * @see {@link https://qlik.dev} Qlik Developer Documentation
- */
-declare global {
-  interface Window {
-    require: {
-      config: (config: { baseUrl: string; paths: { [key: string]: string } }) => void;
-      (modules: string[], callback: (qlik: Qlik) => void): void;
-    };
-  }
-}
-//export const baseUrl = `${qConfig.isSecure ? 'https://' : 'http://'}${qConfig.host}${qConfig.port ? `:${qConfig.port}` : ''}${qConfig.prefix}resources`;
-
-/**
- * Sayfa yüklendiğinde Qlik kaynakları için RequireJS yapılandırmasını başlatır.
- *
- * @description Bu event listener, sayfa yüklendiğinde (`DOMContentLoaded` tetiklendiğinde) çalışır.
- * Qlik kaynaklarının dinamik olarak yüklenmesi için RequireJS'in temel URL (`baseUrl`) ve yol 
- * (`paths`) yapılandırmalarını ayarlar.
- *
- * @event DOMContentLoaded
- * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/Window/DOMContentLoaded_event} DOMContentLoaded Event Documentation
- */
-document.addEventListener('DOMContentLoaded', () => {
-  const baseUrl = `${qConfig.isSecure ? 'https://' : 'http://'}${qConfig.host}${qConfig.port ? `:${qConfig.port}` : ''}${qConfig.prefix}resources`;
-
-  window.require.config({
-    baseUrl,
-    paths: {
-      qlik: `${baseUrl}/js/qlik`
-    }
-  });
-});
 
 /**
  * @description
- * Bu fonksiyon, Qlik için temel konfigürasyonu oluşturur. 
- * Opsiyonel olarak, `host` parametresi belirtilirse, bu değer kullanılarak konfigürasyon oluşturulur.
- * Eğer `host` parametresi sağlanmazsa, varsayılan host (`DEFAULT_HOST`) kullanılır.
- *
- * @param {string} [host] - Qlik server'ının host adresi. Eğer sağlanmazsa, varsayılan host kullanılır.
- * 
+ * Bu fonksiyon, Qlik için temel konfigürasyonu oluşturur.
+ * @param {string} [host] - Qlik server'ının host adresi.
  * @returns {QConfig} - Qlik konfigürasyonunu içeren bir nesne döner.
- * 
  */
 export function createQlikConfig(host?: string): QConfig {
   return {
-    host: host ?? DEFAULT_HOST, // Eğer host belirtilmemişse, varsayılan host kullanılır
-    isSecure: true, // Bağlantının güvenli (HTTPS) olacağı varsayılır
-    port: 443, // HTTPS portu olan 443 kullanılır
-    prefix: '/', // Uygulama yolu için varsayılan prefix kullanılır
+    host: host ?? DEFAULT_HOST, 
+    isSecure: true,
+    port: 443,
+    prefix: '/',
   };
 }
+
 /**
  * @description
- * Bu fonksiyon, `require.js` yapılandırmasını yapar. `baseUrl` parametresini alarak, 
- * Qlik için gerekli olan yolları (path) tanımlar ve uygulamanın yüklendiği sayfada 
- * `require.config` fonksiyonunu çağırır. Bu sayede Qlik API'lerine erişim sağlanabilir.
- * 
- * @param {string} baseUrl - `require.js`'in temel URL'si. Bu URL üzerinden Qlik API'lerine erişilir.
- * 
- * @returns {void} - Fonksiyon herhangi bir değer döndürmez, sadece yapılandırma işlemini gerçekleştirir.
- * 
- * @see {@link https://requirejs.org/docs/api.html#config} - `require.js` yapılandırması ile ilgili daha fazla bilgi için dökümantasyonu inceleyebilirsiniz.
+ * Bu fonksiyon, verilen Qlik konfigürasyonunu kullanarak, tam bir temel URL oluşturur.
+ * @param {QConfig} config - Qlik uygulaması için konfigürasyon nesnesi.
+ * @returns {string} - Oluşturulmuş olan tam temel URL.
+ */
+export function createBaseUrl(config: QConfig): string {
+  return `${config.isSecure ? 'https://' : 'http://'}${config.host}${config.port ? `:${config.port}` : ''}${config.prefix}resources`;
+}
+
+/**
+ * @description
+ * Bu fonksiyon, `require.js` yapılandırmasını yapar.
+ * @param {string} baseUrl - `require.js`'in temel URL'si.
+ * @returns {void} - Yapılandırma işlemini gerçekleştirir.
  */
 export function configureRequireJs(baseUrl: string): void {
-  // DOM içeriklerinin tamamen yüklenmesini bekler
   document.addEventListener('DOMContentLoaded', () => {
-    
-    // `require.config` ile temel URL ve yol (path) yapılandırmaları yapılır
     window.require.config({
-      baseUrl, // `baseUrl` parametresi ile belirtilen temel URL kullanılır
+      baseUrl,
       paths: {
-        qlik: `${baseUrl}/js/qlik` // Qlik için gerekli yolu tanımlar
+        qlik: `${baseUrl}/js/qlik`
       }
     });
   });
 }
-/**
- * @description
- * Bu fonksiyon, verilen Qlik konfigürasyonunu (`QConfig`) kullanarak, 
- * tam bir temel URL (base URL) oluşturur. URL, güvenli (HTTPS) ya da güvenli olmayan (HTTP) 
- * bağlantı protokolüne göre ayarlanır ve port numarası varsa, onu da URL'ye ekler.
- * 
- * @param {QConfig} config - Qlik uygulaması için konfigürasyon nesnesi. Bu nesne, host, port, güvenli bağlantı bilgilerini içerir.
- * 
- * @returns {string} - Oluşturulmuş olan tam temel URL.
- * 
- * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/URL/URL} - URL nesnesi ve kullanımı hakkında daha fazla bilgi için MDN dökümantasyonunu inceleyebilirsiniz.
- */
-export function createBaseUrl(config: QConfig): string {
-  // Güvenli bağlantı (https) veya güvenli olmayan bağlantı (http) seçimi yapılır ve URL yapılandırılır.
-  return `${config.isSecure ? 'https://' : 'http://'}${config.host}${config.port ? `:${config.port}` : ''}${config.prefix}resources`;
-}
-
+Qlik API İşlevleri
 
 /**
  * @description
- * Bu promise, sayfa tamamen yüklendikten sonra Qlik API'sini (`qlik`) yükler.
- * `require.js` kullanılarak, `js/qlik` dosyası yüklendiğinde, Qlik objesi `resolve` ile 
- * döndürülür. Bu promise, Qlik API'sini başarılı bir şekilde alana kadar bekler.
- * 
- * @returns {Promise<Qlik>} - Qlik API'sini içeren bir Promise döner. 
- * 
- * @see {@link https://requirejs.org/docs/api.html#definingmodules} - `require.js` modülleri ve nasıl yüklendiği hakkında daha fazla bilgi için dökümantasyonu inceleyebilirsiniz.
- */
-export const qlikAPI: Promise<Qlik> = new Promise((resolve) => {
-  // Sayfa yüklendikten sonra Qlik API'si yüklenir
-  document.addEventListener('DOMContentLoaded', () => {
-    // `require` kullanılarak Qlik API'si yüklenir
-    window.require(['js/qlik'], (qlik: Qlik) => {
-      // Qlik API'si yüklendikten sonra, promise resolve edilir
-      resolve(qlik);
-    });
-  });
-});
-
-
-/**
- * @description
- * Bu fonksiyon, sağlanan bir API'yi döndüren basit bir yardımcı fonksiyondur. 
- * Varsayılan olarak `qlikAPI` promise'ı kullanılabilir, ancak isteğe bağlı olarak başka bir API 
- * sağlanabilir. Bu fonksiyon, gelen API'yi basitçe döndürür ve farklı API'lerle entegrasyon sağlar.
- *
- * @param {any} api - Kullanılacak API. Bu, genellikle Qlik API'si veya başka bir benzer API olabilir.
- * 
- * @returns {any} - Sağlanan API'yi döndürür.
- * 
- * @see {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Function} - JavaScript fonksiyonları hakkında daha fazla bilgi için MDN dökümantasyonunu inceleyebilirsiniz.
- */
-export const useQlikAPI = (api: any) => {
-  // Sağlanan API'yi döndürür
-  return api;
-};
-
-
-/**
- * @description
- * Bu method, belirtilen `appId`'ye sahip Qlik uygulamasını açmak için gerekli konfigürasyonları hazırlayıp,
- * uygulamaya bağlanır. Ayrıca, opsiyonel olarak bir `hostOrConfig` parametresi alabilir. Bu parametre bir string
- * ya da konfigürasyon objesi olabilir.
- *
- * @param {string} appId - Açılacak Qlik uygulamasının id'si.
- * @param {string | any} [hostOrConfig] - Opsiyonel parametre. Eğer bir string ise, bu parametre Qlik server host adresi
- *      olarak kullanılır. Eğer bir obje ise, bu parametre Qlik konfigürasyon bilgilerini içerir.
- * 
+ * Bu fonksiyon, `appId` ile Qlik uygulamasını başlatır.
+ * @param {string} appId - Açılacak Qlik uygulamasının kimliği.
+ * @param {string | any} [hostOrConfig] - Opsiyonel parametre, host adresi ya da config nesnesi.
  * @returns {Promise<any>} - Qlik uygulamasına bağlanma işlemini temsil eden bir Promise döner.
- * 
- * @throws {Error} - Eğer konfigürasyon oluşturulamazsa ya da bağlantı kurulamazsa bir hata fırlatılabilir.
  */
 export async function openApp(appId: string, hostOrConfig?: string | any): Promise<any> {
-  
   let config: any;
-
-  // Eğer hostOrConfig bir string ise, bu değer Qlik server host adresi olarak kullanılacak
   if (typeof hostOrConfig === 'string') {
-    config = createQlikConfig(hostOrConfig); // createQlikConfig methodu ile config oluşturuluyor.
-  
-  // Eğer hostOrConfig bir obje ise, hem varsayılan konfigürasyon hem de sağlanan hostOrConfig birleşiyor.
+    config = createQlikConfig(hostOrConfig); 
   } else if (typeof hostOrConfig === 'object') {
     config = { ...createQlikConfig(), ...hostOrConfig };
-  
-  // Eğer hostOrConfig parametresi sağlanmazsa, default konfigürasyon kullanılır.
   } else {
     config = createQlikConfig();
   }
 
-  // Qlik uygulaması için temel URL oluşturuluyor
   const baseUrl = createBaseUrl(config);
-  
-  // RequireJS yapılandırması baseUrl ile yapılır
   configureRequireJs(baseUrl);
-
-  // Qlik uygulamasını almak için getQlikApp fonksiyonu çağrılır.
+  
   return getQlikApp(appId, config);
 }
 
-
+/**
+ * @description
+ * Bu fonksiyon, Qlik uygulamasına bağlanmak için kullanılır.
+ * @param {string} appId - Qlik uygulama kimliği
+ * @param {any} config - Qlik konfigürasyon ayarları
+ * @returns {Promise<any>} - Qlik uygulamasını döner.
+ */
 export async function getQlikApp(appId: string, config: any): Promise<any> {
   const qlik = await qlikAPI;
   return qlik.openApp(appId, config);
 }
 
-
 /**
  * @description
- * Bu fonksiyon, verilen Qlik uygulaması (`app`) ve objectId (`objectIdp`) ile, 
- * belirtilen Qlik objesinin modelini alır. Qlik API'sinin `getObject` metodunu kullanarak, 
- * belirtilen objectId'ye sahip Qlik objesinin modelini döndürür.
- * 
- * @param {QlikApp} app - Qlik uygulaması nesnesi. Bu nesne, Qlik API'si ile etkileşim kurmak için kullanılır.
- * @param {string} objectIdp - Qlik objesinin benzersiz kimliği (ID). Bu, hangi objenin modelinin alınacağını belirler.
- * 
- * @returns {Promise<QlikModel>} - Verilen `objectIdp` ile ilişkili Qlik objesinin modelini içeren bir Promise döner.
- * 
- * @see {@link https://help.qlik.com/en-US/sense-developer/February2024/Subsystems/APIs/Content/Sense_ClientAPIs/CapabilityAPIs/AppAPI/getObject-method.htm} 
- *      - Qlik API'sinin `getObject` metodu hakkında daha fazla bilgi için dökümantasyonu inceleyebilirsiniz.
- */
-export function getObjectModel(app: QlikApp, objectIdp: string): Promise<QlikModel> {
-  return new Promise((resolve, reject) => {
-    // Qlik API'sinin getObject metodunu kullanarak belirtilen objectIdp'ye ait model alınır
-    app.getObject("", objectIdp).then((_model: any) => {
-      // Model başarıyla alındığında resolve edilir
-      resolve(_model);
-    }).catch((error) => {
-      // Bir hata oluşursa, hata reject edilir
-      reject(error);
-    });
-  });
-}
-
-/**
- * @description Qlik nesnesinden hypercube verilerini alır ve qMatrix olarak döner.
- *
+ * Qlik nesnesinden hypercube verilerini alır ve qMatrix olarak döner.
  * @param {QlikApp} app - Qlik App nesnesi
  * @param {String} objectId - Nesne kimliği
- * @returns {Promise<HyperCubeData>} Objenin hypercube verisi (qMatrix)
- *
- * @see {@link https://help.qlik.com/en-US/sense-developer/February2024/Subsystems/EngineJSONAPI/Content/service-genericobject-gethypercubedata.htm}
+ * @returns {Promise<HyperCubeData>} - Objenin hypercube verisi
  */
 export function getObjectData(app: QlikApp, objectId: string): Promise<HyperCubeData> {
   return new Promise((resolve) => {
-    // Nesnenin modelini al
     getObjectModel(app, objectId).then((_model: QlikModel) => {
       const qWidth = _model.layout.qHyperCube.qSize.qcx;
       const qHeight = Math.floor(10000 / _model.layout.qHyperCube.qSize.qcx);
 
-      // Hypercube verisini al
-      _model
-        .getHyperCubeData('/qHyperCubeDef', [
-          {
-            qTop: 0,
-            qLeft: 10,
-            qWidth,
-            qHeight
-          }
-        ])
-        .then((_data: any) => {
-          resolve(_data[0].qMatrix); // qMatrix döndür
-        });
+      _model.getHyperCubeData('/qHyperCubeDef', [
+        { qTop: 0, qLeft: 10, qWidth, qHeight }
+      ]).then((_data: any) => {
+        resolve(_data[0].qMatrix);
+      });
     });
   });
 }
 
 /**
- * @description Qlik nesnesinden pivot tablo verilerini alır.
- *
+ * @description
+ * Qlik nesnesinden pivot tablo verilerini alır.
  * @param {QlikApp} app - Qlik App nesnesi
  * @param {String} objectId - Nesne kimliği
- * @returns {Promise<HyperCubePivotData>} Objenin pivot tablo verisi
- *
- * @see {@link https://help.qlik.com/en-US/sense-developer/February2024/Subsystems/EngineJSONAPI/Content/service-genericobject-gethypercubepivotdata.htm}
+ * @returns {Promise<HyperCubePivotData>} - Pivot tablo verisini döndürür.
  */
 export function getObjectPivotTableData(app: QlikApp, objectId: string): Promise<HyperCubePivotData> {
   return new Promise((resolve) => {
-    // Nesnenin modelini al
     getObjectModel(app, objectId).then((_model: QlikModel) => {
       const qWidth = _model.layout.qHyperCube.qSize.qcx;
       const qHeight = Math.floor(10000 / _model.layout.qHyperCube.qSize.qcx);
 
-      // Pivot tablo verisini al
-      _model
-        .getHyperCubePivotData('/qHyperCubeDef', [
-          {
-            qTop: 0,
-            qLeft: 0,
-            qWidth,
-            qHeight
-          }
-        ])
-        .then((_data: any) => {
-          resolve(_data[0] as HyperCubePivotData); // Pivot tablo verisini döndür
-        });
+      _model.getHyperCubePivotData('/qHyperCubeDef', [
+        { qTop: 0, qLeft: 0, qWidth, qHeight }
+      ]).then((_data: any) => {
+        resolve(_data[0] as HyperCubePivotData);
+      });
     });
   });
 }
+Global Fonksiyonlar
 
-/** Unit Test - getObjectDataTrans Fonksiyonu
- * @description Qlik nesnesinden alternatif bir hypercube veri kaynağını alır.
- *
- * @param {QlikApp} app - Qlik App nesnesi
- * @param {String} objectId - Nesne kimliği
- * @returns {Promise<HyperCubeData>} Alternatif hypercube verisi (qMatrix)
- *
- * @see {@link https://help.qlik.com/en-US/sense-developer/February2024/Subsystems/EngineJSONAPI/Content/service-genericobject-gethypercubedata.htm}
+/**
+ * Global bir `require` tanımlaması yapılmaktadır.
  */
-export function getObjectDataTrans(app: QlikApp, objectId: string): Promise<HyperCubeData> {
-  return new Promise((resolve) => {
-    // Nesnenin modelini al
-    getObjectModel(app, objectId).then((_model: any) => {
-      // Alternatif hypercube verisini al
-      _model
-        .getHyperCubeData('/qHyperCubeDefTrans', [
-          {
-            qTop: 0,
-            qLeft: 10
-          }
-        ])
-        .then((_data: any) => {
-          resolve(_data[0].qMatrix); // qMatrix döndür
-        });
+export const qlikAPI: Promise<Qlik> = new Promise((resolve) => {
+  document.addEventListener('DOMContentLoaded', () => {
+    window.require(['js/qlik'], (qlik: Qlik) => {
+      resolve(qlik);
     });
   });
-}
+});
 
-/** Unit Test - getObjectDataGen Fonksiyonu
- * @description Qlik nesnesinden genel bir hypercube veri kaynağını alır.
- *
- * @param {QlikApp} app - Qlik App nesnesi
- * @param {String} objectId - Nesne kimliği
- * @returns {Promise<HyperCubeData>} Genel hypercube verisi (qMatrix)
- *
- * @see {@link https://help.qlik.com/en-US/sense-developer/February2024/Subsystems/EngineJSONAPI/Content/service-genericobject-gethypercubedata.htm}
+/**
+ * @description
+ * Bu fonksiyon, sağlanan bir API'yi döndüren basit bir yardımcı fonksiyondur.
+ * @param {any} api - Kullanılacak API.
+ * @returns {any} - Sağlanan API'yi döndürür.
  */
-export function getObjectDataGen(app: QlikApp, objectId: string): Promise<HyperCubeData> {
-  return new Promise((resolve) => {
-    // Nesnenin modelini al
-    getObjectModel(app, objectId).then((_model: any) => {
-      const qWidth = _model.layout.qHyperCube.qSize.qcx;
-      const qHeight = Math.floor(10 / _model.layout.qHyperCube.qSize.qcx);
-
-      // Genel hypercube verisini al
-      _model
-        .getHyperCubeData('/qHyperCubeDefGen', [
-          {
-            qWidth,
-            qHeight
-          }
-        ])
-        .then((_data: any) => {
-          resolve(_data[0].qMatrix); // qMatrix döndür
-        });
-    });
-  });
-}
-
-/** Unit Test - getObjectDataRes Fonksiyonu
- * @description Qlik nesnesinden bir hypercube veri kaynağı alır ve yalnızca yükseklik ayarını kullanır.
- *
- * @param {QlikApp} app - Qlik App nesnesi
- * @param {String} objectId - Nesne kimliği
- * @returns {Promise<HyperCubeData>} Hypercube verisi (qMatrix)
- *
- * @see {@link https://help.qlik.com/en-US/sense-developer/February2024/Subsystems/EngineJSONAPI/Content/service-genericobject-gethypercubedata.htm}
- */
-export function getObjectDataRes(app: QlikApp, objectId: string): Promise<HyperCubeData> {
-  return new Promise((resolve) => {
-    // Nesnenin modelini al
-    getObjectModel(app, objectId).then((_model: any) => {
-      const qHeight = Math.floor(10 / _model.layout.qHyperCube.qSize.qcx);
-
-      // Sadece yükseklik ayarını kullanarak hypercube verisini al
-      _model
-        .getHyperCubeData('/qHyperCubeDefGen', [
-          {
-            qHeight
-          }
-        ])
-        .then((_data: any) => {
-          resolve(_data[0].qMatrix); // qMatrix döndür
-        });
-    });
-  });
-}
+export const useQlikAPI = (api: any) => {
+  return api;
+};
