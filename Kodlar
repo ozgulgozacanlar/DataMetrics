@@ -12,3 +12,10 @@
   });
 
 const formattedNumberWithComma = number.toLocaleString('en-US', { maximumFractionDigits: 0 }).replace(',', '.');
+
+function formatNumber(number) {
+  return number.toLocaleString('tr-TR', { 
+    minimumFractionDigits: 0,  // Ondalık kısmı zorunlu tutmuyoruz
+    maximumFractionDigits: 2  // Maksimum 2 basamağa kadar ondalık kısmı gösteriyoruz
+  });
+}
