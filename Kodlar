@@ -2,6 +2,7 @@ yAxis
   .selectAll(".tick text")
   .style("visibility", "hidden");  // Tüm metinleri gizliyoruz
 
+export default function MultiBarChart({ app, objectId, titleStatus, onLoaded, isVisible ,graphicName }) {
 
 
     barsGroup
