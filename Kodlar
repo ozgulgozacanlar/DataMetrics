@@ -1,25 +1,5 @@
-[
-    {
-        "qText": "YP PASIF",
-        "qNum": "NaN",
-        "qElemNumber": 1,
-        "qState": "O"
-    },
-    {
-        "qText": "YP PASİF  666",
-        "qNum": 665.72469521,
-        "qElemNumber": 0,
-        "qState": "L",
-        "qAttrExps": {
-            "qValues": [
-                {
-                    "qText": "#69b00b",
-                    "qNum": "NaN"
-                }
-            ]
-        }
-    }
-]
+const filteredData = data.filter(d => !isNaN(d.qNum));
+
 
 const formattedNumberWithComma = number.toLocaleString('en-US', { maximumFractionDigits: 0 }).replace(',', '.');
 
