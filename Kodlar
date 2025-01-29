@@ -1,21 +1,44 @@
-     function renderBarChartQlikObject(objectId) {
-            if (app) {
-                getObjectData(app, objectId).then((response) => {
-                    if (!response) {
-                        console.error('HorizontalBarChartWithPerc Component : response verisi boş veya tanımsız.');
-                        return;
-                    }
-                   
-                    const incomingData = response.map(item => ({
-                        value: parseFloat(item[0].qText),
-                        name: item[1].qText
-                    }));
-                    setData(incomingData)
-                    onLoaded();
-                }).catch((error) => {
-                    console.error('HorizontalBarChartWithPerc Component : getObjectData() methodu veri alınırken hata oluştu:', error);
-                });
-            } else {
-                // console.error('Qlik Sense app is not loaded yet');
+g.selectAll(".y-axis text")
+    .style("font-size", function(d) {
+        const matchingData = data.find(item => item.name === d);
+        const textLength = matchingData ? matchingData.text.length : d.length;
+        
+        // Eğer metin çok uzunsa, font boyutunu küçült
+        return textLength > 20 ? '10px' : '14px'; // 20 karakterden uzun metinler için 10px font
+    })
+    .text((d) => {
+        const matchingData = data.find(item => item.name === d);
+        return matchingData ? matchingData.text : d;
+    });
+
+
+g.selectAll(".y-axis text")
+    .style("transform", "rotate(-45deg)")
+    .style("text-anchor", "end")
+    .text((d) => {
+        const matchingData = data.find(item => item.name === d);
+        return matchingData ? matchingData.text : d;
+    });
+
+g.selectAll(".y-axis text")
+    .text((d) => {
+        const matchingData = data.find(item => item.name === d);
+        
+        if (matchingData) {
+            // Metni virgülden önceki kısmı alacak şekilde işleyelim
+            let valueText = matchingData.text;
+
+            // Eğer değer bir sayı ve M veya K gibi birim varsa
+            if (valueText.includes('M') || valueText.includes('K')) {
+                // Virgül ve sonrası kısmı almayacağız, sadece tam sayıyı göstereceğiz
+                valueText = valueText.split(',')[0]; // Virgülden önceki kısmı al
+
+                // Sayıyı doğru formatta yazdıralım
+                return `${valueText} ${matchingData.text.match(/[A-Za-z]+/g)[0]}`; // Birimi ekle
             }
+            
+            return matchingData.text; // Eğer başka bir format varsa olduğu gibi döndürelim
         }
+        
+        return `${d}`; // Eğer matchingData yoksa, d'yi olduğu gibi döndür
+    });
