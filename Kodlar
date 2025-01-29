@@ -1,21 +1,21 @@
-g.selectAll(".y-axis text")
-    .text((d) => {
-        // Y eksenindeki metni 'value' olarak değiştirmek
-        const matchingData = data.find(item => item.name === d); // 'name' ile eşleşen veriyi bul
-        if (matchingData) {
-            const value = matchingData.value;
-            // Eğer value büyük bir sayıysa (örneğin 113500 gibi), buna uygun formatlama yapılabilir
-            if (typeof value === 'number') {
-                // Sayıyı formatlayarak yazdır
-                if (value >= 1000000) {
-                    return `${(value / 1000000).toFixed(1)} M`; // Milyon cinsinden
-                } else if (value >= 1000) {
-                    return `${(value / 1000).toFixed(1)} K`; // Bin cinsinden
-                } else {
-                    return value; // Küçük sayılar olduğu gibi yazdır
-                }
+     function renderBarChartQlikObject(objectId) {
+            if (app) {
+                getObjectData(app, objectId).then((response) => {
+                    if (!response) {
+                        console.error('HorizontalBarChartWithPerc Component : response verisi boş veya tanımsız.');
+                        return;
+                    }
+                   
+                    const incomingData = response.map(item => ({
+                        value: parseFloat(item[0].qText),
+                        name: item[1].qText
+                    }));
+                    setData(incomingData)
+                    onLoaded();
+                }).catch((error) => {
+                    console.error('HorizontalBarChartWithPerc Component : getObjectData() methodu veri alınırken hata oluştu:', error);
+                });
+            } else {
+                // console.error('Qlik Sense app is not loaded yet');
             }
-            return `${value}%`; // Eğer sayı değilse, % olarak göster
         }
-        return `${d}%`; // Eğer matchingData yoksa, d'yi olduğu gibi döndür
-    });
