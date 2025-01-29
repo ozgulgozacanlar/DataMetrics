@@ -1,15 +1,25 @@
-  .attr("fill", (d, i, nodes) => {
-    const group = nodes[i].parentNode.__data__;  // Grup verisini alıyoruz
-    const groupSize = group.length;  // Grup içindeki bar sayısını kontrol ediyoruz
-
-    // Eğer grup tek bir bar içeriyorsa, renkleri alternatif yapıyoruz
-    if (groupSize === 1) {
-      return i % 2 === 0 ? "#2c84cc" : "#a4c48c";  // Alternatif renkler
+[
+    {
+        "qText": "YP PASIF",
+        "qNum": "NaN",
+        "qElemNumber": 1,
+        "qState": "O"
+    },
+    {
+        "qText": "YP PASİF  666",
+        "qNum": 665.72469521,
+        "qElemNumber": 0,
+        "qState": "L",
+        "qAttrExps": {
+            "qValues": [
+                {
+                    "qText": "#69b00b",
+                    "qNum": "NaN"
+                }
+            ]
+        }
     }
-    
-    // Birden fazla bar varsa mevcut renkleri koruyoruz
-    return i % 2 === 0 ? "#2c84cc" : "#a4c48c";  // Alternatif renkler
-  });
+]
 
 const formattedNumberWithComma = number.toLocaleString('en-US', { maximumFractionDigits: 0 }).replace(',', '.');
 
