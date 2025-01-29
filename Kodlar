@@ -1,4 +1,41 @@
-const maxTextLength = Math.max(...data.map(item => item.text.length));
+export function translateMonthToEnglish(dateString){
+  const months = {
+    'Oca': 'Jan',
+    'Şub': 'Feb',
+    'Mar': 'Mar',
+    'Nis': 'Apr',
+    'May': 'May',
+    'Haz': 'Jun',
+    'Tem': 'Jul',
+    'Ağu': 'Aug',
+    'Eyl': 'Sep',
+    'Eki': 'Oct',
+    'Kas': 'Nov',
+    'Ara': 'Dec'
+  };
 
-// 2. En uzun metnin uzunluğuna göre marginLeft değerini ayarla
-const marginLeft = maxTextLength > 4 ? 55 : 40;
+  // Türkçe ayları İngilizce'ye dönüştürme
+  const parts = dateString.split('-');
+  if (parts.length === 2) {
+    const month = parts[0];
+    const year = parts[1];
+    const englishMonth = months[month];
+
+    if (englishMonth) {
+      return `${englishMonth}-${year}`;
+    }
+  }
+  return dateString;  // Eğer dönüştürülmüş format yoksa, orijinal formatı döndür
+};
+ const xAxis = d3.axisBottom(x)
+            .tickValues(   // Her bir tarih sadece bir kez görünsün
+                Array.from(new Set(data.map(d => {
+                    const translatedDate = translateMonthToEnglish(d.date);
+                    const parsedDate = parseDate(translatedDate);
+                    return parsedDate ? parsedDate.getTime() : null;  // null kontrolü ekleniyor
+                })))
+                    .filter(d => d !== null)  // null değerleri atıyoruz
+                    .map(d => new Date(d))  // Set içerisindeki tarihleri tekrar Date objelerine dönüştürüyoruz
+            )
+            .tickFormat(d3.timeFormat("%b %y"))  // Ay ve yıl formatında gösterecek şekilde düzenliyoruz
+            .tickSize(0);
