@@ -10,3 +10,5 @@
     // Birden fazla bar varsa mevcut renkleri koruyoruz
     return i % 2 === 0 ? "#2c84cc" : "#a4c48c";  // Alternatif renkler
   });
+
+const formattedNumberWithComma = number.toLocaleString('en-US', { maximumFractionDigits: 0 }).replace(',', '.');
