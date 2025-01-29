@@ -1,11 +1,8 @@
-const filteredData = data.filter(d => !isNaN(d.qNum));
-
-
-const formattedNumberWithComma = number.toLocaleString('en-US', { maximumFractionDigits: 0 }).replace(',', '.');
-
-function formatNumber(number) {
-  return number.toLocaleString('tr-TR', { 
-    minimumFractionDigits: 0,  // Ondalık kısmı zorunlu tutmuyoruz
-    maximumFractionDigits: 2  // Maksimum 2 basamağa kadar ondalık kısmı gösteriyoruz
+ .attr("fill", (d) => {
+    // Global sayaç ile her barı sırasıyla renkli yapıyoruz
+    const color = barCounter % 2 === 0 ? "#2c84cc" : "#a4c48c";  // Alternatif renkler (Mavi ve Yeşil)
+    barCounter++;  // Sayaç arttırılıyor
+    return color;
   });
-}
+
+let barCounter = 0; // Global sayaç
