@@ -1,23 +1,6 @@
-  const xAxis = chartGroup
-      .append("g")
-      .attr("class", "x-axis")
-      .attr("transform", `translate(0,${height})`)
-      .call(d3.axisBottom(x0));
-
-    xAxis.selectAll("line").remove();
-    xAxis.selectAll(".domain").remove();
-
-    const yAxis = chartGroup
-      .append("g")
-      .attr("class", "y-axis")
-      .call(d3.axisLeft(y).ticks(5));
-
-    yAxis.selectAll("path").remove();
-    yAxis
-      .selectAll(".tick line")
-      .attr("x2", width)
-      .attr("stroke", "gray")
-      .attr("stroke-opacity", 0.3);
+yAxis
+  .selectAll(".tick text")
+  .style("visibility", "hidden");  // Tüm metinleri gizliyoruz
 
 
 
