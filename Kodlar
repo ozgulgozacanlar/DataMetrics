@@ -1,17 +1,4 @@
-g.selectAll(".y-axis text")
-    .each(function(d) {
-        const matchingData = data.find(item => item.name === d);
-        const text = matchingData ? matchingData.text : d;
-        const textLength = text.length;
+const maxTextLength = Math.max(...data.map(item => item.text.length));
 
-        // Text length'e göre dynamic left margin'i ayarlamak
-        margin.left = textLength > 4 ? 45 : 40; // Metnin uzunluğuna bağlı olarak margin.left değişiyor
-
-        // Grafiği güncellerken margin'i uygula
-        d3.select(this)
-            .style("margin-left", margin.left + "px"); // Y-axis metinlerine margin.left değerini uygula
-    })
-    .text((d) => {
-        const matchingData = data.find(item => item.name === d);
-        return matchingData ? matchingData.text : d;
-    });
+// 2. En uzun metnin uzunluğuna göre marginLeft değerini ayarla
+const marginLeft = maxTextLength > 4 ? 55 : 40;
