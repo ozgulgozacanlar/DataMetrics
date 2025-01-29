@@ -1,1 +1,28 @@
-Wed Nov 01 2023 00:00:00 GMT+0300 (GMT+03:00)
+export function translateMonthToTurkish(dateString) {
+  const months = {
+    'Jan': 'Oca',
+    'Feb': 'Şub',
+    'Mar': 'Mar',
+    'Apr': 'Nis',
+    'May': 'May',
+    'Jun': 'Haz',
+    'Jul': 'Tem',
+    'Aug': 'Ağu',
+    'Sep': 'Eyl',
+    'Oct': 'Eki',
+    'Nov': 'Kas',
+    'Dec': 'Ara'
+  };
+
+  const parts = dateString.split('-');
+  if (parts.length === 2) {
+    const month = parts[0];
+    const year = parts[1];
+    const turkishMonth = months[month];
+
+    if (turkishMonth) {
+      return `${turkishMonth}-${year}`;
+    }
+  }
+  return dateString;  // Orijinal formatı döndürüyoruz
+}
