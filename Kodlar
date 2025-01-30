@@ -1,40 +1,16 @@
-if(legendText !== ""){
-                const legend = g.append('g')
-                            .attr('transform', `translate(${width / 2 - 80}, ${height + 40})`);
+export default function LineChartLegend({legendText=""}) {
 
-                        const legend = g.append('g')
-                            .attr('transform', `translate(${width - 120}, -40)`);  // Sağ üst köşeye yerleştiriyoruz
-
-                        legend.append('rect')
-                            .attr('x', 0)
-                            .attr('y', -10)
-                            .attr('width', 10)
-                            .attr('height', 10)
-                            .attr('rx', 2)
-                            .attr('ry', 2)
-                            .attr('fill', '#2b85c9');
-
-                        legend.append('text')
-                            .attr('x', 15)
-                            .attr('y', 0)
-                            .style('fill', '#2b85c9')
-                            .style('font-size', '12px')
-                            .text(legendText);
-
-                        legend.append('rect')
-                            .attr('x', 65)
-                            .attr('y', -10)
-                            .attr('width', 10)
-                            .attr('height', 10)
-                            .attr('rx', 2)
-                            .attr('ry', 2)
-                            .attr('fill', '#a1c789');
-
-                        legend.append('text')
-                            .attr('x', 80)
-                            .attr('y', 0)
-                            .style('fill', '#a1c789')
-                            .style('font-size', '12px')
-                            .text('Ortalama');
-
-            }
+    
+    return (
+        <div className="d-flex align-items-center justify-content-end gap-2">
+            <div className="d-flex align-items-center gap-1">
+                <div className="legend-sq-detail blue">&nbsp;</div>
+                <div className="legend-text">Bölge</div>
+            </div>
+            <div className="d-flex align-items-center gap-1">
+                <div className="legend-sq-detail green">&nbsp;</div>
+                <div className="legend-text">Ortalama</div>
+            </div>
+        </div>
+    )
+}
