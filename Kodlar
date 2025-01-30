@@ -1,8 +1,8 @@
- .attr("fill", (d) => {
-    // Global sayaç ile her barı sırasıyla renkli yapıyoruz
-    const color = barCounter % 2 === 0 ? "#2c84cc" : "#a4c48c";  // Alternatif renkler (Mavi ve Yeşil)
-    barCounter++;  // Sayaç arttırılıyor
-    return color;
-  });
+      const incomingData = response.map(item => ({
+                        date: item[0].qText,
+                        value1: parseFloat((item[1].qText).replace('%', '').trim()),
+                        value2: parseFloat((item[2].qText).replace('%', '').trim()),
+                        value1Text:item[1].qText,
+                        value2Text:item[2].qText
 
-let barCounter = 0; // Global sayaç
+                    }));
