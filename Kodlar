@@ -1,8 +1,45 @@
-      const incomingData = response.map(item => ({
-                        date: item[0].qText,
-                        value1: parseFloat((item[1].qText).replace('%', '').trim()),
-                        value2: parseFloat((item[2].qText).replace('%', '').trim()),
-                        value1Text:item[1].qText,
-                        value2Text:item[2].qText
+ const minValue = Math.min(...data.map(d => Math.min(d.value1, d.value2)));
+    const maxValue = Math.max(...data.map(d => Math.max(d.value1, d.value2)));
 
-                    }));
+    // Min ve max arasındaki farkı kontrol ediyoruz
+    const difference = maxValue - minValue;
+
+    // Y eksenindeki minimum ve maksimum değeri hesaplıyoruz
+    const yMin = Math.floor(minValue);  // Küçük değere yuvarla
+    const yMax = Math.ceil(maxValue);  // En büyük değeri yuvarla
+
+    // Eğer fark çok küçükse, yMin'i başlangıç olarak minValue'yu alıyoruz
+    const adjustedYMin = difference < 2 ? yMin : 0;
+
+
+        const x = d3.scaleTime()
+            .domain(d3.extent(data, d => parseDate(translateMonthToEnglish(d.date))))  // Türkçe tarihleri İngilizce'ye çevirip parse ediyoruz
+            .range([15, width]);
+
+        const y = d3.scaleLinear()
+            .domain([adjustedYMin, yMax])
+            .nice()
+            .range([height, 0]);
+
+        const xAxis = d3.axisBottom(x)
+            .tickValues(   // Her bir tarih sadece bir kez görünsün
+                Array.from(new Set(data.map(d => {
+                    const translatedDate = translateMonthToEnglish(d.date);
+                    const parsedDate = parseDate(translatedDate);
+                    return parsedDate ? parsedDate.getTime() : null;  // null kontrolü ekleniyor
+                })))
+                    .filter(d => d !== null)  // null değerleri atıyoruz
+                    .map(d => new Date(d))  // Set içerisindeki tarihleri tekrar Date objelerine dönüştürüyoruz
+            )
+            // .tickFormat(d3.timeFormat("%b %y"))
+            .tickFormat(d => translateMonthToTurkish(d3.timeFormat("%b %y")(d)))  // Ayları Türkçe'ye çeviriyoruz
+            .tickSize(0);
+
+        // const yAxis = d3.axisLeft(y)
+        //     .tickValues(d3.range(0, yMax, 20))
+        //     .tickSize(-width);
+        
+        const yAxis = d3.axisLeft(y)
+            .tickValues([Math.floor(yMax / 2)])  // Y ekseninde sadece ortadaki değeri göstereceğiz
+            .tickSize(-width)  // Bu, Y eksenindeki çizgiyi yatay olarak çizecek
+            .tickFormat(d3.format('d'));
