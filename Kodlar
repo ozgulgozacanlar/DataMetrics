@@ -1,1 +1,6 @@
-                    {legendText === "" ? "Bölge" : legendText}  {/* Burada legendText kontrolü yapılıyor */}
+  const capitalizeFirstLetter = (text) => {
+        return text
+            .split(" ")  // Metni kelimelere ayır
+            .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())  // Her kelimenin ilk harfini büyüt
+            .join(" ");  // Kelimeleri tekrar birleştir
+    };
