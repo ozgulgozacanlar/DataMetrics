@@ -1,39 +1,51 @@
-[
-    {
-        "qText": "2024-04",
-        "qNum": 45383,
-        "qElemNumber": 20,
-        "qState": "S"
-    },
-    {
-        "qText": "566,396,709",
-        "qNum": 566396709.21,
-        "qElemNumber": 0,
-        "qState": "L"
-    },
-    {
-        "qText": "173,135,237",
-        "qNum": 173135236.85,
-        "qElemNumber": 0,
-        "qState": "L"
-    },
-    {
-        "qText": "739,531,946",
-        "qNum": 739531946.06,
-        "qElemNumber": 0,
-        "qState": "L"
-    },
-    {
-        "qText": "304,863,997",
-        "qNum": 304863996.81,
-        "qElemNumber": 0,
-        "qState": "L",
-        "qAttrExps": {
-            "qValues": [
-                {
-                    "qNum": "NaN"
-                }
-            ]
-        }
+useEffect(() => {
+  const groupData = (data, headers) => {
+    if (!data || !headers) return [];
+
+    const result = [];
+    let netDurumItem = null; // Net Durum verisini saklamak için değişken
+
+    // İlk satırdaki "Yıl Ay" bilgisini alıyoruz
+    const yearMonth = data[0].qText;  // "Yıl Ay" değerini alıyoruz
+
+    // Header ve değerleri eşleştiriyoruz
+    for (let i = 1; i < headers.length; i++) {
+      // "Net Durum"u kontrol et
+      if (headers[i] === "Net Durum") {
+        // Eğer Net Durum ise, bunu sakla ama dahil etme
+        netDurumItem = {
+          header: headers[i],
+          value: data[i].qText
+        };
+        continue; // Net Durum verisini geç
+      }
+
+      result.push({
+        header: headers[i],        // Her başlık
+        value: data[i].qText      // İlgili değeri
+      });
     }
-]
+
+    // Son veri: Son başlığa "Yıl Ay" bilgisini ekliyoruz
+    const lastItem = result[result.length - 1];
+    result[result.length - 1] = {
+      header: `${lastItem.header} (${yearMonth})`,  // Son başlık: "Toplam Müşteri Adedi (2024-04)"
+      value: data[data.length - 1].qText  // Son verinin değeri
+    };
+
+    // Eğer Net Durum varsa, onKPIChange'i çağır
+    if (netDurumItem && onKPIChange) {
+      onKPIChange({ header: netDurumItem.header, value: netDurumItem.value });
+    }
+
+    return result;
+  };
+
+  // Eğer tableDataArray veya tableHeaderData yoksa, işlem yapma
+  if (!tableDataArray || !tableHeaderData) return;
+
+  const groupedData = groupData(tableDataArray, tableHeaderData);
+
+  // groupData işleme sonrasında oluşan grubu setGroupDataArray'e gönder
+  setGroupDataArray(groupedData);
+}, [tableHeaderData, tableDataArray, onKPIChange]);
