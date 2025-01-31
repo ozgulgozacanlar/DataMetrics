@@ -1,35 +1,23 @@
-const groupData = (data, headers) => {
-  const groups = [];
-  let currentGroup = [];
-  let groupIndex = 0;
+// Veriyi grupladıktan sonra ilk grubun ilk elemanını silip, value'yu son elemana ekliyoruz
+const modifyFirstGroup = (groups) => {
+  if (groups.length > 0) {
+    const firstGroup = groups[0];
 
-  data.forEach((item, index) => {
-    // Eğer qText "-" ise, geçiyoruz
-    if (item.qText === "-") {
-      return;
+    // İlk grubun ilk elemanını çıkarıyoruz
+    const firstItem = firstGroup.shift();
+
+    if (firstGroup.length > 0) {
+      // İlk elemanın value'sunu son elemana ekliyoruz
+      const lastItem = firstGroup[firstGroup.length - 1];
+      firstGroup[firstGroup.length - 1] = {
+        ...lastItem,
+        value: `${lastItem.value} (${firstItem.value})`  // Son elemana value ekliyoruz
+      };
     }
-
-    // Boş string bulunan yerlere göre yeni grup başlatıyoruz
-    if (headers[groupIndex] === " ") {
-      if (currentGroup.length > 0) {
-        groups.push(currentGroup);  // Önceki grup varsa ekleyelim
-      }
-      currentGroup = [];
-      groupIndex++;  // Sonraki grup başlasın
-    } else {
-      // Başlık ile birlikte qText değerini ekliyoruz
-      currentGroup.push({ header: headers[groupIndex], value: item.qText });
-      groupIndex++;
-    }
-  });
-
-  if (currentGroup.length) {
-    groups.push(currentGroup); // Son grubu ekleyelim
   }
-
-  return groups;
 };
 
 const groupedData = groupData(data, headers);
 
-console.log(groupedData);
+// Grubun ilk elemanını silip, value'yu son elemana ekliyoruz
+modifyFirstGroup(groupedData);
