@@ -3,19 +3,22 @@ const groupData = (data, headers) => {
 
   const result = [];
 
-  // Başlık ve veri satırlarını eşleştiriyoruz
+  // Başlıklar ve veri satırları arasında eşleştirme yapıyoruz
   headers.slice(1).forEach((header, index) => {
-    // 'slice(1)' kullanarak ilk başlık olan "Yıl Ay"ı atlıyoruz
+    // Başlık ile ilgili veriyi eşleştiriyoruz
     result.push({
-      header: header,  // Başlık kısmı
-      value: data[index].qText  // İlgili veriyi ekliyoruz
+      header: header,
+      value: data[index].qText
     });
   });
 
-  // Son başlık için, "Yıl Ay" ve ilgili değeri birleştiriyoruz.
+  // "Yıl Ay" değerini son verinin yanına ekliyoruz
+  const yearMonth = data[0].qText;  // "Yıl Ay" değerini alıyoruz
+  const lastItemValue = data[3].qText;  // Son veri, Toplam Müşteri Adedi'nin değeri
+
   result.push({
-    header: `${headers[0]} (${data[0].qText})`,  // "Yıl Ay" + "qText" değeri
-    value: data[3].qText  // En son veri (Toplam Müşteri Adedi) ekliyoruz
+    header: `Toplam Müşteri Adedi (${yearMonth})`,  // "Toplam Müşteri Adedi" + "Yıl Ay"
+    value: lastItemValue  // Son değeri ekliyoruz
   });
 
   return result;
@@ -23,142 +26,3 @@ const groupData = (data, headers) => {
 
 const groupedData = groupData(tableDataArray, tableHeaderData);
 console.log(groupedData);
-
-
-[
-    {
-        "header": "Emekli Müşteri Adedi",
-        "value": "83,355"
-    },
-    {
-        "header": "Hibrit Müşteri Adedi",
-        "value": "6,893"
-    },
-    {
-        "header": "Toplam Müşteri Adedi (2024-04)",
-        "value": "90,248"
-    }
-]
-  function renderQlikTableObject(objectId) {
-      if (app) {
-        getObjectData(app, objectId).then((response) => {
-          if (!response) {
-            console.error('TableChart Component : response verisi boş veya tanımsız.');
-            return;
-          }
-          setTableDataArray(response[0]);
-         
-        }).catch((error) => {
-          console.error('TableChart Component : getObjectData() methodu veri alınırken hata oluştu:', error);
-        });
-        //Tablo header bilgileri alınıyor
-        app.getObject(objectId).then((model) => { 
-          if (!model) {
-            console.error('TableChart Component : model verisi boş veya tanımsız.');
-            return;
-          }
-          // `qDimensionInfo` ve `qMeasureInfo` öğelerinin `qFallbackTitle` değerlerini alıp birleştiriyoruz.
-          const dimensionTitles = model.layout.qHyperCube.qDimensionInfo.map(item => item.qFallbackTitle);
-          const measureTitles = model.layout.qHyperCube.qMeasureInfo.map(item => item.qFallbackTitle);
-
-          // `qDimensionInfo` öğelerini ilk sıraya, `qMeasureInfo` öğelerini sonra ekliyoruz.
-          const combinedTitles = [...dimensionTitles, ...measureTitles];
-                 console.log(combinedTitles)
-          setTableHeaderData(combinedTitles);
-        }).catch((error) => {
-          console.error('TableChart Component : getObject() methodu veri alınırken hata oluştu:', error);
-        });
-      } else {
-        // console.error('Qlik Sense app is not loaded yet');
-      }
-
-      
-    }
-
-
-useEffect(() => {
-    
-    const groupData = (data, headers) => {
-      if(data == null || headers == null) return;
-      console.log(data)
-      const groups = [];
-      let currentGroup = [];
-      let groupIndex = 0;
-    
-      data.forEach((item, index) => {
-          
-          // Boş string bulunan yerlere göre yeni grup başlatıyoruz
-          if (headers[groupIndex] === " ") {
-            if (currentGroup.length > 0) {
-              groups.push(currentGroup);  // Önceki grup varsa ekleyelim
-            }
-            currentGroup = [];
-            groupIndex++;  // Sonraki grup başlasın
-          } else {
-            // Başlık ile birlikte qText değerini ekliyoruz
-            if (item.qText !== "-") {
-              currentGroup.push({ header: headers[groupIndex], value: item.qText });             
-            }
-            groupIndex++;
-          }
-      });
-    
-      if (currentGroup.length) {
-        groups.push(currentGroup); // Son grubu ekleyelim
-      }
-      if (groups.length > 0) {
-        const firstGroup = groups[0];
-    
-        // İlk grubun ilk elemanını çıkarıyoruz
-        const firstItem = firstGroup.shift();
-    
-        if (firstGroup.length > 0) {
-          // İlk elemanın value'sunu son elemana header ile parantez içinde ekliyoruz
-          const lastItem = firstGroup[firstGroup.length - 1];
-          firstGroup[firstGroup.length - 1] = {
-            ...lastItem,
-            header: `${lastItem.header} (${firstItem.value})`,  // Header'a value ekliyoruz
-            value: lastItem.value  // Son elemanın value'sunu koruyoruz
-          };
-        }
-      }
-      return groups;
-    };
-    
-    const groupedData = groupData(tableDataArray, tableHeaderData);
-    setGroupDataArray(groupedData);
-  }, [tableHeaderData,tableDataArray])
-
-[
-    {
-        "qText": "2024-04",
-        "qNum": 45383,
-        "qElemNumber": 20,
-        "qState": "S"
-    },
-    {
-        "qText": "83,355",
-        "qNum": 83355,
-        "qElemNumber": 0,
-        "qState": "L"
-    },
-    {
-        "qText": "6,893",
-        "qNum": 6893,
-        "qElemNumber": 0,
-        "qState": "L"
-    },
-    {
-        "qText": "90,248",
-        "qNum": 90248,
-        "qElemNumber": 0,
-        "qState": "L"
-    }
-]
-
-[
-    "Yıl Ay",
-    "Emekli Müşteri Adedi",
-    "Hibrit Müşteri Adedi",
-    "Toplam Müşteri Adedi"
-]
