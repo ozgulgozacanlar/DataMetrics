@@ -1,48 +1,50 @@
-const HorizontalBarCard = ({ groupData }) => {
-  if (!groupData || groupData.length === 0) return null; // Eğer groupData yoksa, render etmeyelim
-
   return (
     <div className="horizontal-bar-card">
-      {/* İlk satır: Son elemanın header ve value'su */}
-      <div className="horizontal-bar-card-row">
-        {/* Son elemanı alıyoruz */}
-        <span className="title">{groupData[groupData.length - 1].header}</span>
-        <span className="kpi">{groupData[groupData.length - 1].value}</span>
-      </div>
+      {/* groupData boş mu diye kontrol ediyoruz */}
+      {groupData && groupData.length > 0 ? (
+        <>
+          {/* İlk satır: Son elemanın header ve value'su */}
+          <div className="horizontal-bar-card-row">
+            <span className="title">{groupData[groupData.length - 1].header}</span>
+            <span className="kpi">{groupData[groupData.length - 1].value}</span>
+          </div>
 
-      {/* Bar grafiklerinin olduğu kısım */}
-      <div className="horizontal-bar-row">
-        {/* İlk iki elemanı alıyoruz */}
-        {groupData.slice(0, 2).map((item, index) => {
-          // Her bir item için yüzdelik hesaplama
-          const percentage = (parseFloat(item.value.replace(/,/g, '')) / groupData.slice(0, 2).reduce((total, i) => total + parseFloat(i.value.replace(/,/g, '')), 0)) * 100;
-          return (
-            <div
-              key={index}
-              style={{
-                width: `${percentage}%`,
-                backgroundColor: index === 0 ? '#1464a5' : '#7da246',
-              }}
-            >
-              &nbsp;
-            </div>
-          );
-        })}
-      </div>
+          {/* Bar grafiklerinin olduğu satır */}
+          <div className="horizontal-bar-row">
+            {groupData.slice(0, 2).map((item, index) => {
+              // Yüzdelik hesaplama
+              const percentage = (parseFloat(item.value.replace(/,/g, '')) / groupData.slice(0, 2).reduce((total, i) => total + parseFloat(i.value.replace(/,/g, '')), 0)) * 100;
+              return (
+                <div
+                  key={index}
+                  style={{
+                    width: `${percentage}%`,
+                    backgroundColor: index === 0 ? '#1464a5' : '#7da246',
+                  }}
+                >
+                  &nbsp;
+                </div>
+              );
+            })}
+          </div>
 
-      {/* KPI'lar: İlk iki eleman için KPI'ları yazdırıyoruz */}
-      <div className="horizontal-bar-card-row">
-        {groupData.slice(0, 2).map((item, index) => (
-          <span key={index} className="kpi">{item.value}</span>
-        ))}
-      </div>
+          {/* KPI'lar: İlk 2 item için KPI'ları yazdırıyoruz */}
+          <div className="horizontal-bar-card-row">
+            {groupData.slice(0, 2).map((item, index) => (
+              <span key={index} className="kpi">{item.value}</span>
+            ))}
+          </div>
 
-      {/* Başlıklar: İlk iki eleman için başlıkları yazdırıyoruz */}
-      <div className="horizontal-bar-card-row">
-        {groupData.slice(0, 2).map((item, index) => (
-          <span key={index} className="title-secondary">{item.header}</span>
-        ))}
-      </div>
+          {/* Başlıklar: İlk 2 item'in başlıkları */}
+          <div className="horizontal-bar-card-row">
+            {groupData.slice(0, 2).map((item, index) => (
+              <span key={index} className="title-secondary">{item.header}</span>
+            ))}
+          </div>
+        </>
+      ) : (
+        // Eğer groupData boşsa bu mesaj gösterilir
+        <div>Veriler Yükleniyor...</div>
+      )}
     </div>
   );
-}
