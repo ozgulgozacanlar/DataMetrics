@@ -1,14 +1,37 @@
+import { useState } from 'react';
+import HorizontalBarCard from './HorizontalBarCard'; // HorizontalBarCard component'ini içeri aktarıyoruz
+
+function NPL({ app }) {
+  const [kpi, setKPI] = useState({ header: '', value: '' });  // Net Durum'u tutacak state
+
+  return (
+    <div className="row total-retired-row row-gap-3">
+      <HorizontalBarCard app={app} objectId={'YbFJyFj'} onKPIChange={setKPI} />
+
+      <div className="col-12 col-md-6 col-xl d-flex flex-column">
+        <div className="salary-status-card">
+          <MoneyBag />
+          <div className="d-flex flex-column row-gap-2">
+            <span className="title">{kpi.header}</span> {/* Net Durum'un başlığını göster */}
+            <span className="kpi">{kpi.value}</span> {/* Net Durum'un değerini göster */}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+export default NPL;
+
 import { useEffect, useState } from 'react';
 import { getObjectData } from '@/util/qlikConnection';
 import './HorizontalBarCard.css';
 
-function HorizontalBarCard({app, objectId}) {
-
+function HorizontalBarCard({ app, objectId, onKPIChange }) {
   const [tableHeaderData, setTableHeaderData] = useState(null);
   const [tableDataArray, setTableDataArray] = useState(null);
   const [groupDataArray, setGroupDataArray] = useState(null);
   const [kpi, setKPI] = useState({ header: '', value: '' });  // KPI için state
-
 
   useEffect(() => {
     function renderQlikTableObject(objectId) {
@@ -18,12 +41,12 @@ function HorizontalBarCard({app, objectId}) {
             console.error('TableChart Component : response verisi boş veya tanımsız.');
             return;
           }
-            const tableDatas = response.map(item => {         
+          const tableDatas = response.map(item => {         
             return item.map(innerItem => innerItem.qText);  // innerItem içindeki qText değerini alıyoruz
           });
 
           setTableDataArray(response[0]);
-         
+
         }).catch((error) => {
           console.error('TableChart Component : getObjectData() methodu veri alınırken hata oluştu:', error);
         });
@@ -33,158 +56,87 @@ function HorizontalBarCard({app, objectId}) {
             console.error('TableChart Component : model verisi boş veya tanımsız.');
             return;
           }
-          // `qDimensionInfo` ve `qMeasureInfo` öğelerinin `qFallbackTitle` değerlerini alıp birleştiriyoruz.
           const dimensionTitles = model.layout.qHyperCube.qDimensionInfo.map(item => item.qFallbackTitle);
           const measureTitles = model.layout.qHyperCube.qMeasureInfo.map(item => item.qFallbackTitle);
 
-          // `qDimensionInfo` öğelerini ilk sıraya, `qMeasureInfo` öğelerini sonra ekliyoruz.
           const combinedTitles = [...dimensionTitles, ...measureTitles];
-                 
           setTableHeaderData(combinedTitles);
         }).catch((error) => {
           console.error('TableChart Component : getObject() methodu veri alınırken hata oluştu:', error);
         });
-      } else {
-        // console.error('Qlik Sense app is not loaded yet');
       }
-
-      
     }
     renderQlikTableObject(objectId);
   }, [app, objectId]);
 
   useEffect(() => {
-    
     const groupData = (data, headers) => {
-      if(data == null || headers == null) return;
-      console.log(data)
+      if (data == null || headers == null) return;
+      console.log(data);
       const groups = [];
       let currentGroup = [];
       let groupIndex = 0;
-    
+
       data.forEach((item, index) => {
-          
-          // Boş string bulunan yerlere göre yeni grup başlatıyoruz
-          if (headers[groupIndex] === " ") {
-            if (currentGroup.length > 0) {
-              groups.push(currentGroup);  // Önceki grup varsa ekleyelim
-            }
-            currentGroup = [];
-            groupIndex++;  // Sonraki grup başlasın
-          } else {
-            // Başlık ile birlikte qText değerini ekliyoruz
-            if (item.qText !== "-") {
-              currentGroup.push({ header: headers[groupIndex], value: item.qText });             
-            }
-            groupIndex++;
+        if (headers[groupIndex] === " ") {
+          if (currentGroup.length > 0) {
+            groups.push(currentGroup);  // Önceki grup varsa ekleyelim
           }
+          currentGroup = [];
+          groupIndex++;
+        } else {
+          if (item.qText !== "-") {
+            currentGroup.push({ header: headers[groupIndex], value: item.qText });             
+          }
+          groupIndex++;
+        }
       });
-    
+
       if (currentGroup.length) {
         groups.push(currentGroup); // Son grubu ekleyelim
       }
-      if (groups.length > 0) {
-        const firstGroup = groups[0];
-    
-        // İlk grubun ilk elemanını çıkarıyoruz
-        const firstItem = firstGroup.shift();
-    
-        if (firstGroup.length > 0) {
-          // İlk elemanın value'sunu son elemana header ile parantez içinde ekliyoruz
-          const lastItem = firstGroup[firstGroup.length - 1];
-          firstGroup[firstGroup.length - 1] = {
-            ...lastItem,
-            header: `${lastItem.header} (${firstItem.value})`,  // Header'a value ekliyoruz
-            value: lastItem.value  // Son elemanın value'sunu koruyoruz
-          };
-        }
-      }
       return groups;
     };
-    
+
     const groupedData = groupData(tableDataArray, tableHeaderData);
-    console.log(groupedData)
     setGroupDataArray(groupedData);
-  }, [tableHeaderData,tableDataArray])
+  }, [tableHeaderData, tableDataArray]);
 
   useEffect(() => {
-    console.log(groupDataArray)
-    if(!groupDataArray) return;
-    
-    // "Net Durum" header'ını bul ve setKPI'ya gönder
-      const netDurumItem = groupDataArray.flat().find(item => item.header === 'Net Durum');
-      if (netDurumItem) {
-        setKPI({ header: netDurumItem.header, value: netDurumItem.value });
-      }
-      console.log(kpi)
-    
-     
-  }, [groupDataArray])
+    if (!groupDataArray) return;
+    const netDurumItem = groupDataArray.flat().find(item => item.header === 'Net Durum');
+    if (netDurumItem) {
+      setKPI({ header: netDurumItem.header, value: netDurumItem.value });
+      if (onKPIChange) onKPIChange({ header: netDurumItem.header, value: netDurumItem.value });
+    }
+  }, [groupDataArray, onKPIChange]);
 
   return (
     <>
       {groupDataArray && groupDataArray.map((group, groupIndex) => {
-        // Her grup için son elemanı alalım
         const lastItem = group[group.length - 1];
         const firstTwoItems = group.slice(0, 2);
 
         return (
-
-//  <div className="horizontal-bar-card">
-//       <div className="horizontal-bar-card-row">
-//         <span className="title">Toplam Maliyet</span>
-//         <span className="kpi">84.123</span>
-//       </div>
-//       <div className="horizontal-bar-row">
-//         <div style={{width: '55%'}}>&nbsp;</div>
-//         <div style={{width: '45%'}}>&nbsp;</div>
-//       </div>
-//       <div className="horizontal-bar-card-row">
-//         <span className="kpi">123.123.123</span>
-//         <span className="kpi">123.284.123</span>
-//       </div>
-//       <div className="horizontal-bar-card-row">
-//         <span className="title-secondary">Promosyon Gideri</span>
-//         <span className="title-secondary">Fonlama</span>
-//       </div>
-//     </div>
-
-
           <div key={groupIndex} className="col-12 col-md-6 col-xl d-flex flex-column flex-grow-1">
             <div className="horizontal-bar-card">
-              {/* İlk div: Son eleman - Yıl Ay ve Toplam Müşteri Adedi gibi veriler */}
               <div className="horizontal-bar-card-row">
                 <span className="title">{lastItem.header}</span>
                 <span className="kpi">{lastItem.value}</span>
               </div>
-  
-              {/* Bar grafiklerinin olduğu div */}
               <div className="horizontal-bar-row">
                 {firstTwoItems.map((item, index) => {
-                  // Burada her bir item için yüzdelik hesaplama yapıyoruz
                   const percentage = (parseFloat(item.value.replace(/,/g, '')) / firstTwoItems.reduce((total, i) => total + parseFloat(i.value.replace(/,/g, '')), 0)) * 100;
                   return (
-                    <div
-                      key={index}
-                      style={{
-                        width: `${percentage}%`,
-                        backgroundColor: index === 0 ? '#1464a5' : '#7da246',
-                      }}
-                    >
-                      &nbsp;
-                    </div>
+                    <div key={index} style={{ width: `${percentage}%`, backgroundColor: index === 0 ? '#1464a5' : '#7da246' }}>&nbsp;</div>
                   );
                 })}
               </div>
-  
-              {/* KPI'lar: Her grup için KPI'ları yazdırıyoruz */}
               <div className="horizontal-bar-card-row">
                 {firstTwoItems.map((item, index) => (
                   <span key={index} className="kpi">{item.value}</span>
                 ))}
               </div>
-  
-              {/* Başlıklar: Başlıklar kısmı */}
               <div className="horizontal-bar-card-row">
                 {firstTwoItems.map((item, index) => (
                   <span key={index} className="title-secondary">{item.header}</span>
@@ -196,41 +148,6 @@ function HorizontalBarCard({app, objectId}) {
       })}
     </>
   );
-    // <div className="horizontal-bar-card">
-    //   <div className="horizontal-bar-card-row">
-    //     <span className="title">Toplam Maliyet</span>
-    //     <span className="kpi">84.123</span>
-    //   </div>
-    //   <div className="horizontal-bar-row">
-    //     <div style={{width: '55%'}}>&nbsp;</div>
-    //     <div style={{width: '45%'}}>&nbsp;</div>
-    //   </div>
-    //   <div className="horizontal-bar-card-row">
-    //     <span className="kpi">123.123.123</span>
-    //     <span className="kpi">123.284.123</span>
-    //   </div>
-    //   <div className="horizontal-bar-card-row">
-    //     <span className="title-secondary">Promosyon Gideri</span>
-    //     <span className="title-secondary">Fonlama</span>
-    //   </div>
-    // </div>
-  
 }
 
 export default HorizontalBarCard;
-
-
-
-
-    <div className="row total-retired-row row-gap-3">
-              <HorizontalBarCard app={app} objectId={'YbFJyFj'}/>
-              <div className="col-12 col-md-6 col-xl d-flex flex-column">
-                <div className="salary-status-card">
-                  <MoneyBag />
-                  <div className="d-flex flex-column row-gap-2">
-                    <span className="title">Net Durum</span>
-                    <span className="kpi">321.134.424</span>
-                  </div>
-                </div>
-              </div>
-            </div>
