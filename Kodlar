@@ -1,55 +1,45 @@
- useEffect(() => {
-    const groupData = (data, headers) => {
-      if (!data || !headers) return [];
-    
-      const result = [];
-    
-      // İlk satırdaki "Yıl Ay" bilgisini alıyoruz
-      const yearMonth = data[0].qText;  // "Yıl Ay" değerini alıyoruz
-    
-      // Header ve değerleri eşleştiriyoruz
-      for (let i = 1; i < headers.length; i++) {
+useEffect(() => {
+  // groupData fonksiyonu - burada "Net Durum" kontrolü yapılacak
+  const groupData = (data, headers) => {
+    if (!data || !headers) return [];
+  
+    const result = [];
+    const yearMonth = data[0].qText;  // "Yıl Ay" değerini alıyoruz
+
+    // "Net Durum" başlığını ve değerini almak
+    const netDurumIndex = headers.indexOf("Net Durum");
+    const netDurumItem = netDurumIndex !== -1 ? {
+      header: headers[netDurumIndex], 
+      value: data[netDurumIndex].qText
+    } : null;
+
+    // "Net Durum" varsa, onKPIChange ile üst component'e gönder
+    if (netDurumItem && onKPIChange) {
+      onKPIChange(netDurumItem); // "Net Durum" item'ını üst component'e gönder
+    }
+
+    // Header ve değerleri eşleştiriyoruz, "Net Durum" hariç
+    for (let i = 1; i < headers.length; i++) {
+      if (headers[i] !== "Net Durum") {  // "Net Durum" öğesini dahil etmiyoruz
         result.push({
-          header: headers[i],        // Her başlık
-          value: data[i].qText      // İlgili değeri
+          header: headers[i],
+          value: data[i].qText
         });
       }
-    
-      // Son veri: Son başlığa "Yıl Ay" bilgisini ekliyoruz
-      const lastItem = result[result.length - 1];
-      result[result.length - 1] = {
-        header: `${lastItem.header} (${yearMonth})`,  // Son başlık: "Toplam Müşteri Adedi (2024-04)"
-        value: data[data.length - 1].qText  // Son verinin değeri
-      };
-    
-      return result;
-    };
-    const groupedData = groupData(tableDataArray, tableHeaderData);
-    setGroupDataArray(groupedData);
-  }, [tableHeaderData,tableDataArray])
-
-
-
-  useEffect(() => {
-    if(!groupDataArray) return;
-    
-    // "Net Durum" header'ını bul ve setKPI'ya gönder
-      const netDurumItem = groupDataArray.flat().find(item => item.header === 'Net Durum');
-      console.log(groupDataArray)
-      if (netDurumItem) {
-        if (onKPIChange) onKPIChange({ header: netDurumItem.header, value: netDurumItem.value }); //setKPI fonksiyonunun içeriği HorizontalBarCard component'inde tetiklediğinizde, onKPIChange prop'u aracılığıyla üst component'e (yani, promosyonkarlılık component'ine) veri gönderiliyor.
-     
-         // "Net Durum" item'ını groupDataArray içinden çıkar
-    const updatedGroupDataArray = groupDataArray.map(group => 
-      group.filter(item => item.header !== 'Net Durum')
-    ).filter(group => group.length > 0); // Eğer grup boşsa, onu da çıkar
-
-    if (JSON.stringify(groupDataArray) !== JSON.stringify(updatedGroupDataArray)) {
-      setGroupDataArray(updatedGroupDataArray);
     }
-    
-      }
 
-   
-     
-  }, [groupDataArray,onKPIChange])
+    // Son veri: Son başlığa "Yıl Ay" bilgisini ekliyoruz
+    const lastItem = result[result.length - 1];
+    result[result.length - 1] = {
+      header: `${lastItem.header} (${yearMonth})`,  // Son başlık: "Toplam Müşteri Adedi (2024-04)"
+      value: data[data.length - 1].qText  // Son verinin değeri
+    };
+  
+    return result;
+  };
+
+  // groupedData'yı oluştur
+  const groupedData = groupData(tableDataArray, tableHeaderData);
+  setGroupDataArray(groupedData);  // groupDataArray state'ini güncelle
+
+}, [tableHeaderData, tableDataArray, onKPIChange]);
