@@ -1,55 +1,53 @@
- return (
-    <div className="col-12 col-md-6 col-xl d-flex flex-column flex-grow-1">
-      <div className="horizontal-bar-card">
-        {groupDataArray && groupDataArray.map((group, groupIndex) => {
-          // İlk div, gruptaki ilk elemanın header ve value değerini alacak
-          const lastItem = group[2];
+return (
+  <>
+    {groupDataArray && groupDataArray.map((group, groupIndex) => {
+      // Her grup için son elemanı alalım
+      const lastItem = group[group.length - 1];
 
-          console.log(lastItem)
-          
-          return (
-            <div key={groupIndex}>
-              {/* İlk div: Yıl Ay ve Toplam Müşteri Adedi gibi veriler */}
-              <div className="horizontal-bar-card-row">
-                <span className="title">{lastItem.header}</span>
-                <span className="kpi">{lastItem.value}</span>
-              </div>
-
-              {/* Bar grafiklerinin olduğu div */}
-              <div className="horizontal-bar-row">
-                {group.map((item, index) => {
-                  // Burada her bir item için yüzdelik hesaplama yapabiliriz
-                  const percentage = (parseFloat(item.value.replace(/,/g, '')) / group.reduce((total, i) => total + parseFloat(i.value.replace(/,/g, '')), 0)) * 100;
-                  return (
-                    <div
-                      key={index}
-                      style={{
-                        width: `${percentage}%`,
-                        backgroundColor: index === 0 ? '#4CAF50' : '#FFC107',
-                      }}
-                    >
-                      &nbsp;
-                    </div>
-                  );
-                })}
-              </div>
-
-              {/* KPI'lar */}
-              <div className="horizontal-bar-card-row">
-                {group.map((item, index) => (
-                  <span key={index} className="kpi">{item.value}</span>
-                ))}
-              </div>
-
-              {/* Başlıklar */}
-              <div className="horizontal-bar-card-row">
-                {group.map((item, index) => (
-                  <span key={index} className="title-secondary">{item.header}</span>
-                ))}
-              </div>
+      return (
+        <div key={groupIndex} className="col-12 col-md-6 col-xl d-flex flex-column flex-grow-1">
+          <div className="horizontal-bar-card">
+            {/* İlk div: Son eleman - Yıl Ay ve Toplam Müşteri Adedi gibi veriler */}
+            <div className="horizontal-bar-card-row">
+              <span className="title">{lastItem.header}</span>
+              <span className="kpi">{lastItem.value}</span>
             </div>
-          );
-        })}
-      </div>
-    </div>
-  );
+
+            {/* Bar grafiklerinin olduğu div */}
+            <div className="horizontal-bar-row">
+              {group.map((item, index) => {
+                // Burada her bir item için yüzdelik hesaplama yapıyoruz
+                const percentage = (parseFloat(item.value.replace(/,/g, '')) / group.reduce((total, i) => total + parseFloat(i.value.replace(/,/g, '')), 0)) * 100;
+                return (
+                  <div
+                    key={index}
+                    style={{
+                      width: `${percentage}%`,
+                      backgroundColor: index === 0 ? '#4CAF50' : '#FFC107',
+                    }}
+                  >
+                    &nbsp;
+                  </div>
+                );
+              })}
+            </div>
+
+            {/* KPI'lar: Her grup için KPI'ları yazdırıyoruz */}
+            <div className="horizontal-bar-card-row">
+              {group.map((item, index) => (
+                <span key={index} className="kpi">{item.value}</span>
+              ))}
+            </div>
+
+            {/* Başlıklar: Başlıklar kısmı */}
+            <div className="horizontal-bar-card-row">
+              {group.map((item, index) => (
+                <span key={index} className="title-secondary">{item.header}</span>
+              ))}
+            </div>
+          </div>
+        </div>
+      );
+    })}
+  </>
+);
