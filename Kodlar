@@ -2,7 +2,7 @@ useEffect(() => {
   // groupData fonksiyonu - burada "Net Durum" kontrolü yapılacak
   const groupData = (data, headers) => {
     if (!data || !headers) return [];
-  
+
     const result = [];
     const yearMonth = data[0].qText;  // "Yıl Ay" değerini alıyoruz
 
@@ -12,11 +12,6 @@ useEffect(() => {
       header: headers[netDurumIndex], 
       value: data[netDurumIndex].qText
     } : null;
-
-    // "Net Durum" varsa, onKPIChange ile üst component'e gönder
-    if (netDurumItem && onKPIChange) {
-      onKPIChange(netDurumItem); // "Net Durum" item'ını üst component'e gönder
-    }
 
     // Header ve değerleri eşleştiriyoruz, "Net Durum" hariç
     for (let i = 1; i < headers.length; i++) {
@@ -30,11 +25,17 @@ useEffect(() => {
 
     // Son veri: Son başlığa "Yıl Ay" bilgisini ekliyoruz
     const lastItem = result[result.length - 1];
+    const lastValue = data[data.length - 1].qText;
+
+    // Eğer "Net Durum" varsa, onun değerini de ekle
+    const finalValue = netDurumItem ? `${lastValue} (${netDurumItem.value})` : lastValue;
+
+    // Son item'ı güncelle: "Toplam Müşteri Adedi (Yıl Ay)"
     result[result.length - 1] = {
       header: `${lastItem.header} (${yearMonth})`,  // Son başlık: "Toplam Müşteri Adedi (2024-04)"
-      value: data[data.length - 1].qText  // Son verinin değeri
+      value: finalValue  // Son verinin değeri, Net Durum değeri ile birleştirilmiş
     };
-  
+
     return result;
   };
 
