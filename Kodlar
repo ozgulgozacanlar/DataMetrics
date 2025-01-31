@@ -1,149 +1,61 @@
-[
-    "Yıl Ay",
-    "Emekli Müşteri Adedi",
-    "Hibrit Müşteri Adedi",
-    "Toplam Müşteri Adedi",
-    " ",
-    "Promosyon Gideri",
-    "Fonlama Maliyeti",
-    "Toplam Maliyet",
-    " ",
-    "Müşteri Gelirleri",
-    "Fonlama Geliri",
-    "Toplam",
-    "Net Durum"
-]
+const data = [
+  { qText: "2024-04", qNum: 45383, qElemNumber: 20, qState: "S" },
+  { qText: "83,355", qNum: 83355, qElemNumber: 0, qState: "L" },
+  { qText: "6,893", qNum: 6893, qElemNumber: 0, qState: "L" },
+  { qText: "90,248", qNum: 90248, qElemNumber: 0, qState: "L" },
+  { qText: "-", qNum: "NaN", qElemNumber: 0, qState: "L", qAttrExps: { qValues: [{ qText: "#f3f3f3", qNum: "NaN" }, { qText: "#f3f3f3", qNum: "NaN" }] }, qIsNull: true },
+  { qText: "181,111,594", qNum: 181111594.05, qElemNumber: 0, qState: "L" },
+  { qText: "253,556,355", qNum: 253556355.2, qElemNumber: 0, qState: "L" },
+  { qText: "434,667,949", qNum: 434667949.25, qElemNumber: 0, qState: "L" },
+  { qText: "-", qNum: "NaN", qElemNumber: 0, qState: "L", qAttrExps: { qValues: [{ qText: "#f3f3f3", qNum: "NaN" }, { qText: "#f3f3f3", qNum: "NaN" }] }, qIsNull: true },
+  { qText: "566,396,709", qNum: 566396709.21, qElemNumber: 0, qState: "L" },
+  { qText: "173,135,237", qNum: 173135236.85, qElemNumber: 0, qState: "L" },
+  { qText: "739,531,946", qNum: 739531946.06, qElemNumber: 0, qState: "L" },
+  { qText: "304,863,997", qNum: 304863996.81, qElemNumber: 0, qState: "L", qAttrExps: { qValues: [{ qNum: "NaN" }] } }
+];
 
+const headers = [
+  "Yıl Ay",
+  "Emekli Müşteri Adedi",
+  "Hibrit Müşteri Adedi",
+  "Toplam Müşteri Adedi",
+  " ",
+  "Promosyon Gideri",
+  "Fonlama Maliyeti",
+  "Toplam Maliyet",
+  " ",
+  "Müşteri Gelirleri",
+  "Fonlama Geliri",
+  "Toplam",
+  "Net Durum"
+];
 
-[
-    {
-        "qText": "2024-04",
-        "qNum": 45383,
-        "qElemNumber": 20,
-        "qState": "S"
-    },
-    {
-        "qText": "83,355",
-        "qNum": 83355,
-        "qElemNumber": 0,
-        "qState": "L"
-    },
-    {
-        "qText": "6,893",
-        "qNum": 6893,
-        "qElemNumber": 0,
-        "qState": "L"
-    },
-    {
-        "qText": "90,248",
-        "qNum": 90248,
-        "qElemNumber": 0,
-        "qState": "L"
-    },
-    {
-        "qText": "-",
-        "qNum": "NaN",
-        "qElemNumber": 0,
-        "qState": "L",
-        "qAttrExps": {
-            "qValues": [
-                {
-                    "qText": "#f3f3f3",
-                    "qNum": "NaN"
-                },
-                {
-                    "qText": "#f3f3f3",
-                    "qNum": "NaN"
-                }
-            ]
-        },
-        "qIsNull": true
-    },
-    {
-        "qText": "181,111,594",
-        "qNum": 181111594.05,
-        "qElemNumber": 0,
-        "qState": "L"
-    },
-    {
-        "qText": "253,556,355",
-        "qNum": 253556355.2,
-        "qElemNumber": 0,
-        "qState": "L"
-    },
-    {
-        "qText": "434,667,949",
-        "qNum": 434667949.25,
-        "qElemNumber": 0,
-        "qState": "L"
-    },
-    {
-        "qText": "-",
-        "qNum": "NaN",
-        "qElemNumber": 0,
-        "qState": "L",
-        "qAttrExps": {
-            "qValues": [
-                {
-                    "qText": "#f3f3f3",
-                    "qNum": "NaN"
-                },
-                {
-                    "qText": "#f3f3f3",
-                    "qNum": "NaN"
-                }
-            ]
-        },
-        "qIsNull": true
-    },
-    {
-        "qText": "566,396,709",
-        "qNum": 566396709.21,
-        "qElemNumber": 0,
-        "qState": "L"
-    },
-    {
-        "qText": "173,135,237",
-        "qNum": 173135236.85,
-        "qElemNumber": 0,
-        "qState": "L"
-    },
-    {
-        "qText": "739,531,946",
-        "qNum": 739531946.06,
-        "qElemNumber": 0,
-        "qState": "L"
-    },
-    {
-        "qText": "304,863,997",
-        "qNum": 304863996.81,
-        "qElemNumber": 0,
-        "qState": "L",
-        "qAttrExps": {
-            "qValues": [
-                {
-                    "qNum": "NaN"
-                }
-            ]
-        }
+// Fonksiyon: Verilen data'yı başlıklarla bölelim
+const groupData = (data, headers) => {
+  const groups = [];
+  let currentGroup = [];
+  let groupIndex = 0;
+
+  data.forEach((item, index) => {
+    // Boş string bulunan yerlere göre yeni grup başlatıyoruz
+    if (headers[groupIndex] === " ") {
+      if (currentGroup.length > 0) {
+        groups.push(currentGroup);  // Önceki grup varsa ekleyelim
+      }
+      currentGroup = [];
+      groupIndex++;  // Sonraki grup başlasın
+    } else {
+      currentGroup.push(item.qText); // qText değerini alıyoruz
     }
-]
+  });
 
-    <div className="horizontal-bar-card">
-      <div className="horizontal-bar-card-row">
-        <span className="title">Toplam Maliyet</span>
-        <span className="kpi">84.123</span>
-      </div>
-      <div className="horizontal-bar-row">
-        <div style={{width: '55%'}}>&nbsp;</div>
-        <div style={{width: '45%'}}>&nbsp;</div>
-      </div>
-      <div className="horizontal-bar-card-row">
-        <span className="kpi">123.123.123</span>
-        <span className="kpi">123.284.123</span>
-      </div>
-      <div className="horizontal-bar-card-row">
-        <span className="title-secondary">Promosyon Gideri</span>
-        <span className="title-secondary">Fonlama</span>
-      </div>
-    </div>
+  if (currentGroup.length) {
+    groups.push(currentGroup); // Son grubu ekleyelim
+  }
+
+  return groups;
+};
+
+const groupedData = groupData(data, headers);
+
+console.log(groupedData);
