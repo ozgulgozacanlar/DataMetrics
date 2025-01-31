@@ -128,3 +128,22 @@
         }
     }
 ]
+
+    <div className="horizontal-bar-card">
+      <div className="horizontal-bar-card-row">
+        <span className="title">Toplam Maliyet</span>
+        <span className="kpi">84.123</span>
+      </div>
+      <div className="horizontal-bar-row">
+        <div style={{width: '55%'}}>&nbsp;</div>
+        <div style={{width: '45%'}}>&nbsp;</div>
+      </div>
+      <div className="horizontal-bar-card-row">
+        <span className="kpi">123.123.123</span>
+        <span className="kpi">123.284.123</span>
+      </div>
+      <div className="horizontal-bar-card-row">
+        <span className="title-secondary">Promosyon Gideri</span>
+        <span className="title-secondary">Fonlama</span>
+      </div>
+    </div>
