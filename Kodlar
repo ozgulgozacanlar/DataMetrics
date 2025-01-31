@@ -1,18 +1,50 @@
- <div className="horizontal-bar-card">
-      <div className="horizontal-bar-card-row">
-        <span className="title">Toplam Maliyet</span>
-        <span className="kpi">84.123</span>
-      </div>
-      <div className="horizontal-bar-row">
-        <div style={{width: '55%'}}>&nbsp;</div>
-        <div style={{width: '45%'}}>&nbsp;</div>
-      </div>
-      <div className="horizontal-bar-card-row">
-        <span className="kpi">123.123.123</span>
-        <span className="kpi">123.284.123</span>
-      </div>
-      <div className="horizontal-bar-card-row">
-        <span className="title-secondary">Promosyon Gideri</span>
-        <span className="title-secondary">Fonlama</span>
-      </div>
+  <div className="horizontal-bar-card">
+      {groupedData.map((group, groupIndex) => {
+        // İlk div, gruptaki ilk elemanın header ve value değerini alacak
+        const firstItem = group[0];
+        
+        return (
+          <div key={groupIndex}>
+            {/* İlk div: Yıl Ay ve Toplam Müşteri Adedi gibi veriler */}
+            <div className="horizontal-bar-card-row">
+              <span className="title">{firstItem.header}</span>
+              <span className="kpi">{firstItem.value}</span>
+            </div>
+
+            {/* Bar grafiklerinin olduğu div */}
+            <div className="horizontal-bar-row">
+              {group.map((item, index) => {
+                // Burada her bir item için yüzdelik hesaplama yapabiliriz
+                const percentage = (parseFloat(item.value.replace(/,/g, '')) / group.reduce((total, i) => total + parseFloat(i.value.replace(/,/g, '')), 0)) * 100;
+                return (
+                  <div
+                    key={index}
+                    style={{
+                      width: `${percentage}%`,
+                      backgroundColor: index === 0 ? '#4CAF50' : '#FFC107',
+                    }}
+                  >
+                    &nbsp;
+                  </div>
+                );
+              })}
+            </div>
+
+            {/* KPI'lar */}
+            <div className="horizontal-bar-card-row">
+              {group.map((item, index) => (
+                <span key={index} className="kpi">{item.value}</span>
+              ))}
+            </div>
+
+            {/* Başlıklar */}
+            <div className="horizontal-bar-card-row">
+              {group.map((item, index) => (
+                <span key={index} className="title-secondary">{item.header}</span>
+              ))}
+            </div>
+          </div>
+        );
+      })}
     </div>
+  );
