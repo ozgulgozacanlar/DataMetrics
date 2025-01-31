@@ -1,51 +1,48 @@
 useEffect(() => {
+  if (!tableDataArray || !tableHeaderData) return;
+
   const groupData = (data, headers) => {
     if (!data || !headers) return [];
-
     const result = [];
-    let netDurumItem = null; // Net Durum verisini saklamak için değişken
-
+    
     // İlk satırdaki "Yıl Ay" bilgisini alıyoruz
     const yearMonth = data[0].qText;  // "Yıl Ay" değerini alıyoruz
 
     // Header ve değerleri eşleştiriyoruz
     for (let i = 1; i < headers.length; i++) {
-      // "Net Durum"u kontrol et
-      if (headers[i] === "Net Durum") {
-        // Eğer Net Durum ise, bunu sakla ama dahil etme
-        netDurumItem = {
-          header: headers[i],
-          value: data[i].qText
-        };
-        continue; // Net Durum verisini geç
-      }
-
       result.push({
         header: headers[i],        // Her başlık
         value: data[i].qText      // İlgili değeri
       });
     }
 
+    // "Net Durum" varsa, sonuncu item'da onu atlayacağız
+    const netDurumItem = result.find(item => item.header === "Net Durum");
+
+    // Eğer Net Durum varsa, bunu "result" array'inden çıkartıyoruz
+    if (netDurumItem) {
+      result.splice(result.indexOf(netDurumItem), 1);
+      
+      // onKPIChange fonksiyonunu tetikleyelim
+      if (onKPIChange) {
+        onKPIChange({ header: netDurumItem.header, value: netDurumItem.value });
+      }
+    }
+
     // Son veri: Son başlığa "Yıl Ay" bilgisini ekliyoruz
     const lastItem = result[result.length - 1];
     result[result.length - 1] = {
       header: `${lastItem.header} (${yearMonth})`,  // Son başlık: "Toplam Müşteri Adedi (2024-04)"
-      value: data[data.length - 1].qText  // Son verinin değeri
+      value: data[data.length - 2].qText  // Son verinin değeri
     };
-
-    // Eğer Net Durum varsa, onKPIChange'i çağır
-    if (netDurumItem && onKPIChange) {
-      onKPIChange({ header: netDurumItem.header, value: netDurumItem.value });
-    }
 
     return result;
   };
 
-  // Eğer tableDataArray veya tableHeaderData yoksa, işlem yapma
-  if (!tableDataArray || !tableHeaderData) return;
-
+  // Veriyi grupluyoruz
   const groupedData = groupData(tableDataArray, tableHeaderData);
-
-  // groupData işleme sonrasında oluşan grubu setGroupDataArray'e gönder
+  
+  // Gruplanmış veriyi set ediyoruz
   setGroupDataArray(groupedData);
-}, [tableHeaderData, tableDataArray, onKPIChange]);
+
+}, [tableDataArray, tableHeaderData, onKPIChange]);
