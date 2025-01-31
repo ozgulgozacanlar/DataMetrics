@@ -1,4 +1,42 @@
-  useEffect(() => {
+
+  function renderQlikTableObject(objectId) {
+      if (app) {
+        getObjectData(app, objectId).then((response) => {
+          if (!response) {
+            console.error('TableChart Component : response verisi boş veya tanımsız.');
+            return;
+          }
+          setTableDataArray(response[0]);
+         
+        }).catch((error) => {
+          console.error('TableChart Component : getObjectData() methodu veri alınırken hata oluştu:', error);
+        });
+        //Tablo header bilgileri alınıyor
+        app.getObject(objectId).then((model) => { 
+          if (!model) {
+            console.error('TableChart Component : model verisi boş veya tanımsız.');
+            return;
+          }
+          // `qDimensionInfo` ve `qMeasureInfo` öğelerinin `qFallbackTitle` değerlerini alıp birleştiriyoruz.
+          const dimensionTitles = model.layout.qHyperCube.qDimensionInfo.map(item => item.qFallbackTitle);
+          const measureTitles = model.layout.qHyperCube.qMeasureInfo.map(item => item.qFallbackTitle);
+
+          // `qDimensionInfo` öğelerini ilk sıraya, `qMeasureInfo` öğelerini sonra ekliyoruz.
+          const combinedTitles = [...dimensionTitles, ...measureTitles];
+                 console.log(combinedTitles)
+          setTableHeaderData(combinedTitles);
+        }).catch((error) => {
+          console.error('TableChart Component : getObject() methodu veri alınırken hata oluştu:', error);
+        });
+      } else {
+        // console.error('Qlik Sense app is not loaded yet');
+      }
+
+      
+    }
+
+
+useEffect(() => {
     
     const groupData = (data, headers) => {
       if(data == null || headers == null) return;
