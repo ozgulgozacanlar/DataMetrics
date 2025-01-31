@@ -1,50 +1,53 @@
-  <div className="horizontal-bar-card">
-      {groupedData.map((group, groupIndex) => {
-        // İlk div, gruptaki ilk elemanın header ve value değerini alacak
-        const firstItem = group[0];
-        
-        return (
-          <div key={groupIndex}>
-            {/* İlk div: Yıl Ay ve Toplam Müşteri Adedi gibi veriler */}
-            <div className="horizontal-bar-card-row">
-              <span className="title">{firstItem.header}</span>
-              <span className="kpi">{firstItem.value}</span>
-            </div>
+  const groupData = (data, headers) => {
+      if(data == null || headers == null) return;
+      console.log(data)
+      const groups = [];
+      let currentGroup = [];
+      let groupIndex = 0;
+    
+      data.forEach((item, index) => {
+     
+         // Eğer qText "-" ise, geçiyoruz
+          if (item.qText === "-") {
+            return;
+          }
 
-            {/* Bar grafiklerinin olduğu div */}
-            <div className="horizontal-bar-row">
-              {group.map((item, index) => {
-                // Burada her bir item için yüzdelik hesaplama yapabiliriz
-                const percentage = (parseFloat(item.value.replace(/,/g, '')) / group.reduce((total, i) => total + parseFloat(i.value.replace(/,/g, '')), 0)) * 100;
-                return (
-                  <div
-                    key={index}
-                    style={{
-                      width: `${percentage}%`,
-                      backgroundColor: index === 0 ? '#4CAF50' : '#FFC107',
-                    }}
-                  >
-                    &nbsp;
-                  </div>
-                );
-              })}
-            </div>
-
-            {/* KPI'lar */}
-            <div className="horizontal-bar-card-row">
-              {group.map((item, index) => (
-                <span key={index} className="kpi">{item.value}</span>
-              ))}
-            </div>
-
-            {/* Başlıklar */}
-            <div className="horizontal-bar-card-row">
-              {group.map((item, index) => (
-                <span key={index} className="title-secondary">{item.header}</span>
-              ))}
-            </div>
-          </div>
-        );
-      })}
-    </div>
-  );
+          // Boş string bulunan yerlere göre yeni grup başlatıyoruz
+          if (headers[groupIndex] === " ") {
+            if (currentGroup.length > 0) {
+              groups.push(currentGroup);  // Önceki grup varsa ekleyelim
+            }
+            currentGroup = [];
+            groupIndex++;  // Sonraki grup başlasın
+          } else {
+            // Başlık ile birlikte qText değerini ekliyoruz
+            currentGroup.push({ header: headers[groupIndex], value: item.qText });
+            groupIndex++;
+          }
+      });
+    
+      if (currentGroup.length) {
+        groups.push(currentGroup); // Son grubu ekleyelim
+      }
+      if (groups.length > 0) {
+        const firstGroup = groups[0];
+    
+        // İlk grubun ilk elemanını çıkarıyoruz
+        const firstItem = firstGroup.shift();
+    
+        if (firstGroup.length > 0) {
+          // İlk elemanın value'sunu son elemana header ile parantez içinde ekliyoruz
+          const lastItem = firstGroup[firstGroup.length - 1];
+          firstGroup[firstGroup.length - 1] = {
+            ...lastItem,
+            header: `${lastItem.header} (${firstItem.value})`,  // Header'a value ekliyoruz
+            value: lastItem.value  // Son elemanın value'sunu koruyoruz
+          };
+        }
+      }
+      return groups;
+    };
+    
+    const groupedData = groupData(tableDataArray, tableHeaderData);
+    
+    console.log(groupedData);
