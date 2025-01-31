@@ -1,4 +1,19 @@
 
+
+[
+    {
+        "header": "Emekli Müşteri Adedi",
+        "value": "83,355"
+    },
+    {
+        "header": "Hibrit Müşteri Adedi",
+        "value": "6,893"
+    },
+    {
+        "header": "Toplam Müşteri Adedi (2024-04)",
+        "value": "90,248"
+    }
+]
   function renderQlikTableObject(objectId) {
       if (app) {
         getObjectData(app, objectId).then((response) => {
