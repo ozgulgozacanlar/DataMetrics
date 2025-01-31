@@ -1,1 +1,1 @@
-setKPI fonksiyonunun içeriği HorizontalBarCard component'inde tetiklediğinizde, onKPIChange prop'u aracılığıyla üst component'e (yani, NPL component'ine) veri gönderiliyor.
+HorizontalBarCard içinde, onKPIChange tetiklendiğinde, handleKPIChange fonksiyonu çalışıyor ve parametre olarak gönderdiğiniz kpiData'yı alıyor.
