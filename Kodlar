@@ -1,18 +1,24 @@
-[
-    {
-        "header": "Emekli Müşteri Adedi",
-        "value": "2024-04"
-    },
-    {
-        "header": "Hibrit Müşteri Adedi",
-        "value": "83,355"
-    },
-    {
-        "header": "Toplam Müşteri Adedi",
-        "value": "6,893"
-    },
-    {
-        "header": "Toplam Müşteri Adedi (2024-04)",
-        "value": "90,248"
-    }
-]
+const groupData = (data, headers) => {
+  if (!data || !headers) return [];
+
+  const result = [];
+
+  // İlk satırdaki "Yıl Ay" bilgisini alıyoruz
+  const yearMonth = data[0].qText;  // "Yıl Ay" değerini alıyoruz
+
+  // Header ve değerleri eşleştiriyoruz
+  for (let i = 1; i < headers.length; i++) {
+    result.push({
+      header: headers[i],        // Her başlık
+      value: data[i].qText      // İlgili değeri
+    });
+  }
+
+  // "Toplam Müşteri Adedi"nin header'ına "Yıl Ay"ı ekliyoruz
+  result.push({
+    header: `${headers[headers.length - 1]} (${yearMonth})`,  // Son başlık: "Toplam Müşteri Adedi (2024-04)"
+    value: data[data.length - 1].qText  // Son verinin değeri
+  });
+
+  return result;
+};
