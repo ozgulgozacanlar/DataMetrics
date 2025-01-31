@@ -1,50 +1,20 @@
-  return (
-    <div className="horizontal-bar-card">
-      {/* groupData boş mu diye kontrol ediyoruz */}
-      {groupData && groupData.length > 0 ? (
-        <>
-          {/* İlk satır: Son elemanın header ve value'su */}
-          <div className="horizontal-bar-card-row">
-            <span className="title">{groupData[groupData.length - 1].header}</span>
-            <span className="kpi">{groupData[groupData.length - 1].value}</span>
-          </div>
+ // useEffect(() => {
+  //   if(!groupDataArray) return;
+    
+  //   // "Net Durum" header'ını bul ve setKPI'ya gönder
+  //     const netDurumItem = groupDataArray.flat().find(item => item.header === 'Net Durum');
+  //     if (netDurumItem) {
+  //       if (onKPIChange) onKPIChange({ header: netDurumItem.header, value: netDurumItem.value }); //setKPI fonksiyonunun içeriği HorizontalBarCard component'inde tetiklediğinizde, onKPIChange prop'u aracılığıyla üst component'e (yani, promosyonkarlılık component'ine) veri gönderiliyor.
+  //     }
 
-          {/* Bar grafiklerinin olduğu satır */}
-          <div className="horizontal-bar-row">
-            {groupData.slice(0, 2).map((item, index) => {
-              // Yüzdelik hesaplama
-              const percentage = (parseFloat(item.value.replace(/,/g, '')) / groupData.slice(0, 2).reduce((total, i) => total + parseFloat(i.value.replace(/,/g, '')), 0)) * 100;
-              return (
-                <div
-                  key={index}
-                  style={{
-                    width: `${percentage}%`,
-                    backgroundColor: index === 0 ? '#1464a5' : '#7da246',
-                  }}
-                >
-                  &nbsp;
-                </div>
-              );
-            })}
-          </div>
+  //   // "Net Durum" item'ını groupDataArray içinden çıkar
+  //   const updatedGroupDataArray = groupDataArray.map(group => 
+  //     group.filter(item => item.header !== 'Net Durum')
+  //   ).filter(group => group.length > 0); // Eğer grup boşsa, onu da çıkar
 
-          {/* KPI'lar: İlk 2 item için KPI'ları yazdırıyoruz */}
-          <div className="horizontal-bar-card-row">
-            {groupData.slice(0, 2).map((item, index) => (
-              <span key={index} className="kpi">{item.value}</span>
-            ))}
-          </div>
-
-          {/* Başlıklar: İlk 2 item'in başlıkları */}
-          <div className="horizontal-bar-card-row">
-            {groupData.slice(0, 2).map((item, index) => (
-              <span key={index} className="title-secondary">{item.header}</span>
-            ))}
-          </div>
-        </>
-      ) : (
-        // Eğer groupData boşsa bu mesaj gösterilir
-        <div>Veriler Yükleniyor...</div>
-      )}
-    </div>
-  );
+  //   if (JSON.stringify(groupDataArray) !== JSON.stringify(updatedGroupDataArray)) {
+  //     setGroupDataArray(updatedGroupDataArray);
+  //   }
+    
+     
+  // }, [groupDataArray,onKPIChange])
