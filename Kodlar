@@ -1,48 +1,8 @@
-useEffect(() => {
-  if (!tableDataArray || !tableHeaderData) return;
-
-  const groupData = (data, headers) => {
-    if (!data || !headers) return [];
-    const result = [];
-    
-    // İlk satırdaki "Yıl Ay" bilgisini alıyoruz
-    const yearMonth = data[0].qText;  // "Yıl Ay" değerini alıyoruz
-
-    // Header ve değerleri eşleştiriyoruz
-    for (let i = 1; i < headers.length; i++) {
-      result.push({
-        header: headers[i],        // Her başlık
-        value: data[i].qText      // İlgili değeri
-      });
-    }
-
-    // "Net Durum" varsa, sonuncu item'da onu atlayacağız
-    const netDurumItem = result.find(item => item.header === "Net Durum");
-
-    // Eğer Net Durum varsa, bunu "result" array'inden çıkartıyoruz
-    if (netDurumItem) {
-      result.splice(result.indexOf(netDurumItem), 1);
-      
-      // onKPIChange fonksiyonunu tetikleyelim
-      if (onKPIChange) {
-        onKPIChange({ header: netDurumItem.header, value: netDurumItem.value });
-      }
-    }
-
-    // Son veri: Son başlığa "Yıl Ay" bilgisini ekliyoruz
+  // Son veriye bakıyoruz: Eğer Net Durum varsa, son veriyi -2 alıyoruz, yoksa -1
     const lastItem = result[result.length - 1];
+    const lastDataItemIndex = netDurumItem ? data.length - 2 : data.length - 1;
+
     result[result.length - 1] = {
       header: `${lastItem.header} (${yearMonth})`,  // Son başlık: "Toplam Müşteri Adedi (2024-04)"
-      value: data[data.length - 2].qText  // Son verinin değeri
+      value: data[lastDataItemIndex].qText  // Son verinin değeri
     };
-
-    return result;
-  };
-
-  // Veriyi grupluyoruz
-  const groupedData = groupData(tableDataArray, tableHeaderData);
-  
-  // Gruplanmış veriyi set ediyoruz
-  setGroupDataArray(groupedData);
-
-}, [tableDataArray, tableHeaderData, onKPIChange]);
