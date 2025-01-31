@@ -1,7 +1,3 @@
-    // "Net Durum" item'ını groupDataArray içinden çıkar
-    const updatedGroupDataArray = groupDataArray.map(group => 
-      group.filter(item => item.header !== 'Net Durum')
-    ).filter(group => group.length > 0); // Eğer grup boşsa, onu da çıkar
-
-    // Yeni groupDataArray'i set et
-    setGroupDataArray(updatedGroupDataArray);
+ if (JSON.stringify(groupDataArray) !== JSON.stringify(updatedGroupDataArray)) {
+      setGroupDataArray(updatedGroupDataArray);
+    }
