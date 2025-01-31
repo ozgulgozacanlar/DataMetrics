@@ -1,3 +1,28 @@
+const groupData = (data, headers) => {
+  if (!data || !headers) return [];
+
+  const result = [];
+
+  // Başlık ve veri satırlarını eşleştiriyoruz
+  headers.slice(1).forEach((header, index) => {
+    // 'slice(1)' kullanarak ilk başlık olan "Yıl Ay"ı atlıyoruz
+    result.push({
+      header: header,  // Başlık kısmı
+      value: data[index].qText  // İlgili veriyi ekliyoruz
+    });
+  });
+
+  // Son başlık için, "Yıl Ay" ve ilgili değeri birleştiriyoruz.
+  result.push({
+    header: `${headers[0]} (${data[0].qText})`,  // "Yıl Ay" + "qText" değeri
+    value: data[3].qText  // En son veri (Toplam Müşteri Adedi) ekliyoruz
+  });
+
+  return result;
+};
+
+const groupedData = groupData(tableDataArray, tableHeaderData);
+console.log(groupedData);
 
 
 [
