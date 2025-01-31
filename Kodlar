@@ -1,58 +1,18 @@
-const groupData = (data, headers) => {
-  const groups = [];
-  let currentGroup = [];
-  let groupIndex = 0;
-
-  data.forEach((item) => {
-    // Eğer qText "-" ise, geçiyoruz
-    if (item.qText === "-") {
-      return;
-    }
-
-    // Boş string bulunan yerlere göre yeni grup başlatıyoruz
-    if (headers[groupIndex] === " ") {
-      if (currentGroup.length > 0) {
-        groups.push(currentGroup);  // Önceki grup varsa ekleyelim
-      }
-      currentGroup = [];
-      groupIndex++;  // Sonraki grup başlasın
-    } else {
-      // Başlık ile birlikte qText değerini ekliyoruz
-      currentGroup.push({ header: headers[groupIndex], value: item.qText });
-      groupIndex++;
-    }
-  });
-
-  if (currentGroup.length) {
-    groups.push(currentGroup); // Son grubu ekleyelim
-  }
-
-  return groups;
-};
-
-// Veriyi grupladıktan sonra ilk grubun ilk elemanını silip, value'yu son elemana ekliyoruz
-const modifyFirstGroup = (groups) => {
-  if (groups.length > 0) {
-    const firstGroup = groups[0];
-
-    // İlk grubun ilk elemanını çıkarıyoruz
-    const firstItem = firstGroup.shift();
-
-    if (firstGroup.length > 0) {
-      // İlk elemanın value'sunu son elemana header ile parantez içinde ekliyoruz
-      const lastItem = firstGroup[firstGroup.length - 1];
-      firstGroup[firstGroup.length - 1] = {
-        ...lastItem,
-        header: `${lastItem.header} (${firstItem.value})`,  // Header'a value ekliyoruz
-        value: lastItem.value  // Son elemanın value'sunu koruyoruz
-      };
-    }
-  }
-};
-
-const groupedData = groupData(data, headers);
-
-// Grubun ilk elemanını silip, value'yu son elemana header'a ekliyoruz
-modifyFirstGroup(groupedData);
-
-console.log(groupedData);
+ <div className="horizontal-bar-card">
+      <div className="horizontal-bar-card-row">
+        <span className="title">Toplam Maliyet</span>
+        <span className="kpi">84.123</span>
+      </div>
+      <div className="horizontal-bar-row">
+        <div style={{width: '55%'}}>&nbsp;</div>
+        <div style={{width: '45%'}}>&nbsp;</div>
+      </div>
+      <div className="horizontal-bar-card-row">
+        <span className="kpi">123.123.123</span>
+        <span className="kpi">123.284.123</span>
+      </div>
+      <div className="horizontal-bar-card-row">
+        <span className="title-secondary">Promosyon Gideri</span>
+        <span className="title-secondary">Fonlama</span>
+      </div>
+    </div>
