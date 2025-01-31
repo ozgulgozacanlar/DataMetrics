@@ -14,11 +14,12 @@ const groupData = (data, headers) => {
     });
   }
 
-  // "Toplam Müşteri Adedi"nin header'ına "Yıl Ay"ı ekliyoruz
-  result.push({
-    header: `${headers[headers.length - 1]} (${yearMonth})`,  // Son başlık: "Toplam Müşteri Adedi (2024-04)"
+  // Son veri: Son başlığa "Yıl Ay" bilgisini ekliyoruz
+  const lastItem = result[result.length - 1];
+  result[result.length - 1] = {
+    header: `${lastItem.header} (${yearMonth})`,  // Son başlık: "Toplam Müşteri Adedi (2024-04)"
     value: data[data.length - 1].qText  // Son verinin değeri
-  });
+  };
 
   return result;
 };
