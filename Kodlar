@@ -1,3 +1,152 @@
-  const [loaded, setLoaded] = useState(false); // Verinin bir kez yüklenip yüklenmediğini kontrol edeceğiz.
-    if (!loaded && app) {
-        setLoaded(true); // İlk yükleme tamamlandığında loaded'ı true yapıyoruz
+import React, { useState, useEffect } from 'react';
+
+function ModalTable({ app, objectId, overflowStatus, modalLoaded, setModalLoaded }) {
+  const [tableHeaderData, setTableHeaderData] = useState(null);
+  const [tableData, setTableData] = useState(null);
+
+  const styles = {
+    overflowStyle: {
+      maxHeight: overflowStatus ? '280px' : '',
+      overflow: overflowStatus ? 'auto' : '',
+    }
+  };
+
+  useEffect(() => {
+    if (!modalLoaded && app) {
+      // Yalnızca veri ilk kez yükleniyor
+      getObjectModel(app, objectId).then((model) => {
+        if (!model) {
+          console.error('ModalTable Component: model verisi boş veya tanımsız.');
+          return;
+        }
+
+        const secondArr = model.layout.qHyperCube.qMeasureInfo;
+        const newArr = model.layout.qHyperCube.qDimensionInfo.concat(secondArr);
+
+        // Benzersiz elemanları saklamak için bir Map kullanıyoruz
+        const uniqueMap = new Map();
+        newArr.forEach((item) => {
+          if (!uniqueMap.has(item.qFallbackTitle)) {
+            uniqueMap.set(item.qFallbackTitle, item);
+          }
+        });
+
+        const uniqueArr = Array.from(uniqueMap.values());
+        setTableHeaderData(uniqueArr);
+      }).catch((error) => {
+        console.error('ModalTable Component : getObject() methodu veri alınırken hata oluştu:', error);
+      });
+
+      getObjectData(app, objectId).then((data) => {
+        if (!data || data.length === 0) {
+          console.log('Veri boş geldi');
+          return;
+        }
+        setTableData(data);
+
+        // Veri yüklendikten sonra modalLoaded'ı true yapıyoruz
+        setModalLoaded(true); 
+      }).catch((error) => {
+        console.error('ModalTable Component : getObjectData() methodu veri alınırken hata oluştu:', error);
+      });
+    }
+  }, [app, objectId, modalLoaded, setModalLoaded]);
+
+  /**
+   * Color kodlarını eşlemek için bir fonksiyon
+   */
+  function mapColorCode(inputColor) {
+    const colorMap = {
+      "#82b740": "#7CA444", // Eski yeşil => Yeni yeşil
+      "#ffc820": "#DC9465", // Eski sarı => Yeni sarı
+      "#1973b8": "#126EB5", // Eski mavi => Yeni mavi
+      "#ef4761": "#D46364"  // Eski kırmızı => Yeni kırmızı
+    };
+
+    const colorCode = inputColor != undefined ? (colorMap[inputColor.toLowerCase()] || inputColor) : '';
+    return colorCode;
+  }
+
+  return (
+    <div style={styles.overflowStyle}>
+      <table className="modal-table table-scroll">
+        <thead>
+          <tr>
+            {tableHeaderData != null ? tableHeaderData.map((item, index) => (
+              <th key={index} className="text-center">{item.qFallbackTitle}</th>
+            )) : <></>}
+          </tr>
+        </thead>
+        <tbody>
+          {tableData != null ? tableData.map((row, rowIndex) => (
+            <tr key={rowIndex}>
+              {row.map((cell, cellIndex) => (
+                <td key={cellIndex}>
+                  <span style={{
+                    color: cell.qAttrExps != null ? mapColorCode(cell.qAttrExps.qValues[0].qText) : ""
+                  }}>
+                    {cell.qText}
+                  </span>
+                </td>
+              ))}
+            </tr>
+          )) : <></>}
+        </tbody>
+      </table>
+    </div>
+  );
+}
+
+export default ModalTable;
+import React, { useState } from 'react';
+import ModalTable from './ModalTable'; // ModalTable'ı içeri aktar
+
+function ParentComponent() {
+  const [showModal, setShowModal] = useState(false);
+  const [modalLoaded, setModalLoaded] = useState(false); // Veri yüklendi mi kontrolü
+
+  // Modal açıldığında yükleme işlemini başlat
+  const handleShowModal = () => {
+    setShowModal(true);
+    setModalLoaded(false); // Modal açıldığında, veriyi yüklemeye hazır hale getir
+  };
+
+  // Modal kapandığında
+  const handleCloseModal = () => {
+    setShowModal(false);
+  };
+
+  return (
+    <div>
+      <button onClick={handleShowModal}>Modal Aç</button>
+
+      {showModal && (
+        <Modal show={showModal} onHide={handleCloseModal}>
+          <Modal.Header closeButton>
+            <div className="modal-title">NPL MÜŞTERİ LİSTESİ</div>
+          </Modal.Header>
+          <Modal.Body>
+            <div className="row justify-content-center">
+              <div className="col-12 col-xl-6 d-flex flex-column">
+                <div className="card">
+                  <div className="card-title">STOK</div>
+                  <div className="modal-table-wrapper">
+                    <ModalTable
+                      app={app} // app burada parent'tan geçiyor
+                      objectId={"CpJhSq"}
+                      overflowStatus={true}
+                      modalLoaded={modalLoaded} // Modal'ın ilk açılışında veri yüklenecek
+                      setModalLoaded={setModalLoaded} // state'i güncellemek için
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+          </Modal.Body>
+        </Modal>
+      )}
+    </div>
+  );
+}
+
+export default ParentComponent;
