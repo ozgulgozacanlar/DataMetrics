@@ -1,21 +1,29 @@
-getObjectData(app, objectIds).then((responses) => {
-  if (!responses || responses.length !== objectIds.length) {
-    console.error('TableChart Component : response verisi boş veya tanımsız.');
-    return;
-  }
+// objectIds, dinamik olarak gelen bir array
+const objectIds = ['objectId1', 'objectId2'];  // Örnek array, burada objectId'leri dinamik olarak alıyoruz
 
-  // İlk olarak tüm objectIds'ler için verileri alıyoruz
-  const allDimensionTitles = [];
-  const allMeasureTitles = [];
-  const allFirstArrayValues = [];
-  const allSecondArrayValues = [];
+// İlk önce tüm objectIds verilerini almak için bir işlem yapıyoruz
+const allDimensionTitles = [];
+const allMeasureTitles = [];
+const allFirstArrayValues = [];
+const allSecondArrayValues = [];
 
-  // Her objectId için sırasıyla işlem yapıyoruz
-  objectIds.forEach((objectId, index) => {
-    app.getObject(objectId).then((model) => {
+const fetchData = async () => {
+  for (let i = 0; i < objectIds.length; i++) {
+    const objectId = objectIds[i];
+
+    try {
+      // İlk olarak objectId için response verisini alıyoruz
+      const response = await getObjectData(app, objectId);
+      if (!response) {
+        console.error(`TableChart Component : response verisi boş veya tanımsız. ID: ${objectId}`);
+        continue;
+      }
+
+      // objectId için model verisini alıyoruz
+      const model = await app.getObject(objectId);
       if (!model) {
         console.error(`TableChart Component : model verisi boş veya tanımsız. ID: ${objectId}`);
-        return;
+        continue;
       }
 
       // qDimensionInfo ve qMeasureInfo başlıklarını alıyoruz
@@ -26,11 +34,10 @@ getObjectData(app, objectIds).then((responses) => {
       allMeasureTitles.push(...measureTitles);
 
       // response verisini alıp firstArray ve secondArray'leri oluşturuyoruz
-      const response = responses[index];
       const firstArray = [...response.map(item => item[0].qText)];
-
       allFirstArrayValues.push(...firstArray);
 
+      // measureTitles'i slice'lıyoruz ve her başlık için verileri topluyoruz
       const secondArray = measureTitles.slice(1).map((headerItem, idx) => {
         const values = response.map(item => item[idx + 1].qText);
         return [headerItem, ...values];
@@ -38,14 +45,22 @@ getObjectData(app, objectIds).then((responses) => {
 
       allSecondArrayValues.push(...secondArray);
       
-      // Verileri işleyip çıktı olarak alıyoruz
+      console.log(`ObjectId: ${objectId}`);
       console.log("First Array Değeri: ", firstArray);
       console.log("Second Array Değeri: ", secondArray);
-    }).catch((error) => {
-      console.error(`TableChart Component : getObject() methodu veri alınırken hata oluştu. ID: ${objectId}`, error);
-    });
-  });
+      
+    } catch (error) {
+      console.error(`TableChart Component : ${objectId} için işlem yapılırken hata oluştu:`, error);
+    }
+  }
 
-}).catch((error) => {
-  console.error('TableChart Component : getObjectData() methodu veri alınırken hata oluştu:', error);
-});
+  // İşlem tamamlandığında tüm verileri kullanabiliriz
+  console.log("Tüm First Array Değerleri:", allFirstArrayValues);
+  console.log("Tüm Second Array Değerleri:", allSecondArrayValues);
+  // Burada setTableHeaderData veya setTableDataArray işlemleri yapılabilir
+  // setTableHeaderData(allMeasureTitles);
+  // setTableDataArray(allFirstArrayValues, allSecondArrayValues);
+};
+
+// Veriyi almak için fonksiyonu çağırıyoruz
+fetchData();
