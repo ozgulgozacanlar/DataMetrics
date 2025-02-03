@@ -1,9 +1,15 @@
- <table className="low-high-table modal-table">
-            <thead>
-                <tr>                  
-                    <th>&nbsp;</th>
-                    {tableTitleArray && tableTitleArray.map((title, index) => (
-                        <th colSpan={5} key={index}>
-                            {title}
-                        </th>
-                    ))}
+ {tableTitleArray && tableTitleArray.map((title, index) => {
+                // tableName veya başka bir parametreye göre colSpan ve className'i ayarlıyoruz
+                const isSpecialTable = title === 'Special Title';  // Örnek özel bir başlık kontrolü
+                const colSpanValue = isSpecialTable ? 6 : 5; // Special title için 6, diğerleri için 5
+                const dynamicClass = isSpecialTable ? 'special-title' : 'regular-title'; // Dynamic class name
+
+                return (
+                    <th colSpan={colSpanValue} key={index} className={dynamicClass}>
+                        {title}
+                    </th>
+                );
+            })}
+
+
+<table className={`low-high-table modal-table ${tableName === 'specialTable' ? 'special-class' : ''}`}>
