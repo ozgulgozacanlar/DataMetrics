@@ -1,66 +1,98 @@
-// objectIds, dinamik olarak gelen bir array
-const objectIds = ['objectId1', 'objectId2'];  // Örnek array, burada objectId'leri dinamik olarak alıyoruz
-
-// İlk önce tüm objectIds verilerini almak için bir işlem yapıyoruz
-const allDimensionTitles = [];
-const allMeasureTitles = [];
-const allFirstArrayValues = [];
-const allSecondArrayValues = [];
-
-const fetchData = async () => {
-  for (let i = 0; i < objectIds.length; i++) {
-    const objectId = objectIds[i];
-
-    try {
-      // İlk olarak objectId için response verisini alıyoruz
-      const response = await getObjectData(app, objectId);
-      if (!response) {
-        console.error(`TableChart Component : response verisi boş veya tanımsız. ID: ${objectId}`);
-        continue;
-      }
-
-      // objectId için model verisini alıyoruz
-      const model = await app.getObject(objectId);
-      if (!model) {
-        console.error(`TableChart Component : model verisi boş veya tanımsız. ID: ${objectId}`);
-        continue;
-      }
-
-      // qDimensionInfo ve qMeasureInfo başlıklarını alıyoruz
-      const dimensionTitles = model.layout.qHyperCube.qDimensionInfo.map(item => item.qFallbackTitle);
-      const measureTitles = model.layout.qHyperCube.qMeasureInfo.map(item => item.qFallbackTitle);
-
-      allDimensionTitles.push(...dimensionTitles);
-      allMeasureTitles.push(...measureTitles);
-
-      // response verisini alıp firstArray ve secondArray'leri oluşturuyoruz
-      const firstArray = [...response.map(item => item[0].qText)];
-      allFirstArrayValues.push(...firstArray);
-
-      // measureTitles'i slice'lıyoruz ve her başlık için verileri topluyoruz
-      const secondArray = measureTitles.slice(1).map((headerItem, idx) => {
-        const values = response.map(item => item[idx + 1].qText);
-        return [headerItem, ...values];
-      });
-
-      allSecondArrayValues.push(...secondArray);
-      
-      console.log(`ObjectId: ${objectId}`);
-      console.log("First Array Değeri: ", firstArray);
-      console.log("Second Array Değeri: ", secondArray);
-      
-    } catch (error) {
-      console.error(`TableChart Component : ${objectId} için işlem yapılırken hata oluştu:`, error);
-    }
-  }
-
-  // İşlem tamamlandığında tüm verileri kullanabiliriz
-  console.log("Tüm First Array Değerleri:", allFirstArrayValues);
-  console.log("Tüm Second Array Değerleri:", allSecondArrayValues);
-  // Burada setTableHeaderData veya setTableDataArray işlemleri yapılabilir
-  // setTableHeaderData(allMeasureTitles);
-  // setTableDataArray(allFirstArrayValues, allSecondArrayValues);
-};
-
-// Veriyi almak için fonksiyonu çağırıyoruz
-fetchData();
+[
+    [
+        "Toplam Müşteri Adet",
+        "2,332",
+        "2,959",
+        "2,579",
+        "128",
+        "4,075"
+    ],
+    [
+        "Toplam Gelir",
+        "37,726,779",
+        "40,583,396",
+        "37,222,207",
+        "21,591,478",
+        "36,178,920"
+    ],
+    [
+        "Toplam Maliyet",
+        "11,769,881",
+        "14,957,001",
+        "12,707,806",
+        "542,938",
+        "20,922,255"
+    ],
+    [
+        "Kar Zarar Tutarı",
+        "25,956,898",
+        "25,626,395",
+        "24,514,402",
+        "21,048,539",
+        "15,256,665"
+    ],
+    [
+        "Kar/Bağış Oranı",
+        "321.0",
+        "271.0",
+        "293.0",
+        "3,977.0",
+        "173.0"
+    ],
+    [
+        "Ortalama Ürün Sahipliği",
+        "6.40",
+        "5.80",
+        "6.25",
+        "7.29",
+        "5.79"
+    ],
+    [
+        "Toplam Müşteri Adet",
+        "1,906",
+        "3,654",
+        "3,473",
+        "2,370",
+        "1,554"
+    ],
+    [
+        "Toplam Gelir",
+        "8,114,211",
+        "16,043,652",
+        "18,989,452",
+        "13,153,754",
+        "9,593,482"
+    ],
+    [
+        "Toplam Maliyet",
+        "9,992,827",
+        "17,888,142",
+        "20,262,235",
+        "12,487,424",
+        "8,880,167"
+    ],
+    [
+        "Kar Zarar Tutarı",
+        "-1,878,616",
+        "-1,844,490",
+        "-1,272,784",
+        "666,330",
+        "713,316"
+    ],
+    [
+        "Kar/Bağış Oranı",
+        "81.0",
+        "90.0",
+        "94.0",
+        "105.0",
+        "108.0"
+    ],
+    [
+        "Ortalama Ürün Sahipliği",
+        "5.61",
+        "5.63",
+        "5.22",
+        "5.64",
+        "5.37"
+    ]
+]
