@@ -1,4 +1,17 @@
-   const secondArray = measureTitles.map((headerItem, idx) => {
-                                const values = response.map((item => item[idx + 1].qText));
-                                return [...values];
-                            });
+// response1 ve response2'yi birleştirip benzersiz qText'leri almak
+const combinedResponses = [...response1, ...response2];
+
+// Benzersiz qText değerlerini almak için Set kullanıyoruz
+const uniqueQTexts = new Set();
+
+// Tüm array'leri gezip qText değerlerini Set'e ekliyoruz
+combinedResponses.forEach(response => {
+  response.forEach(item => {
+    uniqueQTexts.add(item.qText);
+  });
+});
+
+// Benzersiz qText'leri listeye dönüştürüyoruz
+const uniqueQTextsList = Array.from(uniqueQTexts);
+
+console.log(uniqueQTextsList);
