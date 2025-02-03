@@ -1,14 +1,9 @@
-     const firstArray = [...response.map(item => item[0].qText)];
-        allFirstArrayValues.push(...firstArray);
-
-        // Benzersiz qText'leri almak için Set kullanıyoruz
-        const uniqueQTexts = new Set(
-            response
-                .map(item => item.map(subItem => subItem.qText)) // Her response array'inin içindeki qText değerlerini alıyoruz
-                .flat() // Düzleştiriyoruz
-        );
-
-        // Benzersiz qText'leri listeye dönüştürüyoruz
-        const uniqueQTextsList = Array.from(uniqueQTexts);
-
-        console.log(uniqueQTextsList);
+ <table className="low-high-table modal-table">
+            <thead>
+                <tr>                  
+                    <th>&nbsp;</th>
+                    {tableTitleArray && tableTitleArray.map((title, index) => (
+                        <th colSpan={5} key={index}>
+                            {title}
+                        </th>
+                    ))}
