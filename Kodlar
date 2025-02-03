@@ -1,3 +1,5 @@
-  <tr>
-                    <th>&nbsp;</th>
-                </tr>
+ {tableName === 'x' && (
+            <tr>
+                <th>&nbsp;</th>
+            </tr>
+        )}
