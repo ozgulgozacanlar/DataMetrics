@@ -1,81 +1,14 @@
-  for (let i = 0; i < objectIds.length; i++) {
-                        const objectId = objectIds[i];
-    
-                        try {
-                            // İlk olarak objectId için response verisini alıyoruz
-                            const response = await getObjectData(app, objectId);
-                            if (!response) {
-                                console.error(`TableChart Component : response verisi boş veya tanımsız. ID: ${objectId}`);
-                                continue;
-                            }
-    
-                            // objectId için model verisini alıyoruz
-                            const model = await app.getObject(objectId);
-                            if (!model) {
-                                console.error(`TableChart Component : model verisi boş veya tanımsız. ID: ${objectId}`);
-                                continue;
-                            }
-                            //const tableTitle = model.layout.title;
-                            // qDimensionInfo ve qMeasureInfo başlıklarını alıyoruz
-                            const dimensionTitles = model.layout.qHyperCube.qDimensionInfo.map(item => item.qFallbackTitle);
-                            const measureTitles = model.layout.qHyperCube.qMeasureInfo.map(item => item.qFallbackTitle);
-                            
-                            allFirstHeader.push(...dimensionTitles);
-                            allSecondHeader.push(...measureTitles)
+     const firstArray = [...response.map(item => item[0].qText)];
+        allFirstArrayValues.push(...firstArray);
 
-                            // response verisini alıp firstArray ve secondArray'leri oluşturuyoruz
-                           
-                            const firstArray = [...response.map(item => item[0].qText)];
-                            
-    
-                            allFirstArrayValues.push(...firstArray);
-                            //allTableTitles.push(tableTitle);
-                            // her başlık için verileri topluyoruz
-                            console.log(response)
-                            // response1 ve response2'yi birleştirip benzersiz qText'leri almak
-const combinedResponses = [...response1, ...response2];
+        // Benzersiz qText'leri almak için Set kullanıyoruz
+        const uniqueQTexts = new Set(
+            response
+                .map(item => item.map(subItem => subItem.qText)) // Her response array'inin içindeki qText değerlerini alıyoruz
+                .flat() // Düzleştiriyoruz
+        );
 
-// Benzersiz qText değerlerini almak için Set kullanıyoruz
-const uniqueQTexts = new Set();
+        // Benzersiz qText'leri listeye dönüştürüyoruz
+        const uniqueQTextsList = Array.from(uniqueQTexts);
 
-// Tüm array'leri gezip qText değerlerini Set'e ekliyoruz
-combinedResponses.forEach(response => {
-  response.forEach(item => {
-    uniqueQTexts.add(item.qText);
-  });
-});
-
-// Benzersiz qText'leri listeye dönüştürüyoruz
-const uniqueQTextsList = Array.from(uniqueQTexts);
-
-console.log(uniqueQTextsList);
-                            // const secondArray = measureTitles.map((headerItem, idx) => {
-                            //     const values = response.map((item => item[idx + 1].qText));
-                            //     return [...values];
-                            // });
-    
-                            // // Verileri combinedSecondArray'de birleştiriyoruz
-                            // secondArray.forEach((secondArrItem, index) => {
-                            //     if (combinedSecondArray[index]) {
-                            //         // Aynı başlıkları birleştiriyoruz
-                            //         combinedSecondArray[index] = [
-                            //             combinedSecondArray[index][0],
-                            //             ...combinedSecondArray[index].slice(1),
-                            //             ...secondArrItem.slice(1)  // Sadece veriyi birleştiriyoruz, başlık tekrar edilmesin
-                            //         ];
-                            //     } else {
-                            //         // İlk başlık ve veriler ekleniyor
-                            //         combinedSecondArray.push(secondArrItem);
-                            //     }
-                            // });
-    
-                            // console.log(combinedSecondArray)
-    
-    
-                        } catch (error) {
-                            console.error(`TableChart Component : ${objectId} için işlem yapılırken hata oluştu:`, error);
-                        }
-
-                        console.log(allFirstHeader)
-                        console.log(allSecondHeader)
-                    }
+        console.log(uniqueQTextsList);
