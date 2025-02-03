@@ -1,4 +1,7 @@
- const secondArray = measureTitles.map((headerItem, idx) => {
-                                const values = response.map((item => item[idx + 1].qText));
-                                return [...values];
-                            });
+// response'dan gelen verileri kullanarak her bir ölçüm başlığını yalnızca bir kez ekliyoruz.
+const secondArray = response[0].map((_, idx) => {
+  const values = response.map(item => item[idx + 1].qText);
+  
+  // İlk elemanı (başlığı) sadece bir kez ekleyip, geri kalan verileri birleştiriyoruz.
+  return [response[0][idx].qText, ...values];
+});
