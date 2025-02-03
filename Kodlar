@@ -1,3 +1,10 @@
-ŞUBE ADI	KONYAALTI	ALANYA	IŞIKLAR CADDESİ	ANTALYA TİCARİ	MANAVGAT	KONYAALTI	ALANYA	IŞIKLAR CADDESİ	ANTALYA TİCARİ	MANAVGAT
-Toplam Müşteri Adet	2,345	2,345	2,345	2,345	2,345	2,345	2,345	2,345	2,345	2,345
-Toplam Gelir	23.532.124	23.532.124	23.532.124	23.532.124	23.532.124	23.532.124	23.532.124	23.532.124	23.532.124	23.532.124
+const firstArray = [header[0], ...datas.map(item => item[0].qText)];
+  // İkinci array oluşturuluyor
+  const secondArray = header.slice(1).map((headerItem, idx) => {
+    return {
+      [headerItem]: datas.map(item => item[idx + 1].qText)
+    };
+  });
+
+  console.log("İlk Array:", firstArray);
+  console.log("İkinci Array:", secondArray);
