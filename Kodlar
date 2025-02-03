@@ -1,5 +1,1 @@
-const secondArray = header.slice(1).map((headerItem, idx) => {
-  // Her başlık ile ilgili verileri alıp array halinde döndürüyoruz.
-  const values = datas.map(item => item[idx + 1].qText);
-  return [headerItem, ...values];
-});
+export default function SecondCombinedTable({app, objectId, objectId2}) {
