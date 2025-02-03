@@ -1,10 +1,5 @@
-const firstArray = [header[0], ...datas.map(item => item[0].qText)];
-  // İkinci array oluşturuluyor
-  const secondArray = header.slice(1).map((headerItem, idx) => {
-    return {
-      [headerItem]: datas.map(item => item[idx + 1].qText)
-    };
+const secondArray = header.slice(1).map((headerItem, idx) => {
+    // Bu kısımda her başlık için tüm qText değerlerini virgüllerle birleştiriyoruz
+    const values = datas.map(item => item[idx + 1].qText).join(", ");
+    return `${headerItem}, ${values}`;
   });
-
-  console.log("İlk Array:", firstArray);
-  console.log("İkinci Array:", secondArray);
