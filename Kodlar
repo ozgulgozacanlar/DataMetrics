@@ -1,5 +1,5 @@
 const secondArray = header.slice(1).map((headerItem, idx) => {
-    // Bu kısımda her başlık için tüm qText değerlerini virgüllerle birleştiriyoruz
-    const values = datas.map(item => item[idx + 1].qText).join(", ");
-    return `${headerItem}, ${values}`;
-  });
+  // Her başlık ile ilgili verileri alıp array halinde döndürüyoruz.
+  const values = datas.map(item => item[idx + 1].qText);
+  return [headerItem, ...values];
+});
