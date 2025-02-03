@@ -1,1 +1,39 @@
-objectIds={['id1', 'id2', 'id3']}
+   getObjectData(app, objectId).then((response) => {
+          if (!response) {
+            console.error('TableChart Component : response verisi boş veya tanımsız.');
+            return;
+          }
+          //Tablo header bilgileri alınıyor
+          app.getObject(objectId).then((model) => { 
+            if (!model) {
+              console.error('TableChart Component : model verisi boş veya tanımsız.');
+              return;
+            }
+            console.log(response)
+            // `qDimensionInfo` ve `qMeasureInfo` öğelerinin `qFallbackTitle` değerlerini alıp birleştiriyoruz.
+            const dimensionTitles = model.layout.qHyperCube.qDimensionInfo.map(item => item.qFallbackTitle);
+            const measureTitles = model.layout.qHyperCube.qMeasureInfo.map(item => item.qFallbackTitle);
+  
+            // `qDimensionInfo` öğelerini ilk sıraya, `qMeasureInfo` öğelerini sonra ekliyoruz.
+            const combinedTitles = [...measureTitles];
+            
+            console.log(combinedTitles)
+
+            const firstArray = [...dimensionTitles, ...response.map(item => item[0].qText)];
+            // İkinci array oluşturuluyor
+            const secondArray = combinedTitles.slice(1).map((headerItem, idx) => {
+                // Her başlık ile ilgili verileri alıp array halinde döndürüyoruz.
+                const values = response.map(item => item[idx + 1].qText);
+                return [headerItem, ...values];
+              });
+
+            console.log("İlk Array:", firstArray);
+            console.log("İkinci Array:", secondArray);
+            //setTableHeaderData(combinedTitles);
+          }).catch((error) => {
+            console.error('TableChart Component : getObject() methodu veri alınırken hata oluştu:', error);
+          });
+          //setTableDataArray(tableDatas);
+        }).catch((error) => {
+          console.error('TableChart Component : getObjectData() methodu veri alınırken hata oluştu:', error);
+        }); 
