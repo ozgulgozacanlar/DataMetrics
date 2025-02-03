@@ -1,39 +1,51 @@
-   getObjectData(app, objectId).then((response) => {
-          if (!response) {
-            console.error('TableChart Component : response verisi boş veya tanımsız.');
-            return;
-          }
-          //Tablo header bilgileri alınıyor
-          app.getObject(objectId).then((model) => { 
-            if (!model) {
-              console.error('TableChart Component : model verisi boş veya tanımsız.');
-              return;
-            }
-            console.log(response)
-            // `qDimensionInfo` ve `qMeasureInfo` öğelerinin `qFallbackTitle` değerlerini alıp birleştiriyoruz.
-            const dimensionTitles = model.layout.qHyperCube.qDimensionInfo.map(item => item.qFallbackTitle);
-            const measureTitles = model.layout.qHyperCube.qMeasureInfo.map(item => item.qFallbackTitle);
-  
-            // `qDimensionInfo` öğelerini ilk sıraya, `qMeasureInfo` öğelerini sonra ekliyoruz.
-            const combinedTitles = [...measureTitles];
-            
-            console.log(combinedTitles)
+getObjectData(app, objectIds).then((responses) => {
+  if (!responses || responses.length !== objectIds.length) {
+    console.error('TableChart Component : response verisi boş veya tanımsız.');
+    return;
+  }
 
-            const firstArray = [...dimensionTitles, ...response.map(item => item[0].qText)];
-            // İkinci array oluşturuluyor
-            const secondArray = combinedTitles.slice(1).map((headerItem, idx) => {
-                // Her başlık ile ilgili verileri alıp array halinde döndürüyoruz.
-                const values = response.map(item => item[idx + 1].qText);
-                return [headerItem, ...values];
-              });
+  // İlk olarak tüm objectIds'ler için verileri alıyoruz
+  const allDimensionTitles = [];
+  const allMeasureTitles = [];
+  const allFirstArrayValues = [];
+  const allSecondArrayValues = [];
 
-            console.log("İlk Array:", firstArray);
-            console.log("İkinci Array:", secondArray);
-            //setTableHeaderData(combinedTitles);
-          }).catch((error) => {
-            console.error('TableChart Component : getObject() methodu veri alınırken hata oluştu:', error);
-          });
-          //setTableDataArray(tableDatas);
-        }).catch((error) => {
-          console.error('TableChart Component : getObjectData() methodu veri alınırken hata oluştu:', error);
-        }); 
+  // Her objectId için sırasıyla işlem yapıyoruz
+  objectIds.forEach((objectId, index) => {
+    app.getObject(objectId).then((model) => {
+      if (!model) {
+        console.error(`TableChart Component : model verisi boş veya tanımsız. ID: ${objectId}`);
+        return;
+      }
+
+      // qDimensionInfo ve qMeasureInfo başlıklarını alıyoruz
+      const dimensionTitles = model.layout.qHyperCube.qDimensionInfo.map(item => item.qFallbackTitle);
+      const measureTitles = model.layout.qHyperCube.qMeasureInfo.map(item => item.qFallbackTitle);
+
+      allDimensionTitles.push(...dimensionTitles);
+      allMeasureTitles.push(...measureTitles);
+
+      // response verisini alıp firstArray ve secondArray'leri oluşturuyoruz
+      const response = responses[index];
+      const firstArray = [...response.map(item => item[0].qText)];
+
+      allFirstArrayValues.push(...firstArray);
+
+      const secondArray = measureTitles.slice(1).map((headerItem, idx) => {
+        const values = response.map(item => item[idx + 1].qText);
+        return [headerItem, ...values];
+      });
+
+      allSecondArrayValues.push(...secondArray);
+      
+      // Verileri işleyip çıktı olarak alıyoruz
+      console.log("First Array Değeri: ", firstArray);
+      console.log("Second Array Değeri: ", secondArray);
+    }).catch((error) => {
+      console.error(`TableChart Component : getObject() methodu veri alınırken hata oluştu. ID: ${objectId}`, error);
+    });
+  });
+
+}).catch((error) => {
+  console.error('TableChart Component : getObjectData() methodu veri alınırken hata oluştu:', error);
+});
