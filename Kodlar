@@ -1,9 +1,4 @@
-      // İlk döngüde sadece bir kez ekliyoruz
-      if (i === 0) {
-        allDimensionTitles.push(...dimensionTitles); // İlk obje için ekliyoruz
-      }
-      allMeasureTitles.push(...measureTitles); // Measure başlıkları her objede eklenebilir
-
-      // response verisiyle firstArray'i oluşturuyoruz
-      const firstArray = [...response.map(item => item[0].qText)];
-      allFirstArrayValues.push(...firstArray); // First array'leri birleştiriyoruz
+ const secondArray = measureTitles.map((headerItem, idx) => {
+                                const values = response.map((item => item[idx + 1].qText));
+                                return [...values];
+                            });
