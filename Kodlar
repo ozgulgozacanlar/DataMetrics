@@ -1,5 +1,8 @@
- {tableName === 'x' && (
-            <tr>
-                <th>&nbsp;</th>
-            </tr>
-        )}
+  <tr>
+                    {/* headers array'ini map ile döndürüp <th> öğelerine dönüştürüyoruz */}
+                    {tableHeaderData && tableHeaderData.map((header, index) => (
+                        <th key={index}>
+                            {header}
+                        </th>
+                    ))}
+                </tr>
