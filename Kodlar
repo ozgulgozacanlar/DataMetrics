@@ -12,3 +12,6 @@
           combinedSecondArray.push(secondArrItem);
         }
       });
+
+
+  console.log("Birleştirilmiş Second Array Değerleri:", combinedSecondArray);
