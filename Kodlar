@@ -1,17 +1,6 @@
-// Verileri combinedSecondArray'de birleştiriyoruz
-      secondArray.forEach((secondArrItem, index) => {
-        if (combinedSecondArray[index]) {
-          // Aynı başlıkları birleştiriyoruz
-          combinedSecondArray[index] = [
-            combinedSecondArray[index][0], 
-            ...combinedSecondArray[index].slice(1),
-            ...secondArrItem.slice(1)  // Sadece veriyi birleştiriyoruz, başlık tekrar edilmesin
-          ];
-        } else {
-          // İlk başlık ve veriler ekleniyor
-          combinedSecondArray.push(secondArrItem);
-        }
-      });
+  allDimensionTitles.push(...dimensionTitles);
+                        allMeasureTitles.push(...measureTitles);
 
-
-  console.log("Birleştirilmiş Second Array Değerleri:", combinedSecondArray);
+                        // response verisini alıp firstArray ve secondArray'leri oluşturuyoruz
+                        const firstArray = [...dimensionTitles,...response.map(item => item[0].qText)];
+                        allFirstArrayValues.push(...firstArray);
