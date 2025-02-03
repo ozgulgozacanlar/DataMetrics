@@ -1,6 +1,9 @@
-  allDimensionTitles.push(...dimensionTitles);
-                        allMeasureTitles.push(...measureTitles);
+      // İlk döngüde sadece bir kez ekliyoruz
+      if (i === 0) {
+        allDimensionTitles.push(...dimensionTitles); // İlk obje için ekliyoruz
+      }
+      allMeasureTitles.push(...measureTitles); // Measure başlıkları her objede eklenebilir
 
-                        // response verisini alıp firstArray ve secondArray'leri oluşturuyoruz
-                        const firstArray = [...dimensionTitles,...response.map(item => item[0].qText)];
-                        allFirstArrayValues.push(...firstArray);
+      // response verisiyle firstArray'i oluşturuyoruz
+      const firstArray = [...response.map(item => item[0].qText)];
+      allFirstArrayValues.push(...firstArray); // First array'leri birleştiriyoruz
