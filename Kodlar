@@ -1,1 +1,1 @@
-export default function SecondCombinedTable({app, objectId, objectId2}) {
+objectIds={['id1', 'id2', 'id3']}
