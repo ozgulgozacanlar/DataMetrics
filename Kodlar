@@ -1,1 +1,14 @@
-    {tableName === 'x' && <th>&nbsp;</th>}
+ <table className={`${tableName === 'sube' ? 'low-high-table modal-table' : 'retired-profit-table modal-table'} table-bordered`}>
+            <thead>
+                <tr>
+                    <th>&nbsp;</th>
+                    {tableTitleArray && tableTitleArray.map((title, index) => {
+                        const colSpanValue = tableName === 'sube' ? 5 : 6;
+                        return (
+                            <th colSpan={colSpanValue} key={index} >
+                                {title}
+                            </th>
+                        );
+                    })}
+                    
+                </tr>
