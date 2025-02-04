@@ -1,14 +1,18 @@
- <table className={`${tableName === 'sube' ? 'low-high-table modal-table' : 'retired-profit-table modal-table'} table-bordered`}>
-            <thead>
-                <tr>
-                    <th>&nbsp;</th>
-                    {tableTitleArray && tableTitleArray.map((title, index) => {
-                        const colSpanValue = tableName === 'sube' ? 5 : 6;
-                        return (
-                            <th colSpan={colSpanValue} key={index} >
-                                {title}
-                            </th>
-                        );
-                    })}
-                    
-                </tr>
+import React from 'react'
+
+export default function LineChartLegend({legendText=""}) {
+
+    console.log(legendText)
+    return (
+        <div className="d-flex align-items-center justify-content-end gap-2">
+            <div className="d-flex align-items-center gap-1">
+                <div className="legend-sq-detail blue">&nbsp;</div>
+                <div className="legend-text">{legendText === "" ? "Bölge" : legendText}</div>
+            </div>
+            <div className="d-flex align-items-center gap-1">
+                <div className="legend-sq-detail green">&nbsp;</div>
+                <div className="legend-text">Ortalama</div>
+            </div>
+        </div>
+    )
+}
