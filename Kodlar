@@ -1,15 +1,335 @@
-export default function LineChartLegend({legendText=[]}) {
-    // Renkler dizisini tanımla
-    const colors = ['blue', 'green']; // Gerekirse daha fazla renk ekleyebilirsiniz.
+import { useEffect, useRef, useState } from 'react';
+import * as d3 from 'd3';
+import { getObjectData, getObjectModel } from '@/util/qlikConnection';
+import { formatNumber, translateMonthToEnglish, customCeil,translateMonthToTurkish } from '@/util/helper';
+import { useSelector } from 'react-redux';
+
+export default function ComboChart({ app, objectId, isVisible,  onLoaded }) {
+
+    const svgRef = useRef(null);
+    const chartContainerRef = useRef(null);
+    const [data, setData] = useState([]);
+    const [legendData, setLegendData] = useState([]);
+    const [svgSize, setSvgSize] = useState({ width: 0, height: 0 });
+    const pageName = useSelector((state) => state.page.name);
+
+    const [chartTitle, setChartTitle] = useState("");
+    //const legendColor=["#2b85c9","#dc9465", "#a1c789"];
+
+    const updateDimensions = () => {
+        if (chartContainerRef.current) {
+            setSvgSize({
+                width: chartContainerRef.current.offsetWidth,
+                height: chartContainerRef.current.offsetHeight,
+            });
+        }
+    };
+    useEffect(() => {
+        updateDimensions();
+        window.addEventListener("resize", updateDimensions);
+
+        return () => {
+            window.removeEventListener("resize", updateDimensions);
+        };
+    }, [isVisible]);
+
+    useEffect(() => {
+        function renderComboChartQlikObject(objectId) {
+            if (app) {
+                getObjectData(app, objectId).then((response) => {
+                    console.log(response)
+                    var incomingData  = response.map(item => ({
+                            date: item[0].qText,
+                            lineData: [  // Line chart verisi
+                                { value1: item[2].qNum,
+                                  value2: item[3].qNum,
+                                  value1Text: item[2].qText,
+                                  value2Text: item[3].qText }, 
+                            ],
+                            barData: [  // Bar chart verisi
+                                { value: item[1].qText }   
+                            ]
+    
+                        }));
+                    
+                    setData(incomingData);
+                    getObjectModel(app, objectId).then((model) => {
+                        const legendDataArray = model.layout.qHyperCube.qMeasureInfo.map(
+                            (item) => item.qFallbackTitle
+                        );                 
+                        setLegendData(legendDataArray);
+                        setChartTitle(model.layout.title);
+                        onLoaded();
+                    });
+                });
+            }
+        }
+        renderComboChartQlikObject(objectId);
+    }, [app, objectId, onLoaded]);
+    const drawComboChart = () => {
+
+        if (data.length === 0) return;
+
+        const svg = d3.select(svgRef.current);
+        svg.selectAll("*").remove()
+        // Margin ve boyutlar
+        const margin = { top:  20, right: 0, bottom: 10, left: 0 }; // Sağda ve solda daha fazla boşluk
+        const width = svgSize.width - margin.left - margin.right;
+        const height = svgSize.height - margin.top - margin.bottom;
+
+        svg
+            .attr("width", svgSize.width)
+            .attr("height", svgSize.height)
+            .append('g')
+            .attr('transform', `translate(${margin.left}, ${margin.top})`);
+
+
+        // Zaman verisini parse etmek için yardımcı fonksiyon
+        const parseDate = d3.timeParse("%b-%y");  // "%b-%y" Jan-23 gibi formatları işlemek için
+
+
+        // Ortak X eksenis
+        const x = d3.scaleBand()
+            .domain(data.map(d => parseDate(translateMonthToEnglish(d.date))))  // Her bir tarihi domena ekliyoruz
+            .range([0, width])  // Eksenin genişliği
+            .padding(0.5);  // Barlar arasına boşluk bırakıyoruz
+
+        // Y eksenleri
+        const yBar = d3.scaleLinear()
+            .domain([0, d3.max(data, d => d.barData[0].value)*6])
+            .nice()
+            .range([height, 0]);
+
+
+          // Y eksenindeki minimum ve maksimum değerleri hesaplıyoruz
+          const minValue = Math.min(...data.map(d => Math.min(d.lineData[0].value1, d.lineData[0].value2)));
+          const maxValue = Math.max(...data.map(d => Math.max(d.lineData[0].value1, d.lineData[0].value2)));
+  
+          // Min ve max arasındaki farkı kontrol ediyoruz
+          const difference = maxValue - minValue;
+         
+          // Y eksenindeki minimum ve maksimum değeri hesaplıyoruz
+          const yMin = Math.floor(minValue);  // Küçük değere yuvarla
+          const yMax = customCeil(maxValue,1);  // En büyük değeri yuvarla
+       
+          // Eğer fark çok küçükse, yMin'i başlangıç olarak minValue'yu alıyoruz
+          const adjustedYMin = difference < 2 ? yMin : 0;
+        //   const tickFormat = difference < 2 ? ".1f" : "d";
+         
+          const y = d3.scaleLinear()
+          .domain([adjustedYMin, yMax])
+          .nice()
+          .range([height, 0]);
+
+        const yLine1 = d3.scaleLinear()
+            .domain([0, d3.max(data, d => d.lineData[0].value1)])
+            .nice()
+            .range([height, yMin]);
+
+        const yLine2 = d3.scaleLinear()
+            .domain([0, d3.max(data, d => d.lineData[0].value2)])
+            .nice()
+            .range([height, yMin]);
+
+        const chartGroup = svg
+            .append("g")
+            .attr("transform", `translate(${margin.left}, ${margin.top})`);
+
+        // X-axis
+        const xAxis = d3.axisBottom(x)
+        .tickValues(
+            Array.from(new Set(data.map(d => {
+                const translatedDate = translateMonthToEnglish(d.date);
+                const parsedDate = parseDate(translatedDate);
+                return parsedDate ? parsedDate.getTime() : null;
+            })))
+                .filter(d => d !== null)
+                .map(d => new Date(d))
+        )
+        .tickFormat(d => translateMonthToTurkish(d3.timeFormat("%b %y")(d)))  // Ayları Türkçe yazar
+        .tickSize(0);
+
+        chartGroup.append('g')
+            .attr('transform', `translate(0, ${height})`)
+            .call(xAxis);
+
+        chartGroup.selectAll('.domain')
+                .attr('stroke', '#d3d3d3')
+                .attr('stroke-width', 1);
+        // Y eksenleri
+        // chartGroup.append('g')
+        //     .attr('class', 'y-axis-left')
+        //     .call(d3.axisLeft(yBar).tickFormat((d) => formatNumber(d)));  // Y eksenine formatNumber ekliyoruz
+
+        
+        // const tickCount = Math.max(5, Math.floor((yMax - adjustedYMin) / 10));  // Tick sayısını dinamik olarak hesaplıyoruz
+
+        // Sağ Y ekseni (line chart için)
+        // chartGroup.append('g')
+        //     .attr('class', 'y-axis-right')
+        //     .attr('transform', `translate(${width}, 0)`)
+        //     .call(d3.axisRight(y).ticks(tickCount)  // Tick sayısını hesaplıyoruz
+        //     .tickFormat(d3.format(tickFormat)));
+
+        // Bar Chart çizimi
+        chartGroup.selectAll('.bar')
+            .data(data)
+            .enter()
+            .append('rect')
+            .attr('class', 'bar')
+            .attr('x', (d) => x(parseDate(translateMonthToEnglish(d.date)))) // X koordinatı için bandwidth kullanıyoruz
+            .attr('y', d => yBar(d.barData[0].value))
+            .attr('width', x.bandwidth()) // Bar genişliğini bandwith ile alıyoruz
+            .attr('height', d => height - yBar(d.barData[0].value))
+            .attr('fill', '#ddd');
+
+        // Bar'ların üstüne değer yazdırma
+        chartGroup.selectAll('.bar-value')
+            .data(data)
+            .enter()
+            .append('text')
+            .attr('class', 'bar-value')
+            .attr('x', (d) => x(parseDate(translateMonthToEnglish(d.date))) + x.bandwidth() / 2)  // Bar'ın ortasına yerleştiriyoruz
+            .attr('y', d => yBar(d.barData[0].value) - 5)  // Bar'ın hemen üstüne yerleştiriyoruz
+            .attr('text-anchor', 'middle')
+            .style("fill", "#6a6a6a")
+            .style("font-size", "12px")
+            .style("font-weight", "bold")
+            .text(d => formatNumber(d.barData[0].value));  // Her bir bar'ın değerini yazdırıyoruz
+        // Line Chart çizimi
+        const line1 = d3.line()
+            .x(d => x(parseDate(translateMonthToEnglish(d.date))))
+            .y(d => yLine1(d.lineData[0].value1));
+
+        const line2 = d3.line()
+            .x(d => x(parseDate(translateMonthToEnglish(d.date))))
+            .y(d => yLine2(d.lineData[0].value2));
+
+        chartGroup.append('path')
+            .data([data])
+            .attr('class', 'line1')
+            .attr('d', line1)
+            .attr('fill', 'none')
+            .attr('stroke', '#2b85c9') // mavi line
+            .attr('stroke-width', 2)
+            .attr('transform', `translate(30, 0)`);
+
+        chartGroup.append('path')
+            .data([data])
+            .attr('class', 'line2')
+            .attr('d', line2)
+            .attr('fill', 'none')
+            .attr('stroke', '#a1c789') // yeşil line
+            .attr('stroke-width', 2)
+            .attr("stroke-dasharray", "6")
+            .attr('transform', `translate(30, 0)`);
+
+        // Ortadaki çizgi (referans çizgisi)
+        chartGroup.append("line")
+                .attr("x1", 0) // Grafik ortasına yatay çizgi çeker
+                .attr("x2", width) // Çizgi sabit, dikey olacak
+                .attr("y1", height/2) // En üstten başla
+                .attr("y2", height/2) // En alta kadar çiz
+                .attr("stroke", "#ddd") // Çizgi rengi
+                .attr("stroke-width", 1) // Çizgi kalınlığı
+
+        chartGroup.selectAll('.circle1')
+            .data(data)
+            .enter()
+            .append('circle')
+            .attr('class', 'circle1')
+            .attr('cx', d => x(parseDate(translateMonthToEnglish(d.date))))
+            .attr('cy', d => yLine1(d.lineData[0].value1))
+            .attr('r', 5)
+            .attr('fill', '#fff')  // İçi boş 
+            .attr('stroke', '#2b85c9')  // Kenarlık rengi mavi 
+            .attr('stroke-width', 2)
+            .attr('transform', `translate(30, 0)`);
+
+        chartGroup.selectAll('.label1')
+            .data(data)
+            .enter()
+            .append('text')
+            .attr('class', 'label1')
+            .attr('x', d => x(parseDate(translateMonthToEnglish(d.date))))
+            .attr('y', d => {
+                return d.lineData[0].value1 > d.lineData[0].value2 ? yLine1(d.lineData[0].value1) - 10 :yLine1(d.lineData[0].value1) + 20;
+            })
+            
+            .attr('text-anchor', 'middle')
+            .style('fill', '#2b85c9')
+            .style('font-size', '10px')
+            .text(d => (d.lineData[0].value1Text))
+            .attr('transform', `translate(30, 0)`);
+
+        chartGroup.selectAll('.circle2')
+            .data(data)
+            .enter()
+            .append('circle')
+            .attr('class', 'circle2')
+            .attr('cx', d => x(parseDate(translateMonthToEnglish(d.date))))
+            .attr('cy', d => yLine2(d.lineData[0].value2))
+            .attr('r', 5)
+            .attr('fill', '#fff')  // İçi boş 
+            .attr('stroke', '#a1c789')  // Kenarlık rengi yeşil 
+            .attr('stroke-width', 2)
+            .attr('transform', `translate(30, 0)`);
+
+        chartGroup.selectAll('.label2')
+            .data(data)
+            .enter()
+            .append('text')
+            .attr('class', 'label2')
+            .attr('x', d => x(parseDate(translateMonthToEnglish(d.date))))
+            .attr('y', d => {
+                return d.lineData[0].value2 > d.lineData[0].value1 ? yLine2(d.lineData[0].value2) - 10 : yLine2(d.lineData[0].value2) + 20;
+            })
+            .attr('text-anchor', 'middle')
+            .style('fill', '#a1c789')
+            .style('font-size', '10px')
+            .text(d => (d.lineData[0].value2Text))
+            .attr('transform', `translate(30, 0)`);
+
+        //     const legendContainer = chartGroup
+        //     .append("g")
+        //     .attr("transform", `translate(${width/2 - 180}, ${height + 30})`);
+      
+        //   const legendItems = legendContainer
+        //     .selectAll(".legend-item")
+        //     .data(legendData)
+        //     .enter()
+        //     .append("g")
+        //     .attr("class", "legend-item")
+        //     .attr("transform", (_, i) => `translate(${i * 110}, 0)`);
+      
+        //   legendItems
+        //     .append("rect")
+        //     .attr("width", 15)
+        //     .attr("height", 15)
+        //     .attr("rx", 10)
+        //     .attr("ry", 10)
+        //     .attr("fill", (_, i) => legendColor[i % legendColor.length]);  // Renkleri legendColor dizisinden alıyoruz
+      
+        //   legendItems
+        //     .append("text")
+        //     .attr("x", 20)
+        //     .attr("y", 12)
+        //     .text((d) => d)
+        //     .style("fill", "black")
+        //     .style("font-size", "12px");
+    }
+    useEffect(() => {
+        if (data.length > 0 && svgSize.width > 0 && svgSize.height > 0) {
+            drawComboChart();
+        }
+    }, [data, legendData,svgSize]);
 
     return (
-        <div className="d-flex align-items-center justify-content-end gap-2">
-            {legendText.map((text, index) => (
-                <div className="d-flex align-items-center gap-1" key={index}>
-                    <div className={`legend-sq-detail ${colors[index % colors.length]}`}>&nbsp;</div>
-                    <div className="legend-text">{text}</div>
-                </div>
-            ))}
-        </div>
+        <>
+            {/* <div className="card-title">{chartTitle}</div> */}
+            <div ref={chartContainerRef} style={{ width: "100%", height: pageName === "npl-karlilik-karlilik" ? "200px" : "180px"}}>
+                <svg ref={svgRef} style={{ width: "100%", height: "100%" }}></svg>
+            </div>
+        </>
     )
 }
