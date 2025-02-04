@@ -1,18 +1,15 @@
-import React from 'react'
+export default function LineChartLegend({legendText=[]}) {
+    // Renkler dizisini tanımla
+    const colors = ['blue', 'green']; // Gerekirse daha fazla renk ekleyebilirsiniz.
 
-export default function LineChartLegend({legendText=""}) {
-
-    console.log(legendText)
     return (
         <div className="d-flex align-items-center justify-content-end gap-2">
-            <div className="d-flex align-items-center gap-1">
-                <div className="legend-sq-detail blue">&nbsp;</div>
-                <div className="legend-text">{legendText === "" ? "Bölge" : legendText}</div>
-            </div>
-            <div className="d-flex align-items-center gap-1">
-                <div className="legend-sq-detail green">&nbsp;</div>
-                <div className="legend-text">Ortalama</div>
-            </div>
+            {legendText.map((text, index) => (
+                <div className="d-flex align-items-center gap-1" key={index}>
+                    <div className={`legend-sq-detail ${colors[index % colors.length]}`}>&nbsp;</div>
+                    <div className="legend-text">{text}</div>
+                </div>
+            ))}
         </div>
     )
 }
