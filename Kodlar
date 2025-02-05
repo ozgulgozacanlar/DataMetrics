@@ -1,17 +1,9 @@
-const getNewPageName = (pageName) => {
-  let newPageName = pageName;  // Varsayılan olarak pageName'i al
+  <Link to="/pusulaPerformansDetay" className="detail-btn">Detaylar</Link>
 
-  // Burada gelen pageName'e göre yeni bir pageName ayarlıyoruz
-  if (pageName === 'musteri-detay') {
-    newPageName = 'Müşteri';
-  } else if (pageName === 'urun-detay') {
-    newPageName = 'Ürün';
-  } else if (pageName === 'siparis-detay') {
-    newPageName = 'Sipariş';
-  }
-  // Diğer pageName'ler için başka koşullar ekleyebilirsiniz
-
-  return newPageName;
-};
-
-      <span className="page-name">{getNewPageName(pageName)}</span>  {/* getNewPageName fonksiyonu burada çağrılıyor */}
+ <div className="tab-wrapper">
+            <div className={routeText === '/' ? "tab-item active" : "tab-item"} onClick={() => handleClickPage("/")}>Kokpit</div>
+            <div className={routeText === '/mdsNtsHacim' ? "tab-item active" : "tab-item"} onClick={() => handleClickPage("/mdsNtsHacim")}>MDS/NTS/Hacim</div>
+            <div className={routeText === '/gosas-musteri' ? "tab-item active" : "tab-item"} onClick={() => handleClickPage("/gosas-musteri")}>GÖSAŞ/Müşteri</div>
+            <div className={routeText === '/npl-karlilik' ? "tab-item active" : "tab-item"} onClick={() => handleClickPage("/npl-karlilik")}>NPL/Kârlılık</div>
+            <div className={routeText === '/promosyon-karlilik' ? "tab-item active" : "tab-item"} onClick={() => handleClickPage("/promosyon-karlilik")}>Promosyon Kârlılık</div>
+          </div>
