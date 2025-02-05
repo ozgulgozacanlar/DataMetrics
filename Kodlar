@@ -1,4 +1,6 @@
-      {pageName !== 'favorites' && pageName !== 'bookmarks' ? (
+   <div className="header-wrapper">
+          <div className="logo-wrapper"  onClick={() => handleClickPage("/")}><GarantiLogo /></div>
+          {pageName !== 'favorites' && pageName !== 'bookmarks' ? (
           <>
             <h1 onClick={handleHomeClick}>Ana Sayfa</h1>
             <RightChevron />
@@ -15,3 +17,14 @@
         ) : (
           <h1 onClick={handleHomeClick}>Ana Sayfa</h1>
         )}
+      
+
+          <div className="tab-wrapper">
+            <div className={routeText === '/' ? "tab-item active" : "tab-item"} onClick={() => handleClickPage("/")}>Kokpit</div>
+            <div className={routeText === '/mdsNtsHacim' ? "tab-item active" : "tab-item"} onClick={() => handleClickPage("/mdsNtsHacim")}>MDS/NTS/Hacim</div>
+            <div className={routeText === '/gosas-musteri' ? "tab-item active" : "tab-item"} onClick={() => handleClickPage("/gosas-musteri")}>GÖSAŞ/Müşteri</div>
+            <div className={routeText === '/npl-karlilik' ? "tab-item active" : "tab-item"} onClick={() => handleClickPage("/npl-karlilik")}>NPL/Kârlılık</div>
+            <div className={routeText === '/promosyon-karlilik' ? "tab-item active" : "tab-item"} onClick={() => handleClickPage("/promosyon-karlilik")}>Promosyon Kârlılık</div>
+          </div>
+          <UserCircle user={user}/>
+      </div>
