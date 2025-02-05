@@ -1,30 +1,16 @@
-   <div className="header-wrapper">
-          <div className="logo-wrapper"  onClick={() => handleClickPage("/")}><GarantiLogo /></div>
-          {pageName !== 'favorites' && pageName !== 'bookmarks' ? (
+       {pageName.includes("detay") ? (
           <>
-            <h1 onClick={handleHomeClick}>Ana Sayfa</h1>
-            <RightChevron />
-            {appName ? (
-              <>
-                <h1 onClick={handleStreamClick}>{streamName}</h1>
-                <RightChevron />
-                <h1 onClick={handleAppClick}>{appName}</h1>
-              </>
-            ) : (
-              <h1>{streamName}</h1>
-            )}
+             <div className='mt-2'>
+            <button 
+            onClick={handleClickBack}
+            className='back-button'
+          >
+            <span className='back-arrow'></span>
+            |
+          </button>
+
+            </div>
           </>
         ) : (
-          <h1 onClick={handleHomeClick}>Ana Sayfa</h1>
+          <div className="logo-wrapper"  onClick={() => handleClickPage("/")}><GarantiLogo /></div>
         )}
-      
-
-          <div className="tab-wrapper">
-            <div className={routeText === '/' ? "tab-item active" : "tab-item"} onClick={() => handleClickPage("/")}>Kokpit</div>
-            <div className={routeText === '/mdsNtsHacim' ? "tab-item active" : "tab-item"} onClick={() => handleClickPage("/mdsNtsHacim")}>MDS/NTS/Hacim</div>
-            <div className={routeText === '/gosas-musteri' ? "tab-item active" : "tab-item"} onClick={() => handleClickPage("/gosas-musteri")}>GÖSAŞ/Müşteri</div>
-            <div className={routeText === '/npl-karlilik' ? "tab-item active" : "tab-item"} onClick={() => handleClickPage("/npl-karlilik")}>NPL/Kârlılık</div>
-            <div className={routeText === '/promosyon-karlilik' ? "tab-item active" : "tab-item"} onClick={() => handleClickPage("/promosyon-karlilik")}>Promosyon Kârlılık</div>
-          </div>
-          <UserCircle user={user}/>
-      </div>
