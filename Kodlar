@@ -1,8 +1,42 @@
+{pageName.includes("detay") ? (
+  <>
+    <div className="back-bar"> {/* Uzun çubuğu buraya yerleştiriyoruz */}
+      <button
+        onClick={handleClickBack}
+        className="back-button"
+      >
+        <span className="back-arrow"></span>
+        |
+      </button>
       <span className="page-name">{pageName}</span>  {/* Sayfa adı burada */}
+    </div>
+  </>
+) : (
+  <div className="logo-wrapper" onClick={() => handleClickPage("/")}>
+    <GarantiLogo />
+  </div>
+)}
+.back-bar {
+  display: flex; /* Flexbox ile öğeleri yatayda hizalayalım */
+  justify-content: flex-end; /* Hem geri butonunu hem de pageName'i sağa hizalar */
+  align-items: center; /* Yatayda ortalamak için */
+  width: 100%; /* Çubuğun genişliğini tamamen alacak şekilde ayarlıyoruz */
+  background-color: #f1f1f1; /* Arka plan rengini verebilirsiniz */
+  padding: 10px 20px; /* Çubuğun üst ve alt padding'i */
+}
+
+.back-button {
+  background: transparent;
+  border: none;
+  font-size: 18px;
+  cursor: pointer;
+  margin-right: 10px;  /* Sayfa adı ile geri butonu arasına boşluk ekleyin */
+  font-weight: bold;
+}
+
 .page-name {
   font-size: 18px;
   color: #333;
-  display: inline-block;
-  vertical-align: top; /* Yazının düzgün hizalanması için */
-  margin-left: 10px;
+  margin-left: 10px; /* Sayfa adının geri butonundan biraz uzak olması için */
+  flex-grow: 1; /* Sayfa ismini sağa itmek için */
 }
