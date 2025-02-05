@@ -1,1 +1,44 @@
- app.field("UnitName").selectValues([name])
+barsGroup
+  .selectAll("rect")
+  .data((d) => d.slice(1))
+  .enter()
+  .append("rect")
+  .attr("x", (_, i) => x1(i))
+  .attr("y", (d) => y(d.qNum))
+  .attr("width", x1.bandwidth())
+  .attr("height", (d) => height - y(d.qNum))
+  .attr("fill", (_, i) => {
+    let color = i % 2 === 0 ? "#2c84cc" : "#a4c48c";  
+    if(graphicName === 'hacimselGelisim'){ 
+      color = barCounter % 2 === 0 ? "#2c84cc" : "#a4c48c"; 
+      barCounter++;       
+    }    
+    return color;  
+  })
+  .on("click", (event, d) => {
+    // Tıklanan çubuğun ismini al (örneğin qText veya başka bir alan)
+    const clickedValue = d.qText; // Tıklanan barın değerini alıyoruz (d.qText veya başka bir uygun alan olabilir)
+
+    // Qlik objesine filtre atmak
+    if (app) {
+      app.field("UnitName").selectValues([clickedValue], true); // "UnitName" alanında seçimi uygula
+    }
+
+    // (Opsiyonel) Tıklanan çubuğun rengini değiştirme
+    d3.select(event.currentTarget)
+      .attr("fill", "#ff6347"); // Kırmızıya boyama
+  });
+
+.on("click", (event, d) => {
+    // Tıklanan bar çubuğunun verisini al
+    const clickedData = d;
+    
+    // Burada clickedData ile istediğiniz işlemi gerçekleştirebilirsiniz
+    console.log("Tıklanan veri: ", clickedData);
+    
+    // Örneğin, tıklanan bar çubuğunun rengini değiştirebilirsiniz:
+    d3.select(event.currentTarget)
+      .attr("fill", "#ff6347"); // Örneğin kırmızıya boyama
+
+    // Burada bir başka işlem de yapılabilir, örneğin tıklanan veriyi bir üst bileşene gönderebilirsiniz.
+  });
