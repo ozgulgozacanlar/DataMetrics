@@ -1,12 +1,20 @@
- // Veri setini değiştirme (örneğin d.name veya diğer parametre ile güncelleme)
-    const updatedData = data.map(item => {
-        // Burada istenen filtreleme veya değişiklik yapılabilir
-        if (item.name === clickedValue) {
-            // Belirli item'ı değiştir
-            item.value = newValue; // örneğin yeni bir değeri buraya ekleyebilirsiniz
+useEffect(() => {
+    if (!clickedChart) return; // clickedChart true olmadan işlem yapma
+
+    // Qlik objesinden veriyi alıyoruz
+    getObjectData(app, objectId).then((response) => {
+        if (!response) {
+            console.error('MultiBarChart Component : response verisi boş veya tanımsız.');
+            return;
         }
-        return item;
+
+        // Yeni gelen veriyi data state'ine set ediyoruz
+        setData(response); // Bu işlem data'yı güncelleyecek ve grafik yeniden çizilecek
+    }).catch((error) => {
+        console.error('getObjectData error:', error);
     });
 
-    // Yeni veriyi setData ile güncelliyoruz
-    setData(updatedData); // Burada data'yı güncelliyoruz
+    // clickedChart'i false yaparak işlem tamamlandığında tekrar işlem yapılmamasını sağlıyoruz
+    setClickedChart(false);
+
+}, [clickedChart]); // clickedChart değiştiğinde tetiklenecek
