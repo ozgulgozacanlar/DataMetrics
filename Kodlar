@@ -1,8 +1,11 @@
-g.append("g")
-    .attr("class", "y-axis")
-    .call(d3.axisLeft(yScale))      // Y ekseni için scale uyguluyoruz
-    .selectAll(".domain")            // Y ekseninin çizgilerini beyaz yapıyoruz
-    .attr("stroke", "white");
+    .call(d3.axisBottom(xScale).ticks(0).tickSize(0))  // tickSize(0) ile çizgileri kaldırıyoruz
+g.selectAll(".x-axis text")
+    .text(function(d) {
+        // Eğer metin 10 karakterden uzun ise, 10 karaktere kadar kısaltıp '...' ekle
+        return d.length > 10 ? d.substring(0, 10) + '...' : d;
+    })
+    .style("text-anchor", "middle")
+    .style("font-size", "12px");
 
 barsGroup
   .selectAll("rect")
