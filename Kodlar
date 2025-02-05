@@ -1,16 +1,8 @@
-       {pageName.includes("detay") ? (
-          <>
-             <div className='mt-2'>
-            <button 
-            onClick={handleClickBack}
-            className='back-button'
-          >
-            <span className='back-arrow'></span>
-            |
-          </button>
-
-            </div>
-          </>
-        ) : (
-          <div className="logo-wrapper"  onClick={() => handleClickPage("/")}><GarantiLogo /></div>
-        )}
+      <span className="page-name">{pageName}</span>  {/* Sayfa adı burada */}
+.page-name {
+  font-size: 18px;
+  color: #333;
+  display: inline-block;
+  vertical-align: top; /* Yazının düzgün hizalanması için */
+  margin-left: 10px;
+}
