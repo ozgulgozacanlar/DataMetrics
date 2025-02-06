@@ -1,9 +1,25 @@
-  <Link to="/pusulaPerformansDetay" className="detail-btn">Detaylar</Link>
+  g.append('g')
+            .attr('class', 'x-axis')
+            .attr('transform', `translate(0, ${height})`)
+            .call(xAxis)
+            .selectAll('.domain')
+            .remove();
 
- <div className="tab-wrapper">
-            <div className={routeText === '/' ? "tab-item active" : "tab-item"} onClick={() => handleClickPage("/")}>Kokpit</div>
-            <div className={routeText === '/mdsNtsHacim' ? "tab-item active" : "tab-item"} onClick={() => handleClickPage("/mdsNtsHacim")}>MDS/NTS/Hacim</div>
-            <div className={routeText === '/gosas-musteri' ? "tab-item active" : "tab-item"} onClick={() => handleClickPage("/gosas-musteri")}>GÖSAŞ/Müşteri</div>
-            <div className={routeText === '/npl-karlilik' ? "tab-item active" : "tab-item"} onClick={() => handleClickPage("/npl-karlilik")}>NPL/Kârlılık</div>
-            <div className={routeText === '/promosyon-karlilik' ? "tab-item active" : "tab-item"} onClick={() => handleClickPage("/promosyon-karlilik")}>Promosyon Kârlılık</div>
-          </div>
+        g.append('g')
+            .attr('class', 'y-axis')
+            .call(yAxis)
+            .selectAll('.domain')
+            .remove();
+        
+        //Grafiğin tam ortasından geçen yatay çizgi
+        g.append("line")
+            .attr("x1", 0)
+            .attr("x2", width)
+            .attr("y1", height/2)
+            .attr("y2", height/2)
+            .attr("stroke", "rgb(211, 211, 211)")
+            .attr("stroke-width", 1);
+
+        // Y eksenindeki metinleri gizlemek için
+        g.selectAll('.y-axis .tick text')
+            .style('display', 'none');
