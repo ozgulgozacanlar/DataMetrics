@@ -1,25 +1,2 @@
-  g.append('g')
-            .attr('class', 'x-axis')
-            .attr('transform', `translate(0, ${height})`)
-            .call(xAxis)
-            .selectAll('.domain')
-            .remove();
-
-        g.append('g')
-            .attr('class', 'y-axis')
-            .call(yAxis)
-            .selectAll('.domain')
-            .remove();
-        
-        //Grafiğin tam ortasından geçen yatay çizgi
-        g.append("line")
-            .attr("x1", 0)
-            .attr("x2", width)
-            .attr("y1", height/2)
-            .attr("y2", height/2)
-            .attr("stroke", "rgb(211, 211, 211)")
-            .attr("stroke-width", 1);
-
-        // Y eksenindeki metinleri gizlemek için
-        g.selectAll('.y-axis .tick text')
-            .style('display', 'none');
+.selectAll('.tick text')  // Tüm tick text'lerini seç
+    .attr('dy', '0.35em');    // Burada metni biraz daha aşağıya kaydırıyoruz
