@@ -1,43 +1,6 @@
-  <table className={`${tableName === 'sube' ? 'low-high-table modal-table' : 'retired-profit-table modal-table'} table-bordered`}>
-            <thead>
-                <tr>
-                    <th>&nbsp;</th>
-                    {tableTitleArray && tableTitleArray.map((title, index) => {
-                        const colSpanValue = tableName === 'sube' ? 5 : 6;
-                        return (
-                            <th colSpan={colSpanValue} key={index} >
-                                {title}
-                            </th>
-                        );
-                    })}
-                    
-                </tr>
-                {tableName === 'sube' && (
-                    <tr>
-                        <th>&nbsp;</th>
-                    </tr>
-                )}             
-                <tr>
-                    {tableName !== 'sube' && <th>&nbsp;</th>}
-                    {/* headers array'ini map ile döndürüp <th> öğelerine dönüştürüyoruz */}
-                    {tableHeaderData && tableHeaderData.map((header, index) => (                      
-                        <th key={index}>
-                            {header}
-                        </th>
-                    ))}
-                </tr>
-            </thead>
-            <tbody>
-                {tableDataArray && tableDataArray.map((row, rowIndex) => (
-                    <tr key={rowIndex}>
-                        {row.map((cell, cellIndex) => {
-                            return (
-                                <td key={cellIndex} >
-                                    <span>{cell}</span>
-                                </td>
-                            );
-                        })}
-                    </tr>
-                ))}
-            </tbody>
-        </table>
+.table-wrapper thead {
+  position: sticky;
+  top: 0;
+  background-color: white;  /* Başlık kısmının arka planını beyaz yaparak altındaki içerik ile karışmamasını sağlarız */
+  z-index: 1;  /* Başlık kısmının altındaki içerikten önde olmasını sağlarız */
+}
