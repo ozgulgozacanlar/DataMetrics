@@ -1,15 +1,30 @@
-<div className="table-wrapper">
-        <SecondCombinedTable app={app} objectIds={['nSxuwMa', 'bvHBAn']} tableName={'emeklibanka'} />
-      </div>
+  .on("click", (event, d) => {
+                console.log(d);
 
-thead {
-  position: sticky;
-  top: 0;
-  background-color: #fff; /* Başlık kısmı için beyaz arka plan, içerik ile karışmasını engeller */
-  z-index: 1;  /* Başlık kısmı altındaki içerikten önde olur */
-}
+                const clickedValue = d.name; // Tıklanan barın değerini alıyoruz 
+                 setClickedChart(!clickedChart);
+                // Qlik objesine filtre atmak
+                if (app) {
+                    console.log(app.selectionState().selections); 
 
-.table-wrapper {
-  overflow-y: auto;  /* Tablo içeriğinin kaymasını sağlar */
-  max-height: 400px; /* Tabloyu sınırlandırır, istenilen yüksekliği ayarlayabilirsiniz */
-}
+                //   app.field("UnitName").selectValues([clickedValue], true);
+                  app.field("UnitName").selectValues([clickedValue]).then(() =>{
+                    getObjectData(app, objectId).then((response) => {
+                        if (!response) {
+                            console.error('MultiBarChart Component : response verisi boş veya tanımsız.');
+                            return;
+                        }
+                        const incomingData = response.map(item => ({
+                            name: item[0].qText,
+                            value: item[1].qNum,
+                            valueText:item[1].qText
+                           
+                        }));
+                        console.log(incomingData)
+                        // Yeni gelen veriyi data state'ine set ediyoruz
+                        setData(incomingData); // Bu işlem data'yı güncelleyecek ve grafik yeniden çizilecek
+                    }).catch((error) => {
+                        console.error('getObjectData error:', error);
+                    });
+                });
+                }
