@@ -9,3 +9,5 @@ useEffect(() => {
     setTableObjectId('kyFDGfJ');
   }
 }, [selectedOption]); // selectedOption değiştiğinde tetiklenir
+
+<TableChart key={tableObjectId} app={app} objectId={tableObjectId} onLoaded={() => handleChildLoaded('child1')}/>
