@@ -1,59 +1,15 @@
-  <Modal show={activeModal === "first"} onHide={handleClose}>
-              <Modal.Header closeButton>
-                <div className="modal-title">TOPLAM PROTOKOL EMEKLİ KARLILIĞI DETAYI</div>
-              </Modal.Header>
-              <Modal.Body>
-                <div className="retired-profit-table-wrapper">
-                <SecondCombinedTable app={app} objectIds={['nSxuwMa', 'bvHBAn']} tableName={'emeklibanka'}/>
-                </div>
-                <div className="low-high-table-wrapper mt-4">
-                  <SecondCombinedTable app={app} objectIds={['HSeFj', 'mPadNP']} tableName={'sube'}/> 
+<div className="table-wrapper">
+        <SecondCombinedTable app={app} objectIds={['nSxuwMa', 'bvHBAn']} tableName={'emeklibanka'} />
+      </div>
 
-                </div>
-              </Modal.Body>
-            </Modal>
+thead {
+  position: sticky;
+  top: 0;
+  background-color: #fff; /* Başlık kısmı için beyaz arka plan, içerik ile karışmasını engeller */
+  z-index: 1;  /* Başlık kısmı altındaki içerikten önde olur */
+}
 
-
-  <table className={`${tableName === 'sube' ? 'low-high-table modal-table' : 'retired-profit-table modal-table'} table-bordered`}>
-            <thead>
-                <tr>
-                    <th>&nbsp;</th>
-                    {tableTitleArray && tableTitleArray.map((title, index) => {
-                        const colSpanValue = tableName === 'sube' ? 5 : 6;
-                        return (
-                            <th colSpan={colSpanValue} key={index} >
-                                {title}
-                            </th>
-                        );
-                    })}
-                    
-                </tr>
-                {tableName === 'sube' && (
-                    <tr>
-                        <th>&nbsp;</th>
-                    </tr>
-                )}             
-                <tr>
-                    {tableName !== 'sube' && <th>&nbsp;</th>}
-                    {/* headers array'ini map ile döndürüp <th> öğelerine dönüştürüyoruz */}
-                    {tableHeaderData && tableHeaderData.map((header, index) => (                      
-                        <th key={index}>
-                            {header}
-                        </th>
-                    ))}
-                </tr>
-            </thead>
-            <tbody>
-                {tableDataArray && tableDataArray.map((row, rowIndex) => (
-                    <tr key={rowIndex}>
-                        {row.map((cell, cellIndex) => {
-                            return (
-                                <td key={cellIndex} >
-                                    <span>{cell}</span>
-                                </td>
-                            );
-                        })}
-                    </tr>
-                ))}
-            </tbody>
-        </table>
+.table-wrapper {
+  overflow-y: auto;  /* Tablo içeriğinin kaymasını sağlar */
+  max-height: 400px; /* Tabloyu sınırlandırır, istenilen yüksekliği ayarlayabilirsiniz */
+}
