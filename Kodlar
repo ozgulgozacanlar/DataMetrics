@@ -1,1 +1,8 @@
-https://qlikprod/extensions/BolgeButceGMMashup/index.html?REGION_NAME_TEXT=829%7cAkdeniz&YEARMONTH=2024-04&qlikTicket=Mfde2fuMrBeibOkL#/
+  <div className='table-container'>
+              <DetailTable  app={app} objectId={"ZdNQJG"}/>
+            </div>
+
+.table-container{
+  max-height: 500px;
+  overflow: auto;
+}
