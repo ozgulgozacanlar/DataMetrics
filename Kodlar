@@ -1,15 +1,14 @@
 import { useState, useEffect } from 'react';
-import { getFilterList } from '@/util/qlikConnection';
 import './ComboBox.css';
 
-export default function ComboBox({ app, onChange }) {
+export default function ComboBox({ app, onChange, objectIds }) {
   
   const [selectedValue, setSelectedValue] = useState('');
   const [cardTitles, setCardTitles] = useState([]); 
-  const objectIds = ["ZdNQJG", "RxDRP", "CphNY", "GucCnh"]; 
 
 
-  const renderQlikTableObject = (objectId) => {    
+  const renderQlikTableObject = (objectId) => {
+ 
     if (app) {          
       app.getObject(objectId).then((model) => {
         let titles = model.layout.title.trim();
@@ -28,6 +27,7 @@ export default function ComboBox({ app, onChange }) {
       });
     }
   }
+
   useEffect(() => {
     // objectIds array'i üzerinde döngü kurarak her bir ID için renderQlikTableObject fonksiyonunu çağırıyoruz
     objectIds.forEach(objectId => {
