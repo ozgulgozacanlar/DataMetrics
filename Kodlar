@@ -1,67 +1,8 @@
-    <option value="" disabled>Seçiniz</option> {/* "Seçiniz" seçeneğini ekledik */}
-
-
-export default function ComboBox({ app, filterItem, onChange }) {
-  const [selectedValue, setSelectedValue] = useState('');
-  const [options, setOptions] = useState([]);
-
-  useEffect(() => {
-    if (filterItem) {
-      getFilterList(app, filterItem).then((items) => {
-        console.log(items)
-        setOptions(items);
-      });
-    }
-  }, [app, filterItem]);
-
-  useEffect(() => {
-    const selectedOption = options.find((option) => option.qState === 'S');
-    if (selectedOption) {
-      setSelectedValue(selectedOption.text);
-    }
-  }, [options]);
-
-  const handleChange = (event) => {
-    const newValue = event.target.value;
-    setSelectedValue(newValue);
-    onChange(newValue);
-  };
-
-  const truncateText = (text, maxLength = 30) => {
-    return text.length > maxLength ? text.slice(0, maxLength) + '...' : text;
-  };
-
-  return (
-    options != null ? (
-      <div className="combobox-container ml-2">
-        <select
-          value={selectedValue}
-          onChange={handleChange}
-          className="combobox"
-        >
-          {options.map((option, index) => (
-            <option
-              key={index}
-              value={option.text}
-              className="combobox-option"
-              title={option.text} // Full text as a tooltip
-            >
-              {truncateText(option.text)}
-            </option>
-          ))}
-        </select>
-      </div>
-    ) : (
-      <></>
-    )
-  );
-}
-
-
-
-  const handleClickCombobox = (selectedValue) => {
+  const handleClickCombobox = (selectedValue,filterItem) => {
     console.log(selectedValue)
-    app.field("EKIP").selectValues([selectedValue]);
+    console.log(filterItem)
+    app.field(filterItem).selectValues([selectedValue]);
+    console.log(app.selectionState().selections); 
     // setTimeout(() => {
     //   setRandomKey(Math.random());
     // }, 250);
@@ -75,6 +16,70 @@ export default function ComboBox({ app, filterItem, onChange }) {
         </Link>
       </div>
       <div className="combobox-wrapper">
-        <ComboBox app={app} filterItem={"PERIOD_100_DETAIL"} onChange={handleClickCombobox} />
-      </div>
+        <ComboBox app={app} filterItem={"PERIOD_100_DETAIL"} onChange={handleClickCombobox} headerTitle={"Period"} />
+        {/* <ComboBox app={app} filterItem={"DIVISIONNAME_100_DETAIL"} onChange={handleClickCombobox} /> */}
 
+      </div>
+      <div className="row mt-3 row-gap-3">
+        <div className="col-12 d-flex flex-column">
+          <div className="card p-0">
+            <div className="card-title-wrapper d-flex align-items-center justify-content-between p-3">
+              <div className="card-title">105 - Hassas Path Gecikme Oranları - Last Month</div>
+              {/* Koyacağınız selectin stillendirmesi yapılacak */}
+              select
+            </div>
+            <div className='table-container'>
+              <DetailTable app={app} objectId={"ZdNQJG"}/>
+            </div>
+           
+          </div>
+        </div>
+      </div>
+    </>
+  );
+}
+
+export default function DetailTable({app, objectId, onLoaded}) {
+
+    
+  const [tableHeaderData, setTableHeaderData] = useState(null);
+  const [tableDataArray, setTableDataArray] = useState(null);
+
+  useEffect(() => {
+    function renderQlikTableObject(objectId) {
+      if (app) {
+        getObjectData(app, objectId).then((response) => {
+          if (!response) {
+            console.error('TableChart Component : response verisi boş veya tanımsız.');
+            return;
+          }
+            const tableDatas = response.map(item => {         
+            return item.map(innerItem => innerItem.qText);  // innerItem içindeki qText değerini alıyoruz
+          });
+          setTableDataArray(tableDatas);
+          setTimeout(() => { onLoaded(); }, 250);
+        }).catch((error) => {
+          console.error('TableChart Component : getObjectData() methodu veri alınırken hata oluştu:', error);
+        });
+        //Tablo header bilgileri alınıyor
+        app.getObject(objectId).then((model) => { 
+          if (!model) {
+            console.error('TableChart Component : model verisi boş veya tanımsız.');
+            return;
+          }
+          // `qDimensionInfo` ve `qMeasureInfo` öğelerinin `qFallbackTitle` değerlerini alıp birleştiriyoruz.
+          const dimensionTitles = model.layout.qHyperCube.qDimensionInfo.map(item => item.qFallbackTitle);
+          const measureTitles = model.layout.qHyperCube.qMeasureInfo.map(item => item.qFallbackTitle);
+
+          // `qDimensionInfo` öğelerini ilk sıraya, `qMeasureInfo` öğelerini sonra ekliyoruz.
+          let combinedTitles = [...dimensionTitles, ...measureTitles];
+          setTableHeaderData(combinedTitles);
+        }).catch((error) => {
+          console.error('TableChart Component : getObject() methodu veri alınırken hata oluştu:', error);
+        });
+      } else {
+        // console.error('Qlik Sense app is not loaded yet');
+      }
+    }
+    renderQlikTableObject(objectId);
+  }, [app, objectId]);
