@@ -1,39 +1,37 @@
-    <div className="combobox-wrapper">
-        <ComboBox app={app} filterItem={"PERIOD_100_DETAIL"} onChange={handleClickCombobox} headerTitle={"Period"} groupId={"group1"}/>
-        <ComboBox app={app} filterItem={"DIVISIONNAME_100_DETAIL"} onChange={handleClickCombobox} headerTitle={"Business Line"} groupId={"group1"}/>
-        <ComboBox app={app} filterItem={"BUSINESSUNITNAME_100_DETAIL"} onChange={handleClickCombobox} headerTitle={"Unit Name"} groupId={"group1"}/>
-        <ComboBox app={app} filterItem={"DEPARTMENTNAME_100_DETAIL"} onChange={handleClickCombobox} headerTitle={"Team Name"}/>
-        <ComboBox app={app} filterItem={"UYGULAMAYAZILIMSORUMLUSU_100_DETAIL"} onChange={handleClickCombobox} headerTitle={"Responsible Person"} groupId={"group1"}/>
-        <ComboBox app={app} filterItem={"AD_100_DETAIL"} onChange={handleClickCombobox} headerTitle={"Jcl Name"} groupId={"group1"}/>
-        <ComboBox app={app} filterItem={"CALISMAPERIYODU_100_DETAIL"} onChange={handleClickCombobox} headerTitle={"Run Period"} groupId={"group1"}/>
-        <ComboBox app={app} filterItem={"CALISMAORTAMI_100_DETAIL"} onChange={handleClickCombobox} headerTitle={"Environment"} groupId={"group1"}/>
-      </div>
+import { useState, useEffect } from 'react';
+import { getFilterList } from '@/util/qlikConnection';
+import './ComboBox.css';
 
-
-  const handleClickCombobox = (selectedValue,filterItem,groupId) => {
-    app.field(filterItem).selectValues([selectedValue]);
-    // console.log(app.selectionState().selections); 
-    console.log(groupId)
-    setTimeout(() => {
-       setRandomKey((prevKeys) => ({
-      ...prevKeys,
-      [groupId]: Math.random(), // Seçilen grup için randomKey güncelleniyor
-    }));
-      console.log(randomKey)
-    }, 50);
-  };
-
-export default function ComboBox({ app, filterItem, onChange, headerTitle, groupId }) {
+export default function ComboBox({ app, onChange }) {
   const [selectedValue, setSelectedValue] = useState('');
   const [options, setOptions] = useState([]);
+  const [cardTitle, setCardTitle] = useState("");
+
+  const renderQlikTableObject = (objectId) => {    
+    if (app) {          
+      app.getObject(objectId).then((model) => {
+        let titles = model.layout.title.trim();
+        if(titles === ""){
+          if(model.genericType == "table"){
+            titles = model.layout.qHyperCube.qDimensionInfo[0].qFallbackTitle;
+         }
+         else if(model.genericType == "linechart"){
+            titles = model.layout.title;
+         }
+         else if(model.genericType== "action-button"){
+           titles = model.layout.style.label;
+         }
+        }          
+        setCardTitle(titles);
+      });
+    } else {
+      // console.error('Qlik Sense app is not loaded yet');
+    }
+  }
 
   useEffect(() => {
-    if (filterItem) {
-      getFilterList(app, filterItem).then((items) => {
-        setOptions(items);
-      });
-    }
-  }, [app, filterItem]);
+    renderQlikTableObject(objectId);
+  }, [app, objectId]);
 
   useEffect(() => {
     const selectedOption = options.find((option) => option.qState === 'S');
@@ -47,3 +45,34 @@ export default function ComboBox({ app, filterItem, onChange, headerTitle, group
     setSelectedValue(newValue);
     onChange(newValue,filterItem,groupId);
   };
+
+  const truncateText = (text, maxLength = 30) => {
+    return text.length > maxLength ? text.slice(0, maxLength) + '...' : text;
+  };
+
+  return (
+    options != null ? (
+      <div className="combobox-container ml-2">
+        <select
+          value={selectedValue}
+          onChange={handleChange}
+          className="combobox"
+        >
+          {options.map((option, index) => (
+            <option
+              key={index}
+              value={option.text}
+              className="combobox-option"
+              title={option.text} // Full text as a tooltip
+            >
+              {truncateText(option.text)}
+            </option>
+          ))}
+        </select>
+      </div>
+    ) : (
+      <></>
+    )
+  );
+}
+
