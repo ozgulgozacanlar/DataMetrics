@@ -1,6 +1,49 @@
- setRandomKey((prevKeys) => ({
-      ...prevKeys,
-      [group]: Math.random(), // Seçilen grup için randomKey güncelleniyor
-    }));
+    <div className="combobox-wrapper">
+        <ComboBox app={app} filterItem={"PERIOD_100_DETAIL"} onChange={handleClickCombobox} headerTitle={"Period"} groupId={"group1"}/>
+        <ComboBox app={app} filterItem={"DIVISIONNAME_100_DETAIL"} onChange={handleClickCombobox} headerTitle={"Business Line"} groupId={"group1"}/>
+        <ComboBox app={app} filterItem={"BUSINESSUNITNAME_100_DETAIL"} onChange={handleClickCombobox} headerTitle={"Unit Name"} groupId={"group1"}/>
+        <ComboBox app={app} filterItem={"DEPARTMENTNAME_100_DETAIL"} onChange={handleClickCombobox} headerTitle={"Team Name"}/>
+        <ComboBox app={app} filterItem={"UYGULAMAYAZILIMSORUMLUSU_100_DETAIL"} onChange={handleClickCombobox} headerTitle={"Responsible Person"} groupId={"group1"}/>
+        <ComboBox app={app} filterItem={"AD_100_DETAIL"} onChange={handleClickCombobox} headerTitle={"Jcl Name"} groupId={"group1"}/>
+        <ComboBox app={app} filterItem={"CALISMAPERIYODU_100_DETAIL"} onChange={handleClickCombobox} headerTitle={"Run Period"} groupId={"group1"}/>
+        <ComboBox app={app} filterItem={"CALISMAORTAMI_100_DETAIL"} onChange={handleClickCombobox} headerTitle={"Environment"} groupId={"group1"}/>
+      </div>
 
-filterChange={randomKey.group2}
+
+  const handleClickCombobox = (selectedValue,filterItem,groupId) => {
+    app.field(filterItem).selectValues([selectedValue]);
+    // console.log(app.selectionState().selections); 
+    console.log(groupId)
+    setTimeout(() => {
+       setRandomKey((prevKeys) => ({
+      ...prevKeys,
+      [groupId]: Math.random(), // Seçilen grup için randomKey güncelleniyor
+    }));
+      console.log(randomKey)
+    }, 50);
+  };
+
+export default function ComboBox({ app, filterItem, onChange, headerTitle, groupId }) {
+  const [selectedValue, setSelectedValue] = useState('');
+  const [options, setOptions] = useState([]);
+
+  useEffect(() => {
+    if (filterItem) {
+      getFilterList(app, filterItem).then((items) => {
+        setOptions(items);
+      });
+    }
+  }, [app, filterItem]);
+
+  useEffect(() => {
+    const selectedOption = options.find((option) => option.qState === 'S');
+    if (selectedOption) {
+      setSelectedValue(selectedOption.text);
+    }
+  }, [options]);
+
+  const handleChange = (event) => {
+    const newValue = event.target.value;
+    setSelectedValue(newValue);
+    onChange(newValue,filterItem,groupId);
+  };
