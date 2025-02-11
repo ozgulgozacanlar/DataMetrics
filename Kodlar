@@ -1,26 +1,9 @@
-<>
-      {loading ? (  // Eğer loading true ise "Loader" göster
-        <Loader />
-      ) : (
-        <table className="detail-table">
-          <thead>
-            <tr>
-              {tableHeaderData && tableHeaderData.map((header, index) => (
-                <th scope="col" key={index}>
-                  {header}
-                </th>
-              ))}
-            </tr>
-          </thead>
-          <tbody>
-            {tableDataArray && tableDataArray.map((row, rowIndex) => (
-              <tr key={rowIndex}>
-                {row.map((cell, cellIndex) => (
-                  <td key={cellIndex}>{capitalizeFirstLetter(cell)}</td>
-                ))}
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      )}
-    </>
+  const handleClickCombobox = (selectedValue,filterItem) => {
+    app.field(filterItem).selectValues([selectedValue]);
+    console.log(app.selectionState().selections); 
+    setTimeout(() => {
+      setRandomKey(Math.random());
+    }, 50);
+  };
+
+        <ComboBox app={app} filterItem={"PERIOD_100_DETAIL"} onChange={handleClickCombobox} headerTitle={"Period"} />
