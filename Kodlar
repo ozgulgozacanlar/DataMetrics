@@ -58,3 +58,24 @@ export default function ComboBox({ app, filterItem, onChange }) {
   );
 }
 
+
+
+  const handleClickCombobox = (selectedValue) => {
+    console.log(selectedValue)
+    app.field("EKIP").selectValues([selectedValue]);
+    // setTimeout(() => {
+    //   setRandomKey(Math.random());
+    // }, 250);
+  };
+
+  return (
+    <>
+      <div className="d-flex mt-3">
+        <Link className="d-flex text-decoration-none" to="/pipeline-health">
+          <PageMainButton icon={<BackIcon />} title="Geri" />
+        </Link>
+      </div>
+      <div className="combobox-wrapper">
+        <ComboBox app={app} filterItem={"PERIOD_100_DETAIL"} onChange={handleClickCombobox} />
+      </div>
+
