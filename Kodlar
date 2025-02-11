@@ -1,1 +1,12 @@
-    const groupId = selectedItem ? selectedItem.groupId : null;
+  const [selectedGroupId, setSelectedGroupId] = useState('group1'); // Başlangıçta group1 seçili
+    {selectedGroupId === "group2" && (
+        <div className="combobox-wrapper">
+          <FilterComboBox app={app} filterItem={"PERIOD_105_DETAIL"} onChange={handleClickFilterCombobox} headerTitle={"Period"} groupId={"group2"}/>
+          <FilterComboBox app={app} filterItem={"DIVISIONNAME_105_DETAIL"} onChange={handleClickFilterCombobox} headerTitle={"Business Line"} groupId={"group2"}/>
+          <FilterComboBox app={app} filterItem={"BUSINESSUNITNAME_105_DETAIL"} onChange={handleClickFilterCombobox} headerTitle={"Unit Name"} groupId={"group2"}/>
+          <FilterComboBox app={app} filterItem={"DEPARTMENTNAME_105_DETAIL"} onChange={handleClickFilterCombobox} headerTitle={"Team Name"} groupId={"group2"}/>
+          <FilterComboBox app={app} filterItem={"PATH_NAME_105_DETAIL"} onChange={handleClickFilterCombobox} headerTitle={"Path Name"} groupId={"group2"}/>
+          <FilterComboBox app={app} filterItem={"JOB_NAME_105_DETAIL"} onChange={handleClickFilterCombobox} headerTitle={"Job Name"} groupId={"group2"}/>
+          <FilterComboBox app={app} filterItem={"CALISMAPERIYODU_105_DETAIL"} onChange={handleClickFilterCombobox} headerTitle={"Run Period"} groupId={"group2"}/>
+        </div>
+      )}
