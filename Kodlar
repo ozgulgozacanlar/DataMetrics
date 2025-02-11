@@ -1,11 +1,64 @@
-const renderQlikTableObject = (object) => {    
+import { useState, useEffect } from 'react';
+
+export default function ComboBox({ app, onChange, objectIds }) {
+  const [selectedValue, setSelectedValue] = useState('');
+  const [cardTitles, setCardTitles] = useState([]);
+
+  // renderQlikTableObject fonksiyonu asenkron olacak ve başlıkları sırasıyla alacak
+  const renderQlikTableObject = async (object) => {
     const { objectId, groupId } = object; // objectId ve groupId'yi burada alıyoruz
-    console.log(objectId)
-    if (app) {          
-      app.getObject(objectId).then((model) => {
+    console.log("Processing objectId:", objectId);
+
+    if (app) {
+      try {
+        // Bekleyelim ki ilk başlık alındığında ardından diğerine geçebilelim
+        const model = await app.getObject(objectId);
         let titles = model.layout.title.trim();
-        console.log(titles)
-        setCardTitles((prevTitles) => [...prevTitles, { title: titles, objectId, groupId }]);
-      });
+
+        // Başlık yoksa alternatif başlıklar ekleyelim
+        if (titles === "") {
+          if (model.genericType === "table") {
+            titles = model.layout.qHyperCube.qDimensionInfo[0].qFallbackTitle;
+          } else if (model.genericType === "linechart") {
+            titles = model.layout.title;
+          } else if (model.genericType === "action-button") {
+            titles = model.layout.style.label;
+          }
+        }
+
+        console.log("Title for", objectId, ":", titles);
+        
+        // Başlıkları sırasıyla ekliyoruz
+        setCardTitles((prevTitles) => [
+          ...prevTitles,
+          { title: titles, objectId, groupId }
+        ]);
+      } catch (error) {
+        console.error("Error fetching object:", objectId, error);
+      }
     }
-  }
+  };
+
+  useEffect(() => {
+    const fetchTitles = async () => {
+      // objectIds üzerinde sırayla dönüp başlıkları alacağız
+      for (const object of objectIds) {
+        await renderQlikTableObject(object); // Her obje için sırasıyla bekle
+      }
+    };
+
+    fetchTitles(); // Başlıkları al
+  }, [app, objectIds]); // app ya da objectIds değiştiğinde yeniden çalışacak
+
+  const handleChange = (event) => {
+    const newValue = event.target.value;
+    setSelectedValue(newValue);
+    onChange(newValue);
+  };
+
+  const truncateText = (text, maxLength = 30) => {
+    return text.length > maxLength ? text.slice(0, maxLength) + '...' : text;
+  };
+
+  return (
+    cardTitles.length > 0 ? (
