@@ -1,22 +1,28 @@
-cardTitles.length > 0 ? (  
-      <div className="combobox-container ml-2">
-        <select
-          value={selectedValue}
-          onChange={handleChange}
-          className="combobox"
-        >
-          {cardTitles.map((option, index) => (
-            <option
-              key={index}
-              value={option.title}  // Use title as value for the option
-              className="combobox-option"
-              title={option.title}  // Full text as a tooltip
-            >
-              {truncateText(option.title)}  {/* Truncate text if it's too long */}
-            </option>
-          ))}
-        </select>
+     {/* İkinci filtre ve tablo objeleri */}
+      <div className="combobox-wrapper">
+        <FilterComboBox app={app} filterItem={"PERIOD_105_DETAIL"} onChange={handleClickFilterCombobox} headerTitle={"Period"} groupId={"group2"}/>
+        <FilterComboBox app={app} filterItem={"DIVISIONNAME_105_DETAIL"} onChange={handleClickFilterCombobox} headerTitle={"Business Line"} groupId={"group2"}/>
+        <FilterComboBox app={app} filterItem={"BUSINESSUNITNAME_105_DETAIL"} onChange={handleClickFilterCombobox} headerTitle={"Unit Name"} groupId={"group2"}/>
+        <FilterComboBox app={app} filterItem={"DEPARTMENTNAME_105_DETAIL"} onChange={handleClickFilterCombobox} headerTitle={"Team Name"} groupId={"group2"}/>
+        <FilterComboBox app={app} filterItem={"PATH_NAME_105_DETAIL"} onChange={handleClickFilterCombobox} headerTitle={"Path Name"} groupId={"group2"}/>
+        <FilterComboBox app={app} filterItem={"JOB_NAME_105_DETAIL"} onChange={handleClickFilterCombobox} headerTitle={"Job Name"} groupId={"group2"}/>
+        <FilterComboBox app={app} filterItem={"CALISMAPERIYODU_105_DETAIL"} onChange={handleClickFilterCombobox} headerTitle={"Run Period"} groupId={"group2"}/>
       </div>
-    ) : (
-      <></>
-    )
+
+  {/* İlk filtre ve tablo objeleri */}
+      <div className="combobox-wrapper">
+        <FilterComboBox app={app} filterItem={"PERIOD_100_DETAIL"} onChange={handleClickFilterCombobox} headerTitle={"Period"} groupId="group1"/>
+        <FilterComboBox app={app} filterItem={"DIVISIONNAME_100_DETAIL"} onChange={handleClickFilterCombobox} headerTitle={"Business Line"} groupId="group1"/>
+        <FilterComboBox app={app} filterItem={"BUSINESSUNITNAME_100_DETAIL"} onChange={handleClickFilterCombobox} headerTitle={"Unit Name"} groupId="group1"/>
+        <FilterComboBox app={app} filterItem={"DEPARTMENTNAME_100_DETAIL"} onChange={handleClickFilterCombobox} headerTitle={"Team Name"} groupId="group1"/>
+        <FilterComboBox app={app} filterItem={"UYGULAMAYAZILIMSORUMLUSU_100_DETAIL"} onChange={handleClickFilterCombobox} headerTitle={"Responsible Person"} groupId="group1"/>
+        <FilterComboBox app={app} filterItem={"AD_100_DETAIL"} onChange={handleClickFilterCombobox} headerTitle={"Jcl Name"} groupId="group1"/>
+        <FilterComboBox app={app} filterItem={"CALISMAPERIYODU_100_DETAIL"} onChange={handleClickFilterCombobox} headerTitle={"Run Period"} groupId="group1"/>
+        <FilterComboBox app={app} filterItem={"CALISMAORTAMI_100_DETAIL"} onChange={handleClickFilterCombobox} headerTitle={"Environment"} groupId="group1"/>
+      </div>
+
+  const handleClickCombobox = (selectedValue,selectedObjectId) => {
+    console.log(selectedValue)
+    console.log(selectedObjectId)
+    setObjectId(selectedObjectId);
+  };
