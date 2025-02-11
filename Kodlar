@@ -1,85 +1,26 @@
-  const handleClickCombobox = (selectedValue,filterItem) => {
-    console.log(selectedValue)
-    console.log(filterItem)
-    app.field(filterItem).selectValues([selectedValue]);
-    console.log(app.selectionState().selections); 
-    // setTimeout(() => {
-    //   setRandomKey(Math.random());
-    // }, 250);
-  };
-
   return (
-    <>
-      <div className="d-flex mt-3">
-        <Link className="d-flex text-decoration-none" to="/pipeline-health">
-          <PageMainButton icon={<BackIcon />} title="Geri" />
-        </Link>
-      </div>
-      <div className="combobox-wrapper">
-        <ComboBox app={app} filterItem={"PERIOD_100_DETAIL"} onChange={handleClickCombobox} headerTitle={"Period"} />
-        {/* <ComboBox app={app} filterItem={"DIVISIONNAME_100_DETAIL"} onChange={handleClickCombobox} /> */}
 
-      </div>
-      <div className="row mt-3 row-gap-3">
-        <div className="col-12 d-flex flex-column">
-          <div className="card p-0">
-            <div className="card-title-wrapper d-flex align-items-center justify-content-between p-3">
-              <div className="card-title">105 - Hassas Path Gecikme Oranları - Last Month</div>
-              {/* Koyacağınız selectin stillendirmesi yapılacak */}
-              select
-            </div>
-            <div className='table-container'>
-              <DetailTable app={app} objectId={"ZdNQJG"}/>
-            </div>
-           
-          </div>
-        </div>
-      </div>
-    </>
+    <table className="detail-table">
+          <thead>
+            <tr>
+              {/* headers array'ini map ile döndürüp <th> öğelerine dönüştürüyoruz */}
+              {tableHeaderData && tableHeaderData.map((header, index) => (
+                <th scope="col" key={index}>
+                  {header}
+                </th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {tableDataArray && tableDataArray.map((row, rowIndex) => (
+              <tr key={rowIndex}>
+                {row.map((cell, cellIndex) => {
+                  return (
+                    <td key={cellIndex}>{capitalizeFirstLetter(cell)}</td>
+                  );
+                })}
+              </tr>
+            ))}
+          </tbody>    
+    </table>
   );
-}
-
-export default function DetailTable({app, objectId, onLoaded}) {
-
-    
-  const [tableHeaderData, setTableHeaderData] = useState(null);
-  const [tableDataArray, setTableDataArray] = useState(null);
-
-  useEffect(() => {
-    function renderQlikTableObject(objectId) {
-      if (app) {
-        getObjectData(app, objectId).then((response) => {
-          if (!response) {
-            console.error('TableChart Component : response verisi boş veya tanımsız.');
-            return;
-          }
-            const tableDatas = response.map(item => {         
-            return item.map(innerItem => innerItem.qText);  // innerItem içindeki qText değerini alıyoruz
-          });
-          setTableDataArray(tableDatas);
-          setTimeout(() => { onLoaded(); }, 250);
-        }).catch((error) => {
-          console.error('TableChart Component : getObjectData() methodu veri alınırken hata oluştu:', error);
-        });
-        //Tablo header bilgileri alınıyor
-        app.getObject(objectId).then((model) => { 
-          if (!model) {
-            console.error('TableChart Component : model verisi boş veya tanımsız.');
-            return;
-          }
-          // `qDimensionInfo` ve `qMeasureInfo` öğelerinin `qFallbackTitle` değerlerini alıp birleştiriyoruz.
-          const dimensionTitles = model.layout.qHyperCube.qDimensionInfo.map(item => item.qFallbackTitle);
-          const measureTitles = model.layout.qHyperCube.qMeasureInfo.map(item => item.qFallbackTitle);
-
-          // `qDimensionInfo` öğelerini ilk sıraya, `qMeasureInfo` öğelerini sonra ekliyoruz.
-          let combinedTitles = [...dimensionTitles, ...measureTitles];
-          setTableHeaderData(combinedTitles);
-        }).catch((error) => {
-          console.error('TableChart Component : getObject() methodu veri alınırken hata oluştu:', error);
-        });
-      } else {
-        // console.error('Qlik Sense app is not loaded yet');
-      }
-    }
-    renderQlikTableObject(objectId);
-  }, [app, objectId]);
