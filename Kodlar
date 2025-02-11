@@ -3,11 +3,11 @@ import { getFilterList } from '@/util/qlikConnection';
 import './ComboBox.css';
 
 export default function ComboBox({ app, onChange }) {
+  
   const [selectedValue, setSelectedValue] = useState('');
-  const [options, setOptions] = useState([]);
-  const [cardTitles, setCardTitles] = useState([]); // Başlıkları tutacağımız array
+  const [cardTitles, setCardTitles] = useState([]); 
+  const objectIds = ["ZdNQJG", "RxDRP", "CphNY", "GucCnh"]; 
 
-  const objectIds = ["objectId1", "objectId2", "objectId3", "objectId4"]; // ID'leri burada tanımlıyoruz
 
   const renderQlikTableObject = (objectId) => {    
     if (app) {          
@@ -23,28 +23,17 @@ export default function ComboBox({ app, onChange }) {
          else if(model.genericType== "action-button"){
            titles = model.layout.style.label;
          }
-        }  
-        
-        // Başlıkları array'e ekliyoruz
+        }          
         setCardTitles((prevTitles) => [...prevTitles, titles]);
       });
     }
   }
-
   useEffect(() => {
     // objectIds array'i üzerinde döngü kurarak her bir ID için renderQlikTableObject fonksiyonunu çağırıyoruz
     objectIds.forEach(objectId => {
       renderQlikTableObject(objectId);
     });
   }, [app]); // app değiştiğinde çalışacak şekilde useEffect'i ayarlıyoruz.
-
-  useEffect(() => {
-    // Eğer options array'imizde bir şey varsa ve seçili bir seçenek varsa onu set et
-    const selectedOption = options.find((option) => option.qState === 'S');
-    if (selectedOption) {
-      setSelectedValue(selectedOption.text);
-    }
-  }, [options]);
 
   const handleChange = (event) => {
     const newValue = event.target.value;
@@ -57,7 +46,7 @@ export default function ComboBox({ app, onChange }) {
   };
 
   return (
-    cardTitles.length > 0 ? (  // Başlıklar var ise render et
+    cardTitles.length > 0 ? (  
       <div className="combobox-container ml-2">
         <select
           value={selectedValue}
@@ -81,3 +70,4 @@ export default function ComboBox({ app, onChange }) {
     )
   );
 }
+
