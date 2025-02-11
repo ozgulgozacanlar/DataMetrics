@@ -1,3 +1,33 @@
+import { useEffect, useState } from 'react';
+import { openApp } from '@/util/qlikConnection';
+import { Link } from "react-router-dom";
+import { DetailTable, PageMainButton, ComboBox, CardTitle } from '@/components';
+import { BackIcon } from '@/assets/svg';
+
+export default function PipelineHealthDetails() {
+
+  const [app, setApp] = useState();
+  const [randomKey, setRandomKey] = useState(Math.random());
+
+  
+  useEffect(() => {
+    if (!app) {
+      openApp(import.meta.env.VITE_APP_APP1)
+        .then((_app) => {
+          _app.clearAll().then(() => {
+            setApp(_app);
+            console.log(_app.selectionState().selections); 
+          })
+         
+
+        })
+        .catch((error) => {
+          console.error('Uygulama başlatma hatası:', error);
+        });
+    }
+
+  }, [app])
+
   const handleClickCombobox = (selectedValue,filterItem) => {
     app.field(filterItem).selectValues([selectedValue]);
     console.log(app.selectionState().selections); 
@@ -6,4 +36,150 @@
     }, 50);
   };
 
+  return (
+    <>
+      <div className="d-flex mt-3">
+        <Link className="d-flex text-decoration-none" to="/pipeline-health">
+          <PageMainButton icon={<BackIcon />} title="Geri" />
+        </Link>
+      </div>
+      {/* İlk filtre ve tablo objeleri */}
+      <div className="combobox-wrapper">
         <ComboBox app={app} filterItem={"PERIOD_100_DETAIL"} onChange={handleClickCombobox} headerTitle={"Period"} />
+        <ComboBox app={app} filterItem={"DIVISIONNAME_100_DETAIL"} onChange={handleClickCombobox} headerTitle={"Business Line"}/>
+        <ComboBox app={app} filterItem={"BUSINESSUNITNAME_100_DETAIL"} onChange={handleClickCombobox} headerTitle={"Unit Name"}/>
+        <ComboBox app={app} filterItem={"DEPARTMENTNAME_100_DETAIL"} onChange={handleClickCombobox} headerTitle={"Team Name"}/>
+        <ComboBox app={app} filterItem={"UYGULAMAYAZILIMSORUMLUSU_100_DETAIL"} onChange={handleClickCombobox} headerTitle={"Responsible Person"}/>
+        <ComboBox app={app} filterItem={"AD_100_DETAIL"} onChange={handleClickCombobox} headerTitle={"Jcl Name"}/>
+        <ComboBox app={app} filterItem={"CALISMAPERIYODU_100_DETAIL"} onChange={handleClickCombobox} headerTitle={"Run Period"}/>
+        <ComboBox app={app} filterItem={"CALISMAORTAMI_100_DETAIL"} onChange={handleClickCombobox} headerTitle={"Environment"}/>
+      </div>
+      <div className="row mt-3 row-gap-3">
+        <div className="col-12 d-flex flex-column">
+          <div className="card p-0">
+            <div className="card-title-wrapper d-flex align-items-center justify-content-between p-3">
+              {/* <div className="card-title">105 - Hassas Path Gecikme Oranları - Last Month</div> */}
+              <CardTitle app={app} objectId={"ZdNQJG"} />            
+            </div>
+            <div className='table-container'>
+              <DetailTable app={app} objectId={"ZdNQJG"} filterChange={randomKey}/>
+            </div>
+           
+          </div>
+        </div>
+      </div>
+
+      {/* İkinci filtre ve tablo objeleri */}
+      <div className="combobox-wrapper">
+        <ComboBox app={app} filterItem={"PERIOD_105_DETAIL"} onChange={handleClickCombobox} headerTitle={"Period"} />
+        <ComboBox app={app} filterItem={"DIVISIONNAME_105_DETAIL"} onChange={handleClickCombobox} headerTitle={"Business Line"}/>
+        <ComboBox app={app} filterItem={"BUSINESSUNITNAME_105_DETAIL"} onChange={handleClickCombobox} headerTitle={"Unit Name"}/>
+        <ComboBox app={app} filterItem={"DEPARTMENTNAME_105_DETAIL"} onChange={handleClickCombobox} headerTitle={"Team Name"}/>
+        <ComboBox app={app} filterItem={"PATH_NAME_105_DETAIL"} onChange={handleClickCombobox} headerTitle={"Path Name"}/>
+        <ComboBox app={app} filterItem={"JOB_NAME_105_DETAIL"} onChange={handleClickCombobox} headerTitle={"Job Name"}/>
+        <ComboBox app={app} filterItem={"CALISMAPERIYODU_105_DETAIL"} onChange={handleClickCombobox} headerTitle={"Run Period"}/>
+      </div>
+      <div className="row mt-3 row-gap-3">
+        <div className="col-12 d-flex flex-column">
+          <div className="card p-0">
+            <div className="card-title-wrapper d-flex align-items-center justify-content-between p-3">
+            <CardTitle app={app} objectId={"RxDRP"} />
+              {/* <div className="card-title">105 - Hassas Path Gecikme Oranları - Last Month</div> */}
+            </div>
+            <div className='table-container'>
+              <DetailTable app={app} objectId={"RxDRP"} filterChange={randomKey}/>
+            </div>
+           
+          </div>
+        </div>
+      </div>
+    </>
+  );
+}
+import { useEffect, useState } from 'react';
+import { getObjectData } from '@/util/qlikConnection';
+import { Loader } from '@/components';
+import { capitalizeFirstLetter } from '@/util/helper';
+import './DetailTable.css';
+
+
+export default function DetailTable({app, objectId, onLoaded, filterChange}) {
+
+    
+  const [tableHeaderData, setTableHeaderData] = useState(null);
+  const [tableDataArray, setTableDataArray] = useState(null);
+  const [loading, setLoading] = useState(false);
+
+
+  const renderQlikTableObject = (objectId) => {
+    if (app) {
+      setLoading(true);
+      getObjectData(app, objectId).then((response) => {
+        if (!response) {
+          console.error('TableChart Component : response verisi boş veya tanımsız.');
+          return;
+        }
+          const tableDatas = response.map(item => {         
+          return item.map(innerItem => innerItem.qText);  // innerItem içindeki qText değerini alıyoruz
+        });
+        setTableDataArray(tableDatas);
+        setTimeout(() => { onLoaded(); }, 250);
+        setLoading(false);
+
+      }).catch((error) => {
+        console.error('TableChart Component : getObjectData() methodu veri alınırken hata oluştu:', error);
+      });
+      //Tablo header bilgileri alınıyor
+      app.getObject(objectId).then((model) => { 
+        if (!model) {
+          console.error('TableChart Component : model verisi boş veya tanımsız.');
+          return;
+        }
+        // `qDimensionInfo` ve `qMeasureInfo` öğelerinin `qFallbackTitle` değerlerini alıp birleştiriyoruz.
+        const dimensionTitles = model.layout.qHyperCube.qDimensionInfo.map(item => item.qFallbackTitle);
+        const measureTitles = model.layout.qHyperCube.qMeasureInfo.map(item => item.qFallbackTitle);
+
+        // `qDimensionInfo` öğelerini ilk sıraya, `qMeasureInfo` öğelerini sonra ekliyoruz.
+        let combinedTitles = [...dimensionTitles, ...measureTitles];
+        setTableHeaderData(combinedTitles);
+
+      }).catch((error) => {
+        console.error('TableChart Component : getObject() methodu veri alınırken hata oluştu:', error);
+      });
+    } else {
+      // console.error('Qlik Sense app is not loaded yet');
+    }
+  }
+  useEffect(() => {  
+    renderQlikTableObject(objectId);
+  }, [app, objectId,filterChange]);
+
+  return (
+    <>
+    {loading ? ( 
+        <div className="fixed-loader"><Loader/></div>    
+    ) : (
+      <table className="detail-table">
+        <thead>
+          <tr>
+            {tableHeaderData && tableHeaderData.map((header, index) => (
+              <th scope="col" key={index}>
+                {header}
+              </th>
+            ))}
+          </tr>
+        </thead>
+        <tbody>
+          {tableDataArray && tableDataArray.map((row, rowIndex) => (
+            <tr key={rowIndex}>
+              {row.map((cell, cellIndex) => (
+                <td key={cellIndex}>{capitalizeFirstLetter(cell)}</td>
+              ))}
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    )}
+  </>
+  );
+}
