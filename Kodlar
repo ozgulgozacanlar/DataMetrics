@@ -1,6 +1,2 @@
-  setCardTitles((prevTitles) => [
-          ...prevTitles,
-          { title: titles, objectId }  // Store both title and objectId
-        ]);
-
-    onChange(newValue, selectedObjectId);  // Send both the title and objectId
+    const selectedOption = cardTitles.find(option => option.title === newValue);
+    const selectedObjectId = selectedOption ? selectedOption.objectId : null;
