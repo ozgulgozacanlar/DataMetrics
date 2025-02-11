@@ -1,27 +1,10 @@
-    <ComboBox 
-                app={app} 
-                onChange={handleClickCombobox} 
-                objectIds={[
-                  { objectId: "ZdNQJG", groupId: "group1" },
-                  { objectId: "RxDRP", groupId: "group2" },
-                  { objectId: "CphNY", groupId: "group3" },
-                  { objectId: "GucCnh", groupId: "group4" }
-                ]}
-              />    
-
-export default function ComboBox({ app, onChange, objectIds }) {
-  
-  const [selectedValue, setSelectedValue] = useState('');
-  const [cardTitles, setCardTitles] = useState([]); 
-
-
-  const renderQlikTableObject = (object) => {    
+const renderQlikTableObject = (object) => {    
     const { objectId, groupId } = object; // objectId ve groupId'yi burada alıyoruz
-
+    console.log(objectId)
     if (app) {          
       app.getObject(objectId).then((model) => {
         let titles = model.layout.title.trim();
-  
+        console.log(titles)
         setCardTitles((prevTitles) => [...prevTitles, { title: titles, objectId, groupId }]);
       });
     }
