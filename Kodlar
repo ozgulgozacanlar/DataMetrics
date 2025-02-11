@@ -1,6 +1,5 @@
-import { useState, useEffect } from 'react';
-import { getFilterList } from '@/util/qlikConnection';
-import './ComboBox.css';
+    <option value="" disabled>Seçiniz</option> {/* "Seçiniz" seçeneğini ekledik */}
+
 
 export default function ComboBox({ app, filterItem, onChange }) {
   const [selectedValue, setSelectedValue] = useState('');
