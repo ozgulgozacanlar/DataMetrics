@@ -5,13 +5,15 @@ import './ComboBox.css';
 export default function ComboBox({ app, onChange }) {
   const [selectedValue, setSelectedValue] = useState('');
   const [options, setOptions] = useState([]);
-  const [cardTitle, setCardTitle] = useState("");
+  const [cardTitles, setCardTitles] = useState([]); // Başlıkları tutacağımız array
+
+  const objectIds = ["objectId1", "objectId2", "objectId3", "objectId4"]; // ID'leri burada tanımlıyoruz
 
   const renderQlikTableObject = (objectId) => {    
     if (app) {          
       app.getObject(objectId).then((model) => {
         let titles = model.layout.title.trim();
-        if(titles === ""){
+        if(titles === "") {
           if(model.genericType == "table"){
             titles = model.layout.qHyperCube.qDimensionInfo[0].qFallbackTitle;
          }
@@ -21,19 +23,23 @@ export default function ComboBox({ app, onChange }) {
          else if(model.genericType== "action-button"){
            titles = model.layout.style.label;
          }
-        }          
-        setCardTitle(titles);
+        }  
+        
+        // Başlıkları array'e ekliyoruz
+        setCardTitles((prevTitles) => [...prevTitles, titles]);
       });
-    } else {
-      // console.error('Qlik Sense app is not loaded yet');
     }
   }
 
   useEffect(() => {
-    renderQlikTableObject(objectId);
-  }, [app, objectId]);
+    // objectIds array'i üzerinde döngü kurarak her bir ID için renderQlikTableObject fonksiyonunu çağırıyoruz
+    objectIds.forEach(objectId => {
+      renderQlikTableObject(objectId);
+    });
+  }, [app]); // app değiştiğinde çalışacak şekilde useEffect'i ayarlıyoruz.
 
   useEffect(() => {
+    // Eğer options array'imizde bir şey varsa ve seçili bir seçenek varsa onu set et
     const selectedOption = options.find((option) => option.qState === 'S');
     if (selectedOption) {
       setSelectedValue(selectedOption.text);
@@ -43,7 +49,7 @@ export default function ComboBox({ app, onChange }) {
   const handleChange = (event) => {
     const newValue = event.target.value;
     setSelectedValue(newValue);
-    onChange(newValue,filterItem,groupId);
+    onChange(newValue); // Burada diğer parametreler yerine sadece newValue gönderiyoruz
   };
 
   const truncateText = (text, maxLength = 30) => {
@@ -51,21 +57,21 @@ export default function ComboBox({ app, onChange }) {
   };
 
   return (
-    options != null ? (
+    cardTitles.length > 0 ? (  // Başlıklar var ise render et
       <div className="combobox-container ml-2">
         <select
           value={selectedValue}
           onChange={handleChange}
           className="combobox"
         >
-          {options.map((option, index) => (
+          {cardTitles.map((title, index) => (
             <option
               key={index}
-              value={option.text}
+              value={title}
               className="combobox-option"
-              title={option.text} // Full text as a tooltip
+              title={title} // Full text as a tooltip
             >
-              {truncateText(option.text)}
+              {truncateText(title)}
             </option>
           ))}
         </select>
@@ -75,4 +81,3 @@ export default function ComboBox({ app, onChange }) {
     )
   );
 }
-
