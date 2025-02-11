@@ -1,9 +1,9 @@
-  return (
-
-    <table className="detail-table">
+return (
+    <div className="table-container">
+      {tableDataArray ? (
+        <table className="detail-table">
           <thead>
             <tr>
-              {/* headers array'ini map ile döndürüp <th> öğelerine dönüştürüyoruz */}
               {tableHeaderData && tableHeaderData.map((header, index) => (
                 <th scope="col" key={index}>
                   {header}
@@ -12,15 +12,17 @@
             </tr>
           </thead>
           <tbody>
-            {tableDataArray && tableDataArray.map((row, rowIndex) => (
+            {tableDataArray.map((row, rowIndex) => (
               <tr key={rowIndex}>
-                {row.map((cell, cellIndex) => {
-                  return (
-                    <td key={cellIndex}>{capitalizeFirstLetter(cell)}</td>
-                  );
-                })}
+                {row.map((cell, cellIndex) => (
+                  <td key={cellIndex}>{capitalizeFirstLetter(cell)}</td>
+                ))}
               </tr>
             ))}
-          </tbody>    
-    </table>
+          </tbody>
+        </table>
+      ) : (
+        <p>Veriler Yükleniyor...</p> // Veriler yüklenene kadar bu mesajı gösteriyoruz
+      )}
+    </div>
   );
