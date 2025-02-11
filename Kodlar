@@ -1,8 +1,60 @@
-  <div className='table-container'>
-              <DetailTable  app={app} objectId={"ZdNQJG"}/>
-            </div>
+import { useState, useEffect } from 'react';
+import { getFilterList } from '@/util/qlikConnection';
+import './ComboBox.css';
 
-.table-container{
-  max-height: 500px;
-  overflow: auto;
+export default function ComboBox({ app, filterItem, onChange }) {
+  const [selectedValue, setSelectedValue] = useState('');
+  const [options, setOptions] = useState([]);
+
+  useEffect(() => {
+    if (filterItem) {
+      getFilterList(app, filterItem).then((items) => {
+        console.log(items)
+        setOptions(items);
+      });
+    }
+  }, [app, filterItem]);
+
+  useEffect(() => {
+    const selectedOption = options.find((option) => option.qState === 'S');
+    if (selectedOption) {
+      setSelectedValue(selectedOption.text);
+    }
+  }, [options]);
+
+  const handleChange = (event) => {
+    const newValue = event.target.value;
+    setSelectedValue(newValue);
+    onChange(newValue);
+  };
+
+  const truncateText = (text, maxLength = 30) => {
+    return text.length > maxLength ? text.slice(0, maxLength) + '...' : text;
+  };
+
+  return (
+    options != null ? (
+      <div className="combobox-container ml-2">
+        <select
+          value={selectedValue}
+          onChange={handleChange}
+          className="combobox"
+        >
+          {options.map((option, index) => (
+            <option
+              key={index}
+              value={option.text}
+              className="combobox-option"
+              title={option.text} // Full text as a tooltip
+            >
+              {truncateText(option.text)}
+            </option>
+          ))}
+        </select>
+      </div>
+    ) : (
+      <></>
+    )
+  );
 }
+
