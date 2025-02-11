@@ -1,1 +1,80 @@
-              <ComboBox app={app} onChange={handleClickCombobox} objectIds={["ZdNQJG", "RxDRP", "CphNY", "GucCnh"]}/>        
+import { useState, useEffect } from 'react';
+import './ComboBox.css';
+
+export default function ComboBox({ app, onChange, objectIds }) {
+  const [selectedValue, setSelectedValue] = useState('');
+  const [cardTitles, setCardTitles] = useState([]); 
+
+  // renderQlikTableObject fonksiyonu, her bir objectId ve groupId'yi alacak şekilde güncellenebilir.
+  const renderQlikTableObject = (object) => {    
+    const { objectId, groupId } = object; // objectId ve groupId'yi burada alıyoruz
+
+    if (app) {          
+      app.getObject(objectId).then((model) => {
+        let titles = model.layout.title.trim();
+        if (titles === "") {
+          if (model.genericType === "table") {
+            titles = model.layout.qHyperCube.qDimensionInfo[0].qFallbackTitle;
+          } else if (model.genericType === "linechart") {
+            titles = model.layout.title;
+          } else if (model.genericType === "action-button") {
+            titles = model.layout.style.label;
+          }
+        } 
+        setCardTitles((prevTitles) => [...prevTitles, { title: titles, objectId, groupId }]);
+      });
+    }
+  }
+
+  useEffect(() => {
+    // objectIds her öğesinin içindeki objectId ve groupId bilgilerini kullanıyoruz
+    objectIds.forEach((item) => {
+      renderQlikTableObject(item);
+    });
+  }, [app, objectIds]);
+
+  const handleChange = (event) => {
+    const newValue = event.target.value;
+    setSelectedValue(newValue);
+    onChange(newValue); // Burada sadece yeni değeri gönderiyoruz
+  };
+
+  const truncateText = (text, maxLength = 30) => {
+    return text.length > maxLength ? text.slice(0, maxLength) + '...' : text;
+  };
+
+  return (
+    cardTitles.length > 0 ? (
+      <div className="combobox-container ml-2">
+        <select
+          value={selectedValue}
+          onChange={handleChange}
+          className="combobox"
+        >
+          {cardTitles.map(({ title, objectId, groupId }, index) => (
+            <option
+              key={index}
+              value={title}
+              className="combobox-option"
+              title={title} // Full text as a tooltip
+            >
+              {truncateText(title)}
+            </option>
+          ))}
+        </select>
+      </div>
+    ) : (
+      <></>
+    )
+  );
+}
+<ComboBox 
+  app={app} 
+  onChange={handleClickCombobox} 
+  objectIds={[
+    { objectId: "ZdNQJG", groupId: "group1" },
+    { objectId: "RxDRP", groupId: "group1" },
+    { objectId: "CphNY", groupId: "group2" },
+    { objectId: "GucCnh", groupId: "group2" }
+  ]}
+/>
