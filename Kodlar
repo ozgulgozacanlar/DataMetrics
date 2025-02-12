@@ -1,5 +1,24 @@
-    const handleCellClick = (cellValue) => {
-        console.log('Tıklanan Hücre Değeri: ', cellValue);
-        // Burada filtreleme işlemi yapılabilir.
-        filterChange(cellValue);  // Filter fonksiyonu, filtreleme işlemini yapacak
+
+    const handleCellClick = (cellValue,index) => {
+        // console.log('Tıklanan Hücre Değeri: ', cellValue);
+         console.log('Tıklanan Hücre Indexi: ', index);
+  
+         if(index === 0){
+            console.log("girdi")
+            setFilterName("Team Name");
+         }
+         else if(index === 1){
+            setFilterName("Metric Name");
+         }
+         else{
+            setFilterName("YEAR_MONTH");
+         }
+        app.field(filterName).selectValues([cellValue], true).then(() => {
+            console.log( filterName + ' filtre uygulandı:', cellValue);
+            setRandomKey(Math.random());     
+            // console.log(app.selectionState().selections); 
+
+        }).catch((error) => {
+            console.error('Region alanına filtre uygulama hatası:', error);
+        });
     }
