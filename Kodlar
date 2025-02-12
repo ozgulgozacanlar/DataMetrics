@@ -1,24 +1,23 @@
+const handleCellClick = (cellValue, index) => {
+    let filterName = "";
 
-    const handleCellClick = (cellValue,index) => {
-        // console.log('Tıklanan Hücre Değeri: ', cellValue);
-         console.log('Tıklanan Hücre Indexi: ', index);
-  
-         if(index === 0){
-            console.log("girdi")
-            setFilterName("Team Name");
-         }
-         else if(index === 1){
-            setFilterName("Metric Name");
-         }
-         else{
-            setFilterName("YEAR_MONTH");
-         }
-        app.field(filterName).selectValues([cellValue], true).then(() => {
-            console.log( filterName + ' filtre uygulandı:', cellValue);
-            setRandomKey(Math.random());     
-            // console.log(app.selectionState().selections); 
-
-        }).catch((error) => {
-            console.error('Region alanına filtre uygulama hatası:', error);
-        });
+    // Filtre adını burada belirleyelim
+    if (index === 0) {
+        console.log("Team Name filter applied");
+        filterName = "Team Name";
+    } else if (index === 1) {
+        console.log("Metric Name filter applied");
+        filterName = "Metric Name";
+    } else {
+        console.log("YEAR_MONTH filter applied");
+        filterName = "YEAR_MONTH";
     }
+
+    // Sonrasında filterName'i kullanalım
+    app.field(filterName).selectValues([cellValue], true).then(() => {
+        console.log(`${filterName} filtresi uygulandı:`, cellValue);
+        setRandomKey(Math.random());
+    }).catch((error) => {
+        console.error(`${filterName} alanına filtre uygulama hatası:`, error);
+    });
+}
