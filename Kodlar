@@ -1,64 +1,80 @@
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
+import { getObjectData } from '@/util/qlikConnection';
 
-export default function ComboBox({ app, onChange, objectIds }) {
-  const [selectedValue, setSelectedValue] = useState('');
-  const [cardTitles, setCardTitles] = useState([]);
+export default function TableWithProgressBar({app, objectId, filterChange}) {
 
-  // renderQlikTableObject fonksiyonu asenkron olacak ve başlıkları sırasıyla alacak
-  const renderQlikTableObject = async (object) => {
-    const { objectId, groupId } = object; // objectId ve groupId'yi burada alıyoruz
-    console.log("Processing objectId:", objectId);
-
-    if (app) {
-      try {
-        // Bekleyelim ki ilk başlık alındığında ardından diğerine geçebilelim
-        const model = await app.getObject(objectId);
-        let titles = model.layout.title.trim();
-
-        // Başlık yoksa alternatif başlıklar ekleyelim
-        if (titles === "") {
-          if (model.genericType === "table") {
-            titles = model.layout.qHyperCube.qDimensionInfo[0].qFallbackTitle;
-          } else if (model.genericType === "linechart") {
-            titles = model.layout.title;
-          } else if (model.genericType === "action-button") {
-            titles = model.layout.style.label;
+    const [tableHeaderData, setTableHeaderData] = useState(null);
+    const [tableDataArray, setTableDataArray] = useState(null);
+  
+  
+    const renderQlikTableObject = (objectId) => {
+      if (app) {
+        getObjectData(app, objectId).then((response) => {
+          if (!response) {
+            console.error('TableChart Component : response verisi boş veya tanımsız.');
+            return;
           }
-        }
+            const tableDatas = response.map(item => {         
+            return item.map(innerItem => innerItem.qText);  // innerItem içindeki qText değerini alıyoruz
+          });
+          console.log(tableDatas)
+          setTableDataArray(tableDatas);
+  
+        }).catch((error) => {
+          console.error('TableChart Component : getObjectData() methodu veri alınırken hata oluştu:', error);
+        });
+        //Tablo header bilgileri alınıyor
+        app.getObject(objectId).then((model) => { 
+          if (!model) {
+            console.error('TableChart Component : model verisi boş veya tanımsız.');
+            return;
+          }
+          // `qDimensionInfo` ve `qMeasureInfo` öğelerinin `qFallbackTitle` değerlerini alıp birleştiriyoruz.
+          const dimensionTitles = model.layout.qHyperCube.qDimensionInfo.map(item => item.qFallbackTitle);
+          const measureTitles = model.layout.qHyperCube.qMeasureInfo.map(item => item.qFallbackTitle);
+  
+          // `qDimensionInfo` öğelerini ilk sıraya, `qMeasureInfo` öğelerini sonra ekliyoruz.
+          let combinedTitles = [...dimensionTitles, ...measureTitles];
+          console.log(combinedTitles)
 
-        console.log("Title for", objectId, ":", titles);
-        
-        // Başlıkları sırasıyla ekliyoruz
-        setCardTitles((prevTitles) => [
-          ...prevTitles,
-          { title: titles, objectId, groupId }
-        ]);
-      } catch (error) {
-        console.error("Error fetching object:", objectId, error);
+          setTableHeaderData(combinedTitles);
+  
+        }).catch((error) => {
+          console.error('TableChart Component : getObject() methodu veri alınırken hata oluştu:', error);
+        });
+      } else {
+        // console.error('Qlik Sense app is not loaded yet');
       }
     }
-  };
-
-  useEffect(() => {
-    const fetchTitles = async () => {
-      // objectIds üzerinde sırayla dönüp başlıkları alacağız
-      for (const object of objectIds) {
-        await renderQlikTableObject(object); // Her obje için sırasıyla bekle
-      }
-    };
-
-    fetchTitles(); // Başlıkları al
-  }, [app, objectIds]); // app ya da objectIds değiştiğinde yeniden çalışacak
-
-  const handleChange = (event) => {
-    const newValue = event.target.value;
-    setSelectedValue(newValue);
-    onChange(newValue);
-  };
-
-  const truncateText = (text, maxLength = 30) => {
-    return text.length > maxLength ? text.slice(0, maxLength) + '...' : text;
-  };
-
-  return (
-    cardTitles.length > 0 ? (
+    useEffect(() => {  
+      renderQlikTableObject(objectId);
+    }, [app, objectId,filterChange]);
+  
+    return (
+    <table className="detail-table">
+    <thead>
+      <tr>
+        <th>Team</th>
+        <th>Metric Name</th>
+        <th>Period</th>
+        <th>Result</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>VERİ AMBARI</td>
+        <td>Cycle Time (58 Gün)</td>
+        <td>202411</td>
+        <td>
+          <div className="d-flex align-items-center flex-grow-1 gap-3">
+            <div className="horizontal-progressbar-wrapper">
+              <div className="bar" style={{ width: '95%' }}>&nbsp;</div>
+            </div>
+            <span className="value">%95,7</span>
+          </div>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+  )
+}
