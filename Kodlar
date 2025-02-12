@@ -1,19 +1,5 @@
- <tbody>
-                {tableDataArray && tableDataArray.map((row, index) => (
-                    <tr key={index}>
-                        {row.slice(0, -1).map((cell, cellIndex) => (
-                            <td key={cellIndex} onClick={() => handleCellClick(cell)}>
-                                {cell}
-                            </td> // Son eleman hariç tüm elemanları sırayla yerleştiriyoruz
-                        ))}
-                        <td>
-                            <div className="d-flex align-items-center flex-grow-1 gap-3">
-                                <div className="horizontal-progressbar-wrapper">
-                                    <div className="bar" style={{ width: `${row[row.length - 1]}%` }}>&nbsp;</div> {/* Son elemanla yüzde hesaplaması */}
-                                </div>
-                                <span className="value">{`${row[row.length - 1]}`}</span> {/* Son eleman, örneğin %95,7 */}
-                            </div>
-                        </td>
-                    </tr>
-                ))}
-            </tbody>
+    const handleCellClick = (cellValue) => {
+        console.log('Tıklanan Hücre Değeri: ', cellValue);
+        // Burada filtreleme işlemi yapılabilir.
+        filterChange(cellValue);  // Filter fonksiyonu, filtreleme işlemini yapacak
+    }
