@@ -1,80 +1,17 @@
-import { useEffect, useState } from 'react';
-import { getObjectData } from '@/util/qlikConnection';
-
-export default function TableWithProgressBar({app, objectId, filterChange}) {
-
-    const [tableHeaderData, setTableHeaderData] = useState(null);
-    const [tableDataArray, setTableDataArray] = useState(null);
-  
-  
-    const renderQlikTableObject = (objectId) => {
-      if (app) {
-        getObjectData(app, objectId).then((response) => {
-          if (!response) {
-            console.error('TableChart Component : response verisi boş veya tanımsız.');
-            return;
-          }
-            const tableDatas = response.map(item => {         
-            return item.map(innerItem => innerItem.qText);  // innerItem içindeki qText değerini alıyoruz
-          });
-          console.log(tableDatas)
-          setTableDataArray(tableDatas);
-  
-        }).catch((error) => {
-          console.error('TableChart Component : getObjectData() methodu veri alınırken hata oluştu:', error);
-        });
-        //Tablo header bilgileri alınıyor
-        app.getObject(objectId).then((model) => { 
-          if (!model) {
-            console.error('TableChart Component : model verisi boş veya tanımsız.');
-            return;
-          }
-          // `qDimensionInfo` ve `qMeasureInfo` öğelerinin `qFallbackTitle` değerlerini alıp birleştiriyoruz.
-          const dimensionTitles = model.layout.qHyperCube.qDimensionInfo.map(item => item.qFallbackTitle);
-          const measureTitles = model.layout.qHyperCube.qMeasureInfo.map(item => item.qFallbackTitle);
-  
-          // `qDimensionInfo` öğelerini ilk sıraya, `qMeasureInfo` öğelerini sonra ekliyoruz.
-          let combinedTitles = [...dimensionTitles, ...measureTitles];
-          console.log(combinedTitles)
-
-          setTableHeaderData(combinedTitles);
-  
-        }).catch((error) => {
-          console.error('TableChart Component : getObject() methodu veri alınırken hata oluştu:', error);
-        });
-      } else {
-        // console.error('Qlik Sense app is not loaded yet');
-      }
-    }
-    useEffect(() => {  
-      renderQlikTableObject(objectId);
-    }, [app, objectId,filterChange]);
-  
-    return (
-    <table className="detail-table">
-    <thead>
-      <tr>
-        <th>Team</th>
-        <th>Metric Name</th>
-        <th>Period</th>
-        <th>Result</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr>
-        <td>VERİ AMBARI</td>
-        <td>Cycle Time (58 Gün)</td>
-        <td>202411</td>
-        <td>
-          <div className="d-flex align-items-center flex-grow-1 gap-3">
-            <div className="horizontal-progressbar-wrapper">
-              <div className="bar" style={{ width: '95%' }}>&nbsp;</div>
-            </div>
-            <span className="value">%95,7</span>
+<tbody>
+  {tableDataArray && tableDataArray.map((row, index) => (
+    <tr key={index}>
+      {row.slice(0, -1).map((cell, cellIndex) => (
+        <td key={cellIndex}>{cell}</td> // Son eleman hariç tüm elemanları sırayla yerleştiriyoruz
+      ))}
+      <td>
+        <div className="d-flex align-items-center flex-grow-1 gap-3">
+          <div className="horizontal-progressbar-wrapper">
+            <div className="bar" style={{ width: `${row[row.length - 1]}%` }}>&nbsp;</div> {/* Son elemanla yüzde hesaplaması */}
           </div>
-        </td>
-      </tr>
-    </tbody>
-  </table>
-  )
-}
+          <span className="value">{`${row[row.length - 1]}%`}</span> {/* Son eleman, örneğin %95,7 */}
+        </div>
+      </td>
+    </tr>
+  ))}
+</tbody>
