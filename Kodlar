@@ -1,1 +1,1 @@
-  .attr("y", (d, i) => yScale(d.name) + yScale.bandwidth() / 2 - (barData.length === 1 ? 60 : barData.length === 2 ? 40 : barData.length === 3 ? 20 : 0)) // Çubuk sayısına göre kaydırma
+      .attr("transform", "translate(-5,-20)")
