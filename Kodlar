@@ -2,137 +2,123 @@ import React, { useEffect, useRef, useState } from "react";
 import * as d3 from "d3";
 import { getObjectData } from '@/util/qlikConnection';
 
-const HorizontalBarChart = ({ key, app, objectId, onBarPointClick }) => {
-    const svgRef = useRef(null);
-    const divRef = useRef(null);  // Yeni divRef ekliyoruz
-    const [barData, setBarData] = useState(null);
-    const [randomKey, setRandomKey] = useState(Math.random());
+const HorizontalBarChartSec = ({ key, app, objectId, type, graphColor, onBarPointClick }) => {
+  const svgRef = useRef(null);
+  const divRef = useRef(null);
+  const [barData, setBarData] = useState(null);
+  const width = useRef(0);
+  const height = useRef(0);
 
-    const width = useRef(0);
-    const height = useRef(0);
-
-    const renderQlikObject = (objectId) => {
-        var arr = [];
-        if (app) {
-            getObjectData(app, objectId)
-                .then((response) => {
-                    for (let i = 0; i < response.length; i++) {
-                        var obj = { name: '', percentage: '' };
-                        for (let j = 0; j < response[i].length; j++) {
-                            obj.name = response[i][0].qText;
-                            obj.percentage = response[i][1].qNum;
-                        }
-                        arr.push(obj);
-                        setBarData(arr);
-                    }
-                })
-        }
+  useEffect(() => {
+    var arr = [];
+    console.log("bar chart");
+    function renderQlikObject(objectId) {
+      if (app) {
+        getObjectData(app, objectId)
+          .then((response) => {
+            for (let i = 0; i < response.length; i++) {
+              var obj = { name: '', value: 0 };
+              for (let j = 0; j < response[i].length; j++) {
+                obj.name = response[i][0].qText;
+                obj.value = response[i][1].qNum;
+              }
+              arr.push(obj);
+            }
+            setBarData(arr);
+          });
+      }
     }
-    useEffect(() => {
-        renderQlikObject(objectId);
-    }, [key, app, objectId, randomKey]);
+    renderQlikObject(objectId);
+  }, [key, app, objectId]);
 
-    const drawHorizontalBarChart = () => {
-        const data = barData;
-        if (!data || data.length === 0) return;
+  const drawHorizontalBarChart = () => {
+    if (!barData || barData.length === 0) return;
 
-        // Dinamik boyutlar
-        const margin = { top: 20, right: 60, bottom: 20, left: 150 };
-        const innerWidth = width.current - margin.left - margin.right;
-        const innerHeight = height.current - margin.top - margin.bottom;
+    const margin = { top: 20, right: 60, bottom: 20, left: 150 };
+    const innerWidth = width.current - margin.left - margin.right;
+    const innerHeight = height.current - margin.top - margin.bottom;
 
-        const svg = d3.select(svgRef.current)
-            .attr("width", width.current)
-            .attr("height", height.current);
+    // En büyük değeri bul (eğer tüm değerler 100'den küçükse, 100'ü baz al)
+    const maxValue = Math.max(100, d3.max(barData, d => d.value));
 
-        svg.selectAll("*").remove();
+    const xScale = d3.scaleLinear()
+      .domain([0, maxValue])
+      .range([0, innerWidth]);
 
-        const g = svg.append("g")
-            .attr("transform", `translate(${margin.left},${margin.top})`);
+    const yScale = d3.scaleBand()
+      .domain(barData.map(d => d.name))
+      .range([0, innerHeight])
+      .padding(0.2);
 
-        const xScale = d3.scaleLinear()
-            .domain([0, 100])
-            .range([0, innerWidth]);
+    const svg = d3.select(svgRef.current)
+      .attr("width", width.current)
+      .attr("height", height.current);
 
-        const yScale = d3.scaleBand()
-            .domain(data.map(d => d.name))
-            .range([0, innerHeight])
-            .padding(0.2);
+    svg.selectAll("*").remove();
 
-        g.selectAll(".background-bar")
-            .data(data)
-            .enter()
-            .append("rect")
-            .attr("class", "background-bar")
-            .attr("x", 0)
-            .attr("y", d => yScale(d.name))
-            .attr("width", xScale(100))
-            .attr("height", yScale.bandwidth() / 3)
-            .attr("fill", "lightgray")
-            .attr("rx", 12)
-            .attr("ry", 12);
+    const g = svg.append("g")
+      .attr("transform", `translate(${margin.left},${margin.top})`);
 
-        g.selectAll(".value-bar")
-            .data(data)
-            .enter()
-            .append("rect")
-            .attr("class", "value-bar")
-            .attr("x", 0)
-            .attr("y", d => yScale(d.name))
-            .attr("width", d => xScale(d.percentage))
-            .attr("height", yScale.bandwidth() / 3)
-            .attr("fill", "#004480")
-            .attr("rx", 12)
-            .attr("ry", 12)
-            .on("click", (event, d) => {
-                // Handle bar click logic here...
-                const clickedValue = d.name;
-                console.log(clickedValue);
+    g.selectAll(".background-bar")
+      .data(barData)
+      .enter()
+      .append("rect")
+      .attr("class", "background-bar")
+      .attr("x", 0)
+      .attr("y", d => yScale(d.name))
+      .attr("width", xScale(maxValue)) // Sabit genişlikte arkaplan
+      .attr("height", yScale.bandwidth() / 3)
+      .attr("fill", "lightgray")
+      .attr("rx", 12)
+      .attr("ry", 12);
 
-                // Example: Update selection
-                app.field("UnitName").selectValues([clickedValue]).then(() => {
-                    setRandomKey(Math.random());
-                }).catch((error) => {
-                    console.error('UnitName alanına filtre uygulama hatası:', error);
-                });
+    g.selectAll(".value-bar")
+      .data(barData)
+      .enter()
+      .append("rect")
+      .attr("class", "value-bar")
+      .attr("x", 0)
+      .attr("y", d => yScale(d.name))
+      .attr("width", d => xScale(d.value)) // Normalleştirilmiş genişlik
+      .attr("height", yScale.bandwidth() / 3)
+      .attr("fill", graphColor)
+      .attr("rx", 12)
+      .attr("ry", 12)
+      .on("click", (event, d) => {
+        onBarPointClick(d.name);
+      });
 
-                d3.select(event.currentTarget).attr("fill", "#ff6347");
-            });
+    g.selectAll("text")
+      .data(barData)
+      .enter()
+      .append("text")
+       .attr("x", d => xScale(maxValue) + 20)
+      .attr("y", d => yScale(d.name) + yScale.bandwidth() / 2 - 20)
+      .attr("alignment-baseline", "middle")
+      .text(d => type === 'percentage' ? `${d.value.toFixed(0)}%` : `${d.value.toFixed(0)}`);
 
-        g.selectAll("text")
-            .data(data)
-            .enter()
-            .append("text")
-            .attr("x", d => xScale(d.percentage) + 10)  // Adjust text position
-            .attr("y", d => yScale(d.name) + yScale.bandwidth() / 2 - 20)
-            .attr("alignment-baseline", "middle")
-            .text(d => `${d.percentage.toFixed(0)}%`);
+    const yAxis = d3.axisLeft(yScale).tickSize(0);
+    g.append("g")
+      .call(yAxis)
+      .selectAll("text")
+      .attr("transform", "translate(-5,-20)")
+      .style('text-anchor', 'end')
+      .text(d => d.length > 25 ? d.slice(0, 20) + "..." : d);
 
-        const yAxis = d3.axisLeft(yScale).tickSize(0);
-        g.append("g")
-            .call(yAxis)
-            .selectAll("text")
-            .attr("transform", "translate(-5,-20)")
-            .text(d => d.length > 25 ? d.slice(0, 20) + "..." : d);
-
-        g.select(".domain").remove();
+    g.select(".domain").remove();
+  }
+  useEffect(() => {
+    if (divRef.current) {
+        width.current = divRef.current.offsetWidth;
+        height.current = divRef.current.offsetHeight;
     }
+    drawHorizontalBarChart();
+}, [app, barData]);
 
-    useEffect(() => {
-        // Dinamik boyutları almak için divRef kullanıyoruz
-        if (divRef.current) {
-            width.current = divRef.current.offsetWidth;
-            height.current = divRef.current.offsetHeight;
-        }
+  return (
+    <div ref={divRef} style={{ width: '100%', height: '300px' }}>
+        <svg ref={svgRef}></svg>
+    </div>
+);};
 
-        drawHorizontalBarChart();
-    }, [app, barData, randomKey]);
-
-    return (
-        <div ref={divRef} style={{ width: '100%', height: '100%' }}>
-            <svg ref={svgRef}></svg>
-        </div>
-    );
-};
-
-export default HorizontalBarChart;
+export default HorizontalBarChartSec;
