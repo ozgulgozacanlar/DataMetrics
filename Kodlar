@@ -4,15 +4,15 @@ import { getObjectData } from '@/util/qlikConnection';
 
 const HorizontalBarChart = ({ key, app, objectId, onBarPointClick }) => {
     const svgRef = useRef(null);
+    const divRef = useRef(null);  // Yeni divRef ekliyoruz
     const [barData, setBarData] = useState(null);
     const [randomKey, setRandomKey] = useState(Math.random());
 
-    const width = 550;
-    const height = 300;
+    const width = useRef(0);
+    const height = useRef(0);
 
     const renderQlikObject = (objectId) => {
         var arr = [];
-        console.log("bar chart");
         if (app) {
             getObjectData(app, objectId)
                 .then((response) => {
@@ -36,13 +36,14 @@ const HorizontalBarChart = ({ key, app, objectId, onBarPointClick }) => {
         const data = barData;
         if (!data || data.length === 0) return;
 
+        // Dinamik boyutlar
         const margin = { top: 20, right: 60, bottom: 20, left: 150 };
-        const innerWidth = width - margin.left - margin.right;
-        const innerHeight = height - margin.top - margin.bottom;
+        const innerWidth = width.current - margin.left - margin.right;
+        const innerHeight = height.current - margin.top - margin.bottom;
 
         const svg = d3.select(svgRef.current)
-            .attr("width", width)
-            .attr("height", height);
+            .attr("width", width.current)
+            .attr("height", height.current);
 
         svg.selectAll("*").remove();
 
@@ -68,7 +69,7 @@ const HorizontalBarChart = ({ key, app, objectId, onBarPointClick }) => {
             .attr("width", xScale(100))
             .attr("height", yScale.bandwidth() / 3)
             .attr("fill", "lightgray")
-            .attr("rx", 12)  // Köşeleri yuvarlat
+            .attr("rx", 12)
             .attr("ry", 12);
 
         g.selectAll(".value-bar")
@@ -81,53 +82,28 @@ const HorizontalBarChart = ({ key, app, objectId, onBarPointClick }) => {
             .attr("width", d => xScale(d.percentage))
             .attr("height", yScale.bandwidth() / 3)
             .attr("fill", "#004480")
-            .attr("rx", 12)  // Köşeleri yuvarlat
+            .attr("rx", 12)
             .attr("ry", 12)
             .on("click", (event, d) => {
-                //onBarPointClick(d.name);
+                // Handle bar click logic here...
                 const clickedValue = d.name;
-                console.log(clickedValue)
-                // Qlik objesine filtre atmak
-                    console.log(app.selectionState().selections);
-                    const selectionsLength = app.selectionState().selections.length;
-                    console.log(selectionsLength)
+                console.log(clickedValue);
 
-                    if (selectionsLength > 0) {
-                        // Eğer seçili alan varsa, başka bir alana filtre atıyoruz
-                        console.log("Seçim yapıldı. Başka bir alana filtre uygulanacak.");
-                        console.log(d.name)
-                        console.log(clickedValue)
-                        // Burada başka bir alanı filtreleyelim. Örnek olarak 'Region' field'ı:
-                        app.field("Team Name").selectValues([clickedValue], true).then(() => {
-                            console.log('Region alanına filtre uygulandı:', clickedValue);
+                // Example: Update selection
+                app.field("UnitName").selectValues([clickedValue]).then(() => {
+                    setRandomKey(Math.random());
+                }).catch((error) => {
+                    console.error('UnitName alanına filtre uygulama hatası:', error);
+                });
 
-                            setRandomKey(Math.random());
-                        }).catch((error) => {
-                            console.error('Region alanına filtre uygulama hatası:', error);
-                        });
-
-                    } else {
-                        // Eğer hiçbir seçim yoksa, mevcut alanı filtreliyoruz
-                        console.log("Seçim yapılmadı. Mevcut alana filtre uygulanacak.");
-
-                        app.field("UnitName").selectValues([clickedValue]).then(() => {
-                            // UnitName filtresi uygulandıktan sonra data değişmesi sağlanıyor
-                            setRandomKey(Math.random());
-                        }).catch((error) => {
-                            console.error('UnitName alanına filtre uygulama hatası:', error);
-                        });
-                    }
-                
-                // (Opsiyonel) Tıklanan çubuğun rengini değiştirme
-                d3.select(event.currentTarget)
-                    .attr("fill", "#ff6347"); // Kırmızıya boyama
+                d3.select(event.currentTarget).attr("fill", "#ff6347");
             });
 
         g.selectAll("text")
             .data(data)
             .enter()
             .append("text")
-            .attr("x", d => xScale(d.percentage) + 35)
+            .attr("x", d => xScale(d.percentage) + 10)  // Adjust text position
             .attr("y", d => yScale(d.name) + yScale.bandwidth() / 2 - 20)
             .attr("alignment-baseline", "middle")
             .text(d => `${d.percentage.toFixed(0)}%`);
@@ -139,13 +115,24 @@ const HorizontalBarChart = ({ key, app, objectId, onBarPointClick }) => {
             .attr("transform", "translate(-5,-20)")
             .text(d => d.length > 25 ? d.slice(0, 20) + "..." : d);
 
-        g.select(".domain").remove(); // Y ekseni çizgisini kaldır
+        g.select(".domain").remove();
     }
-    useEffect(() => {
-        drawHorizontalBarChart();
-    }, [app, barData]);
 
-    return <svg ref={svgRef}></svg>;
+    useEffect(() => {
+        // Dinamik boyutları almak için divRef kullanıyoruz
+        if (divRef.current) {
+            width.current = divRef.current.offsetWidth;
+            height.current = divRef.current.offsetHeight;
+        }
+
+        drawHorizontalBarChart();
+    }, [app, barData, randomKey]);
+
+    return (
+        <div ref={divRef} style={{ width: '100%', height: '100%' }}>
+            <svg ref={svgRef}></svg>
+        </div>
+    );
 };
 
 export default HorizontalBarChart;
