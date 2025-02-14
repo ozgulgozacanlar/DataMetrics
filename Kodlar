@@ -1,6 +1,4 @@
-  function renderQlikTableObject(objectId) {
-      if (app) {
-        getObjectData(app, objectId).then((response) => {
+ getObjectData(app, objectId).then((response) => {
           console.log(response)
           if (!response) {
             console.error('TableChart Component : response verisi boş veya tanımsız.');
@@ -9,3 +7,8 @@
           if(objectId === 'tnTHKj'){
             
           }
+            const tableDatas = response.map(item => {         
+            return item.map(innerItem => innerItem.qText);  // innerItem içindeki qText değerini alıyoruz
+          });
+         
+          setTableDataArray(tableDatas);
