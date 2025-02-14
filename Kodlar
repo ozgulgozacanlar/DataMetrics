@@ -1,13 +1,1 @@
-let tableDatas;
-
-  if (objectId === 'tnTHKj') {
-    // response içindeki her bir item'dan sadece 1. index ve sonrasındaki elemanları alıyoruz
-    tableDatas = response.map(item => {
-      return item.slice(1).map(innerItem => innerItem.qText);  // item.slice(1) ile 0. index hariç tutuyoruz
-    });
-  } else {
-    // Eğer objectId 'tnTHKj' değilse, tüm item'ları olduğu gibi alıyoruz
-    tableDatas = response.map(item => {
-      return item.map(innerItem => innerItem.qText);  // Tüm elemanların qText değerini alıyoruz
-    });
-  }
+          const measureTitles = model.layout.qHyperCube.qMeasureInfo.map(item => item.qFallbackTitle);
