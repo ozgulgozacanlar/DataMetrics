@@ -1,27 +1,11 @@
-const HorizontalBarChartSec = ({ customKey, app, objectId, type, graphColor, onBarPointClick }) => {
-  const svgRef = useRef(null);
-  const divRef = useRef(null);
-  const [barData, setBarData] = useState(null);
-  const width = useRef(0);
-  const height = useRef(0);
-  var filterArr = ["UnitName", "Team Name", "Main Category","Metric Name"];
-
-  const handleBarPointClick = async (value, filterArr) => {
-  
-    console.log(filterArr)
-    for (let i = 0; i < filterArr.length; i++) {
-        const fieldName = filterArr[i];
-  
-        // Mevcut filtreleri kontrol et
-        const field = app.field(fieldName);
-        const layout = await field.getData();
-        const appliedFilters = layout.rows.filter(row => row.qState === 'S').map(row => row.qText);
-  
-        // Eğer bu alan zaten filtrelenmişse, bir sonraki indexi kontrol et
-        if (appliedFilters.length === 0) {
-            await field.selectValues([{ qText: value }]);
-            console.log(`Value selected successfully in ${fieldName}:`, value);
-            break; // İlk uygun alan seçildiğinde döngüden çık
-        }
-    }
-  };
+  function renderQlikTableObject(objectId) {
+      if (app) {
+        getObjectData(app, objectId).then((response) => {
+          console.log(response)
+          if (!response) {
+            console.error('TableChart Component : response verisi boş veya tanımsız.');
+            return;
+          }
+          if(objectId === 'tnTHKj'){
+            
+          }
