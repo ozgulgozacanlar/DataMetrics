@@ -1,10 +1,172 @@
- <div className='col'>
-                    <div className="d-flex flex-column">
-                      <div className="progress-first-row d-flex justify-content-between align-items-center">
-                        <span>Bireysel</span>
-                      </div>
-                      <div className='row'>
-                        <ProgressBar app={app} objectId={"1880edcd-3c86-4344-9fb0-64d6c521ee0f"} quarterObjectId={"nCSeYh"} param={"Bireysel"} progress={100} onLoaded={() => handleChildLoaded('child1')} />
-                      </div>
-                    </div>
-                  </div>
+import { useRef, useEffect, useState, useLayoutEffect } from 'react';
+import * as d3 from 'd3'; // Correct D3 import
+import { getObjectData } from '@/util/qlikConnection';
+
+function ProgressBar({ app, objectId, quarterObjectId, param, progress, onLoaded }) {
+  const svgRef = useRef(null);
+  const progressBarWrapperRef = useRef(null);  // Ebeveyn container
+  const [progressData, setProgressData] = useState(null);
+  const [currentQuarterData, setCurrentQuarterData] = useState(null);
+  const [lastYearQuarterData, setLastYearQuarterData] = useState(null);
+  const [svgWidth, setSvgWidth] = useState(275);  // Başlangıç genişliği
+
+  useEffect(() => {
+    if (app) {
+      getObjectData(app, objectId).then((data) => {
+        if (data) {
+          for (let i = 0; i < data.length; i++) {
+            if (data[i][0].qText.includes(param)) {
+              setProgressData(data[i]);
+            }
+          } 
+          setTimeout(() => { onLoaded(); }, 250);onLoaded();
+        }
+      }).catch((error) => {
+        console.error('ProgressBar Component : getObjectData() methodu veri alınırken hata oluştu:', error);
+      });
+      getObjectData(app, quarterObjectId).then((data) => {
+        if (data) {
+          if (data[0][0].qText) {
+            setLastYearQuarterData(data[0][0].qText);
+          }
+          if (data[0][1].qText) {
+            setCurrentQuarterData(data[0][1].qText);
+          }
+         
+        }
+      }).catch((error) => {
+        console.error('ProgressBar Component : getObjectData() methodu veri alınırken hata oluştu:', error);
+      });
+    }
+  
+    
+  }, [app, objectId, quarterObjectId, param]);
+
+  useEffect(() => {
+    if (progressData) {
+      // const svgWidth = 275; // Total width
+      const svgHeight = 75; // SVG height
+      const barHeight = 8; // Bar height
+      const target = progressData[2].qNum * 100;
+      const svg = d3.select(svgRef.current);
+      const targetVal = target < 95 && target > 90 ? 90 : target;
+      var circleColor = mapColorCode(progressData[2].qAttrExps.qValues[0].qText);
+      svg.selectAll('*').remove(); // Clear previous render
+
+      // Scale
+      const scale = d3.scaleLinear() // Correct usage
+        .domain([0, 100])
+        .range([0, svgWidth]);
+
+      // Background (gray bar)
+      svg.append('rect')
+        .attr('x', 0)
+        .attr('y', (svgHeight - barHeight) / 2)
+        .attr('width', svgWidth)
+        .attr('height', barHeight)
+        .attr('rx', barHeight / 2) // Rounded corners
+        .attr('ry', barHeight / 2)
+        .attr('fill', '#d3d3d3');
+
+      // Filled bar
+      const filledWidth = Math.min(scale(progress), scale(targetVal));
+      svg.append('rect')
+        .attr('x', 0)
+        .attr('y', (svgHeight - barHeight) / 2)
+        .attr('width', filledWidth)
+        .attr('height', barHeight)
+        .attr('rx', barHeight / 2)
+        .attr('ry', barHeight / 2)
+        .attr('fill', circleColor);
+
+      // Target circle (outer)
+      svg.append('circle')
+        .attr('cx', scale(targetVal))
+        .attr('cy', svgHeight / 2)
+        .attr('r', 12)
+        .attr('fill', circleColor)
+        .attr('stroke-width', 2);
+
+      // Target circle (inner)
+      svg.append('circle')
+        .attr('cx', scale(targetVal))
+        .attr('cy', svgHeight / 2)
+        .attr('r', 6)
+        .attr('fill', 'white')
+        .attr('stroke', '#fff')
+        .attr('stroke-width', 2);
+
+      // Target value text
+      svg.append('text')
+        .attr('x', scale(targetVal))
+        .attr('y', svgHeight / 2 - 25)
+        .attr('text-anchor', 'middle')
+        .attr('fill', '#666')
+        .style('font-size', '16px')
+        .style('font-weight', '900')
+        .text(`${target.toFixed()}%`);
+    }
+  }, [progressData, progress,svgWidth]);
+
+  // Ebeveyn elementin genişliğini al
+  useLayoutEffect(() => {
+    const updateWidth = () => {
+      console.log(progressBarWrapperRef.current)
+      if (progressBarWrapperRef.current) {
+        console.log(progressBarWrapperRef.current.offsetWidth)
+        setSvgWidth(progressBarWrapperRef.current.offsetWidth);
+      }
+    };
+
+    // Sayfa yüklendiğinde ve her pencere boyutu değiştiğinde genişliği güncelle
+    window.addEventListener('resize', updateWidth);
+    updateWidth();  // İlk boyutlandırma
+
+    return () => {
+      window.removeEventListener('resize', updateWidth);  // Temizleme
+    };
+  }, []);
+  
+      /**
+   * Maps an input color code to a corresponding mapped color.
+   * If the input color code is not found in the map, returns the input color itself.
+   *
+   * @param {string} inputColor - The input color code to map.
+   * @returns {string} - The mapped color code or the input color if no match is found.
+   */
+      function mapColorCode(inputColor) {
+        const colorMap = {
+            "#82b740": "#7CA444", // Old green => New green
+            "#ffc820": "#DC9465", // Old yellow => New yellow
+            "#1973b8": "#126EB5", // Old blue => New blue
+            "#EF4761": "#D46364",  // Old red => New red
+        };
+    
+        return colorMap[inputColor.toLowerCase()] || inputColor;
+      }
+
+  return (
+    (progressData) ? (
+      <>
+        <div className='col-8'>
+        <div className="progress-bar-wrapper" ref={progressBarWrapperRef} style={{width: '100%'}}>
+            <svg ref={svgRef} width="100%" height="50" />
+          </div>
+          <div className="progress-last-row d-flex justify-content-between align-items-center">
+            <span>%0</span>
+            <span>{currentQuarterData}</span>
+            <span>%100</span>
+          </div>
+        </div>
+        <div className='col d-flex'>
+          <div className="grey-box">
+            <span>{lastYearQuarterData}</span>
+            <b>{(progressData[1].qNum*100).toFixed() + "%"}</b>
+          </div>
+        </div>
+      </>
+    ) : null
+  );
+}
+
+export default ProgressBar;
