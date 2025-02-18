@@ -1,22 +1,47 @@
-<div className="line-container">
-      <hr className="divider" />
-      <span className="line-text">Yazdırılacak Metin</span>
-    </div>
+  const handleFootNote = (footnoteText) => {
+    console.log(footnoteText)
+    setFootNoteText(footnoteText);
+  }
 
-.line-container {
-  text-align: center;
-  margin-top: 20px; /* Çizgi ve metin arasına boşluk eklemek için */
-}
+                <CardTitle app={app} objectId={'286328fb-e24c-4a23-b937-c9f0b568407e'} getFootnoteText = {handleFootNote}/>
 
-.divider {
-  border: none;
-  border-top: 2px solid #000; /* Çizginin kalınlığını ve rengini ayarlayabilirsiniz */
-  margin: 0;
-}
 
-.line-text {
-  display: block;
-  margin-top: 10px; /* Çizgi ile metin arasında boşluk */
-  font-size: 16px;
-  color: #333; /* Metnin rengini ayarlayabilirsiniz */
+export default function CardTitle({app , objectId,getFootnoteText}) {
+
+    const [cardTitle, setCardTitle] = useState("");
+
+    useEffect(() => {
+        function renderQlikTableObject(objectId) {
+          if (app) {          
+            app.getObject(objectId).then((model) => {
+
+              let titles = model.layout.title.trim();
+              if(titles === ""){
+                if(model.genericType == "table"){
+                  titles = model.layout.qHyperCube.qDimensionInfo[0].qFallbackTitle;
+               }
+               else if(model.genericType == "linechart"){
+                  titles = model.layout.title;
+               }
+               else if(model.genericType== "action-button"){
+                 titles = model.layout.style.label;
+               }
+              }          
+              setCardTitle(capitalizeFirstLetter(titles));
+
+              if(model.layout.footnote !== ""){
+                getFootnoteText(model.layout.footnote);
+              }
+            });
+          } else {
+            // console.error('Qlik Sense app is not loaded yet');
+          }
+        }
+        renderQlikTableObject(objectId);
+      }, [app, objectId]);
+  
+return (
+    <div className="card-title">{cardTitle.toUpperCase()}</div>
+
+  )
 }
