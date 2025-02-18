@@ -1,4 +1,62 @@
- const drawHorizontalBarChartwithVal = () => {
+import { useRef, useEffect, useState } from 'react';
+import * as d3 from 'd3';
+import { getObjectData } from '@/util/qlikConnection';
+import './HorizontalBarChartwithVal.css';
+import { useSelector } from 'react-redux';
+
+//Eğer grafik y ekseninde değer içermiyor ve yüzdelik bir değer yoksa bu component kullanılabilir.
+export default function HorizontalBarChartwithVal({ app, objectId , graphicName, onLoaded, isVisible }) {
+    const svgRef = useRef(null);
+    const chartContainerRef = useRef(null);
+    const [data, setData] = useState([]);
+    const [svgSize, setSvgSize] = useState({ width: 0, height: 0 });
+    const pageName = useSelector((state) => state.page.name);
+
+    useEffect(() => {
+        function renderBarChartQlikObject(objectId) {
+            if (app) {
+                getObjectData(app, objectId).then((response) => {
+                    if (!response) {
+                        console.error('HorizontalBarChartwithVal Component : response verisi boş veya tanımsız.');
+                        return;
+                    }
+
+                    const incomingData = response.map(item => ({
+                        value: item[0].qNum,
+                        name: item[1].qText
+                    }));
+                    setData(incomingData)
+                    setTimeout(() => { onLoaded(); }, 250);
+                }).catch((error) => {
+                    console.error('HorizontalBarChartwithVal Component : getObjectData() methodu veri alınırken hata oluştu:', error);
+                });
+            } else {
+                // console.error('Qlik Sense app is not loaded yet');
+            }
+        }
+        renderBarChartQlikObject(objectId);
+    }, [app, objectId]);
+
+    const updateDimensions = () => {
+        if (chartContainerRef.current) {
+          setSvgSize({
+            width: chartContainerRef.current.offsetWidth, // div'in genişliği
+            height: chartContainerRef.current.offsetHeight, // div'in yüksekliği
+          });
+        }
+      };
+    
+      // Responsive tasarım için boyutları günceller
+      useEffect(() => {
+        updateDimensions(); // İlk boyutlandırmayı yap
+        window.addEventListener('resize', updateDimensions); // Pencere boyutu değiştiğinde boyutları güncelle
+    
+        return () => {
+          window.removeEventListener('resize', updateDimensions); // Temizleme işlemi
+        };
+      }, [isVisible]);
+
+    const drawHorizontalBarChartwithVal = () => {
         if (data.length === 0) return;
 
         const svg = d3.select(svgRef.current);
@@ -6,11 +64,12 @@
 
         const margin = { top: -10, right: 20, bottom: 0, left: 0 };
         const width = svg.node().getBoundingClientRect().width - margin.left - margin.right;
-        const height = data.length * 50 //Bar çubuk aralıkları 2 grafik içinde hemen hemen aynı olması için height'ları farklı veriliyor. 
-
+        const height = data.length * 50 
+        console.log("asldjasl: " +width )
         svg
             .attr("width", width)
-            .attr("height", height);
+            .attr("height", height)
+            
 
         const xScale = d3.scaleLinear()
             .domain([0, d3.max(data, (d) => d.value)])
@@ -91,9 +150,30 @@
         bars.enter()
             .append("text")
             .attr("class", "value")
-            .attr("x", (d) => xScale(d.value)/1.20 + 5) // Çubuğun sağında değer
+            // .attr("x", (d) => xScale(d.value)/1.20 + 5) // Çubuğun sağında değer
+            .attr("x", (d) => {
+                const barWidth = xScale(d.value);
+                console.log("barWidth : " + barWidth)
+                console.log("d.name.length : " + d.name.length)
+                const textWidth = d.name.length;
+                const totalWidth = barWidth + textWidth;
+                console.log("totalWidth : " + totalWidth)
+                console.log("width : " + width)
+                if(totalWidth > width ){
+                    return (barWidth / 1.8) - textWidth;
+                }
+                else{
+                    return (barWidth / 1.20 ) + 5;
+                }
+            }) 
             .attr("y", (d) => yScale(d.name) + yScale.bandwidth() / 1.75) // Y eksenindeki her barın ortasında
             .attr("dy", ".35em")
+            .attr("fill", (d) => {
+                const barWidth = xScale(d.value);
+                const textWidth = d.name.length;
+                const totalWidth = barWidth + textWidth;
+                return totalWidth > width ? "white" : "#6a6a6a";
+            })
             .text((d) => d.name);
 
         // Y eksenindeki metinleri value olarak değiştiriyoruz
@@ -104,3 +184,21 @@
                 return matchingData ? `${matchingData.value}` : `${d}`; // Eğer varsa, value'yu döndür, yoksa d'yi döndür
             });
     }
+    useEffect(() => {
+        if (svgSize.width > 0 && svgSize.height > 0) {
+            drawHorizontalBarChartwithVal();
+        }
+      }, [graphicName,data, svgSize]);
+
+
+    return (
+        <div ref={chartContainerRef} style={{ width: '100%', height: pageName === 'npl-karlilik-npl-detay' ? '300px' : "250px" ,overflowY: "scroll"  }}>
+        <svg ref={svgRef} style={{ width: '100%' }}></svg>
+      </div>
+        // <div style={{ width: "100%", height: "300px", overflowY: "scroll" }}>
+        //     <svg ref={svgRef} style={{ width: "100%" }}></svg>
+        // </div>
+        
+    );
+
+}
