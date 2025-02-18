@@ -1,20 +1,37 @@
-  // Genişlik güncellemesi için `useLayoutEffect` kullanıyoruz
-  useLayoutEffect(() => {
-    const updateWidth = () => {
-      if (progressBarWrapperRef.current && !isWidthSet) {
-        setSvgWidth(progressBarWrapperRef.current.offsetWidth);
-        setIsWidthSet(true);  // İlk genişlik alındığında flag'ı true yap
-      }
-    };
+  <div className='table-with-point' style={styles.overflowStyle}>
+        <table className={`table table-bordered table-striped combined-table table-scroll`}>
+          <thead>
+            <tr>
+              <th key={Math.random()}>{headerFirstText}</th>
+              {tableHeaderData != null ? tableHeaderData.map((item, index) => (
+                <th key={index} className="text-center">{item.qFallbackTitle}</th>
+              )) : <></>}
+            </tr>
+          </thead>
+          <tbody>
+            {tableData != null ? tableData.map((row, rowIndex) => (
+              <tr key={rowIndex}>
+                {row.map((cell, cellIndex) => (
+                  <td key={cellIndex} className="text-center">
+                    {(cellIndex == 1 || cellIndex == 2 || cellIndex == 3) ? (
+                      <span
+                        style={{
+                          display: 'inline-block',
+                          width: '10px',
+                          height: '10px',
+                          borderRadius: '50%',
+                          backgroundColor: cell.qAttrExps.qValues[0].qText != null ? mapColorCode(cell.qAttrExps.qValues[0].qText) : "",
 
-    if (!isWidthSet) {
-      // İlk renderda genişlik al
-      setTimeout(updateWidth, 0);
-    }
+                        }}
+                      ></span>
+                    ) : (
+                      (cellIndex > 3 ? <span>{cell.qText}</span> : cell.qText)
 
-    window.addEventListener('resize', updateWidth);
-
-    return () => {
-      window.removeEventListener('resize', updateWidth); // Temizleme
-    };
-  }, [isWidthSet]); // Eğer width ayarlandıysa flag'i kullanarak kontrol et
+                    )}
+                  </td>
+                ))}
+              </tr>
+            )) : <></>}
+          </tbody>
+        </table>
+      </div>
