@@ -1,7 +1,22 @@
-  <div className="card">
-                <CardTitle app={app} objectId={'286328fb-e24c-4a23-b937-c9f0b568407e'} />
-                {/* <div className="card-title">Bölge Pusula Performansı</div> */}
-                <div className="card-content">
-                  <HorizontalBarChartWithPerc app={app} objectId={"286328fb-e24c-4a23-b937-c9f0b568407e"} graphicName={"Bolge"} onLoaded={() => handleChildLoaded('child1')} isVisible={isLoading} />
-                </div>
-              </div>
+<div className="line-container">
+      <hr className="divider" />
+      <span className="line-text">Yazdırılacak Metin</span>
+    </div>
+
+.line-container {
+  text-align: center;
+  margin-top: 20px; /* Çizgi ve metin arasına boşluk eklemek için */
+}
+
+.divider {
+  border: none;
+  border-top: 2px solid #000; /* Çizginin kalınlığını ve rengini ayarlayabilirsiniz */
+  margin: 0;
+}
+
+.line-text {
+  display: block;
+  margin-top: 10px; /* Çizgi ile metin arasında boşluk */
+  font-size: 16px;
+  color: #333; /* Metnin rengini ayarlayabilirsiniz */
+}
