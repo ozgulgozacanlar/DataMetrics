@@ -1,37 +1,7 @@
-  <div className='table-with-point' style={styles.overflowStyle}>
-        <table className={`table table-bordered table-striped combined-table table-scroll`}>
-          <thead>
-            <tr>
-              <th key={Math.random()}>{headerFirstText}</th>
-              {tableHeaderData != null ? tableHeaderData.map((item, index) => (
-                <th key={index} className="text-center">{item.qFallbackTitle}</th>
-              )) : <></>}
-            </tr>
-          </thead>
-          <tbody>
-            {tableData != null ? tableData.map((row, rowIndex) => (
-              <tr key={rowIndex}>
-                {row.map((cell, cellIndex) => (
-                  <td key={cellIndex} className="text-center">
-                    {(cellIndex == 1 || cellIndex == 2 || cellIndex == 3) ? (
-                      <span
-                        style={{
-                          display: 'inline-block',
-                          width: '10px',
-                          height: '10px',
-                          borderRadius: '50%',
-                          backgroundColor: cell.qAttrExps.qValues[0].qText != null ? mapColorCode(cell.qAttrExps.qValues[0].qText) : "",
-
-                        }}
-                      ></span>
-                    ) : (
-                      (cellIndex > 3 ? <span>{cell.qText}</span> : cell.qText)
-
-                    )}
-                  </td>
-                ))}
-              </tr>
-            )) : <></>}
-          </tbody>
-        </table>
-      </div>
+  <div className="card">
+                <CardTitle app={app} objectId={'286328fb-e24c-4a23-b937-c9f0b568407e'} />
+                {/* <div className="card-title">Bölge Pusula Performansı</div> */}
+                <div className="card-content">
+                  <HorizontalBarChartWithPerc app={app} objectId={"286328fb-e24c-4a23-b937-c9f0b568407e"} graphicName={"Bolge"} onLoaded={() => handleChildLoaded('child1')} isVisible={isLoading} />
+                </div>
+              </div>
