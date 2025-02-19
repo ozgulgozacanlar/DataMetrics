@@ -1,9 +1,23 @@
 useEffect(() => {
-    if (app && app.selectionState()) {
-        const selectedFilterObj = app.selectionState().selections.find(function (x) { return x.fieldName === "REGION_NAME_TEXT" });
-        console.log(selectedFilterObj === undefined ? '' : (selectedFilterObj.selectedCount > 1 ? 'ALL' : selectedFilterObj.qSelected));
-        return selectedFilterObj === undefined ? '' : (selectedFilterObj.selectedCount > 1 ? 'ALL' : selectedFilterObj.qSelected);
-    } else {
-        console.log("App ya da SelectionState henüz yüklenmemiş.");
+    if (app) {
+        const updateSelections = () => {
+            const selections = app.selectionState().selections;
+            if (selections && selections.length > 0) {
+                findRegionName();
+            } else {
+                console.log("Seçim yapılmamış.");
+            }
+        };
+
+        // Başlangıçta seçim durumu kontrolü
+        updateSelections();
+
+        // Seçim durumu değiştikçe tekrar kontrol edilmesi için bir event listener eklemek
+        app.on('selection-changed', updateSelections);
+
+        // Cleanup: component unmount olduğunda listener'ı temizlemek
+        return () => {
+            app.off('selection-changed', updateSelections);
+        };
     }
-}, [app]);
+}, [app]);  // 'app' değiştiğinde çalışacak
