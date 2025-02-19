@@ -1,19 +1,29 @@
 export function formatDecimalNumber(number) {
-  console.log(number)
-  if(!number.includes("%") && number !== undefined){
-    console.log(number)
-    // Sayıyı virgül (binlik ayırıcı) olmadan işleyebilmek için temizle
-    const cleanedNumber = number.replace(/,/g, '');
-    console.log(cleanedNumber)
-    // Sayıyı tam kısım (integer) ve ondalıklı kısmına ayır
-    const [integerPart, decimalPart] = cleanedNumber.split('.');
-  
-    // Tam kısmı 3 haneli gruplara ayırarak formatla
-    const formattedIntegerPart = new Intl.NumberFormat('de-DE').format(integerPart);
-  
-    // Ondalık kısmı virgül ile birleştirerek sonucu döndür
-    console.log(decimalPart ? `${formattedIntegerPart},${decimalPart}` : formattedIntegerPart)
-    return decimalPart ? `${formattedIntegerPart},${decimalPart}` : formattedIntegerPart;
+  console.log("Orijinal Değer:", number);
+
+  // Eğer number bir string ise, virgülleri temizle
+  const cleanedNumber = number.replace(/,/g, '');
+
+  // Temizlenmiş değeri sayıya dönüştür ve geçerliliğini kontrol et
+  const parsedNumber = parseFloat(cleanedNumber);
+
+  // Eğer parsedNumber geçerli bir sayı değilse (yani text varsa), boş string döndür
+  if (isNaN(parsedNumber) || number.includes("%") || typeof number === 'string') {
+    console.error("Geçersiz sayı veya yüzde işareti var veya metin:", number);
+    return ''; // Eğer sayı geçersizse veya metinse, boş string döndürebiliriz
   }
- 
+
+  console.log("Geçerli sayı:", parsedNumber);
+
+  // Sayıyı tam kısım (integer) ve ondalıklı kısmına ayır
+  const [integerPart, decimalPart] = cleanedNumber.split('.');
+
+  // Tam kısmı 3 haneli gruplara ayırarak formatla
+  const formattedIntegerPart = new Intl.NumberFormat('de-DE').format(integerPart);
+
+  // Ondalık kısmı virgül ile birleştirerek sonucu döndür
+  const formattedNumber = decimalPart ? `${formattedIntegerPart},${decimalPart}` : formattedIntegerPart;
+  console.log("Formatlanmış sayı:", formattedNumber);
+
+  return formattedNumber;
 }
