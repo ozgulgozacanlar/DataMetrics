@@ -1,7 +1,2 @@
-   const tempText = d3.select('svg').append('text')
-        .style('visibility', 'hidden') // Geçici olduğundan görünmez yapıyoruz
-        .style('font', '10px sans-serif') // Aynı font özelliklerini ekliyoruz
-        .text(d.name); // Metni yerleştiriyoruz
-
-    const textWidth = tempText.node().getBBox().width; // Gerçek metin genişliğini alıyoruz
-    tempText.remove(); // Geçici metni siliyoruz
+	let selectedFilterObj = arrayToSearch.find(function (x) { return x.fieldName === filterName })
+		return selectedFilterObj === undefined ? '' : (selectedFilterObj.selectedCount > 1 ? 'ALL' : selectedFilterObj.qSelected)
