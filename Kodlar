@@ -1,9 +1,13 @@
-.promosyon-karlilik-table-wrapper table td:first-child,
-.isletme-metrikleri table td:first-child,
-.region-total-table-wrapper table td:first-child{
-  text-align: left !important;
-  font-family: 'benton_sans_bbvamedium' !important;
-}
-.promosyon-karlilik-table-wrapper table tbody td span { 
-  font-family: 'bentonsansbbvabold';
+function formatNumber(number) {
+  // Sayıyı virgül (binlik ayırıcı) olmadan işleyebilmek için temizle
+  const cleanedNumber = number.replace(/,/g, '');
+
+  // Sayıyı tam kısım (integer) ve ondalıklı kısmına ayır
+  const [integerPart, decimalPart] = cleanedNumber.split('.');
+
+  // Tam kısmı 3 haneli gruplara ayırarak formatla
+  const formattedIntegerPart = new Intl.NumberFormat('de-DE').format(integerPart);
+
+  // Ondalık kısmı virgül ile birleştirerek sonucu döndür
+  return decimalPart ? `${formattedIntegerPart},${decimalPart}` : formattedIntegerPart;
 }
