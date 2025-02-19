@@ -1,23 +1,23 @@
 useEffect(() => {
-    if (app) {
-        const updateSelections = () => {
+    async function loadSelections() {
+        if (app) {
             const selections = app.selectionState().selections;
-            if (selections && selections.length > 0) {
-                findRegionName();
-            } else {
-                console.log("Seçim yapılmamış.");
+
+            // Seçimlerin yüklenmesini bekle (tembel yükleme kontrolü)
+            while (selections.length === 0) {
+                console.log("Seçimler yükleniyor...");
+                await new Promise(resolve => setTimeout(resolve, 500));  // 500ms bekle
             }
-        };
 
-        // Başlangıçta seçim durumu kontrolü
-        updateSelections();
-
-        // Seçim durumu değiştikçe tekrar kontrol edilmesi için bir event listener eklemek
-        app.on('selection-changed', updateSelections);
-
-        // Cleanup: component unmount olduğunda listener'ı temizlemek
-        return () => {
-            app.off('selection-changed', updateSelections);
-        };
+            // Seçimler yüklenince işleme başla
+            selections.forEach(selection => {
+                console.log("Seçim Nesnesi: ", selection);
+                selection.qSelected && selection.qSelected.forEach(selectedItem => {
+                    console.log("Seçilen Değer: ", selectedItem.qText);
+                });
+            });
+        }
     }
-}, [app]);  // 'app' değiştiğinde çalışacak
+
+    loadSelections();
+}, [app]);
