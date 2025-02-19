@@ -1,2 +1,44 @@
-	let selectedFilterObj = arrayToSearch.find(function (x) { return x.fieldName === filterName })
-		return selectedFilterObj === undefined ? '' : (selectedFilterObj.selectedCount > 1 ? 'ALL' : selectedFilterObj.qSelected)
+ useEffect(() => {
+        function renderBarChartQlikObject(objectId) {
+            if (app) {
+                getObjectData(app, objectId).then((response) => {
+                    if (!response) {
+                        console.error('HorizontalBarChartWithPerc Component : response verisi boş veya tanımsız.');
+                        return;
+                    }
+                    const incomingData = response.map(item => ({
+                        value: parseFloat(item[0].qText),
+                        name: item[1].qText,
+                        text:item[0].qText
+
+                    }));
+                    setData(incomingData)
+                    setTimeout(() => { onLoaded(); }, 250);
+                }).catch((error) => {
+                    console.error('HorizontalBarChartWithPerc Component : getObjectData() methodu veri alınırken hata oluştu:', error);
+                });
+                console.log(app.selectionState().selections)
+                // let selectedFilterObj = app.selectionState().selections.find(function (x) { return x.fieldName === "REGION_NAME_TEXT" })
+                // if(selectedFilterObj === undefined){
+                //     console.log("undefined")
+                // }
+                // else if(selectedFilterObj.selectedCount > 1){
+                //     console.log("ALL")
+                // }
+                // else{
+                //     console.log(selectedFilterObj.qSelected)
+                // }
+		        // selectedFilterObj === undefined ? '' : (selectedFilterObj.selectedCount > 1 ? 'ALL' : selectedFilterObj.qSelected)
+                findRegionName();
+            } else {
+                // console.error('Qlik Sense app is not loaded yet');
+            }
+        }
+        renderBarChartQlikObject(objectId);
+    }, [app, objectId]);
+
+    const findRegionName = () => {
+        const selectedFilterObj = app.selectionState().selections.find(function (x) { return x.fieldName === "REGION_NAME_TEXT" })
+        console.log(selectedFilterObj === undefined ? '' : (selectedFilterObj.selectedCount > 1 ? 'ALL' : selectedFilterObj.qSelected))
+        return  selectedFilterObj === undefined ? '' : (selectedFilterObj.selectedCount > 1 ? 'ALL' : selectedFilterObj.qSelected);
+    }
