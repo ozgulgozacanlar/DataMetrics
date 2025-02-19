@@ -1,23 +1,9 @@
-useEffect(() => {
-    async function loadSelections() {
-        if (app) {
-            const selections = app.selectionState().selections;
-
-            // Seçimlerin yüklenmesini bekle (tembel yükleme kontrolü)
-            while (selections.length === 0) {
-                console.log("Seçimler yükleniyor...");
-                await new Promise(resolve => setTimeout(resolve, 500));  // 500ms bekle
-            }
-
-            // Seçimler yüklenince işleme başla
-            selections.forEach(selection => {
-                console.log("Seçim Nesnesi: ", selection);
-                selection.qSelected && selection.qSelected.forEach(selectedItem => {
-                    console.log("Seçilen Değer: ", selectedItem.qText);
-                });
-            });
-        }
-    }
-
-    loadSelections();
-}, [app]);
+.promosyon-karlilik-table-wrapper table td:first-child,
+.isletme-metrikleri table td:first-child,
+.region-total-table-wrapper table td:first-child{
+  text-align: left !important;
+  font-family: 'benton_sans_bbvamedium' !important;
+}
+.promosyon-karlilik-table-wrapper table tbody td span { 
+  font-family: 'bentonsansbbvabold';
+}
