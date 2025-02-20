@@ -1,3 +1,34 @@
-const result = flooredValue < 0 ? "Negatif bir değer" :
-               flooredValue < 1 ? "Pozitif ama 1'den küçük" :
-               "1 veya daha büyük";
+  <table className="modal-table table-bordered">
+          <thead>
+            <tr>
+              {/* headers array'ini map ile döndürüp <th> öğelerine dönüştürüyoruz */}
+              {tableHeaderData && tableHeaderData.map((header, index) => (
+                <th scope="col" key={index} className="text-center">
+                  {header}
+                </th>
+                
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {tableDataArray && tableDataArray.map((row, rowIndex) => (
+              <tr key={rowIndex}>
+                {row.map((cell, cellIndex) => {
+                  return (
+                    // <td key={cellIndex} className="text-center">
+                    //   <span>{formatDecimalNumber(cell)}</span>
+                    // </td>
+                    <td  
+                       key={cellIndex} 
+                       className="text-center" 
+                       onClick={tableName === "Emeklilik" && cellIndex === 0 ? () => handleRowClick(cell) : null}
+                       style={tableName === "Emeklilik" && cellIndex === 0 ? { cursor: 'pointer' } : {}}
+                     >
+                      <span>{formatDecimalNumber(cell)}</span>
+                    </td>
+                  );
+                })}
+              </tr>
+            ))}
+          </tbody>
+        </table> 
