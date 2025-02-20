@@ -1,5 +1,3 @@
-  const [modalStatus, setModalStatus] = useState(false);
-  const handleModalChange = (status) => {
-    setModalStatus(status);  // Modal'ın durumunu güncelliyoruz
-    console.log("Modal durumu güncellendi:", status);
-  };
+const result = flooredValue < 0 ? "Negatif bir değer" :
+               flooredValue < 1 ? "Pozitif ama 1'den küçük" :
+               "1 veya daha büyük";
