@@ -1,34 +1,202 @@
-  <table className="modal-table table-bordered">
-          <thead>
-            <tr>
-              {/* headers array'ini map ile döndürüp <th> öğelerine dönüştürüyoruz */}
-              {tableHeaderData && tableHeaderData.map((header, index) => (
-                <th scope="col" key={index} className="text-center">
-                  {header}
-                </th>
-                
-              ))}
-            </tr>
-          </thead>
-          <tbody>
-            {tableDataArray && tableDataArray.map((row, rowIndex) => (
-              <tr key={rowIndex}>
-                {row.map((cell, cellIndex) => {
-                  return (
-                    // <td key={cellIndex} className="text-center">
-                    //   <span>{formatDecimalNumber(cell)}</span>
-                    // </td>
-                    <td  
-                       key={cellIndex} 
-                       className="text-center" 
-                       onClick={tableName === "Emeklilik" && cellIndex === 0 ? () => handleRowClick(cell) : null}
-                       style={tableName === "Emeklilik" && cellIndex === 0 ? { cursor: 'pointer' } : {}}
-                     >
-                      <span>{formatDecimalNumber(cell)}</span>
-                    </td>
-                  );
-                })}
-              </tr>
-            ))}
-          </tbody>
-        </table> 
+import { useEffect, useState } from 'react';
+import { openApp } from '@/util/qlikConnection';
+import { HorizontalBarCard,TableChart,CardTitle,Loader,MultiLineChart,LineChartLegend,SecondCombinedTable } from '@/components';
+import { MoneyBag } from '@/assets/svg';
+import { setName } from '@/app/features/page';
+import { useDispatch } from 'react-redux';
+import Modal from 'react-bootstrap/Modal';
+import '@/assets/css/PromosyonKarlilik.css';
+
+
+export default function PromosyonKarlilikEmekliveTop10Maas() {
+  const [app, setApp] = useState();
+  const [netDurumKpi, setNetDurumKPI] = useState({ header: '', value: '' });  // Net Durum'u tutacak state
+  const [activeModal, setActiveModal] = useState(null);
+
+  const dispatch = useDispatch();
+
+  const [isLoading, setLoading] = useState(true);
+  const [childrenLoaded, setChildrenLoaded] = useState({
+    child1: false,
+    child2: true,
+    child3: true,
+  });
+
+  useEffect(() => {
+    dispatch(setName("emekli-top10-maas-detay"));
+    if (!app) {
+      openApp(import.meta.env.VITE_APP_APP1)
+        .then((_app) => {
+          setApp(_app);
+        })
+        .catch((error) => {
+          console.error('Uygulama başlatma hatası:', error);
+        });
+    }
+  
+  }, [app]) 
+
+  const handleShow = (modal) => {
+    setActiveModal(modal)
+    
+  };
+  const handleClose = () => {   
+    app.field("PROTOKOL_NUMARASI").clear().then(function(){
+      setActiveModal(null);
+    })
+  }
+
+  // component  load olma durumu burada kontrol ediliyor. Eğer component load olmuşsa childrenLoaded parametresi true olarak duzenleniyor.
+  const handleChildLoaded = (key) => {
+    if (app && (!Object.values(childrenLoaded).every(value => value === true))) {
+      setChildrenLoaded((prev) => ({
+        ...prev,
+        [key]: true,
+      }));
+    } else {
+      return;
+    }
+  };
+
+  useEffect(() => {
+
+    // `childrenLoaded`'taki tüm öğeler `true` olduğunda `isLoading`'i `false` yap
+    const allLoaded = Object.values(childrenLoaded).every(value => value === true) ? true : false;
+    if (allLoaded) {
+      // Bütün childs yüklendiğinde loader'ı kaldır.
+      // Timeout olmadığında componentlerden hızlı cevap geldiğinde loader olmadan açılıyordu.
+      setTimeout(() => { setLoading(false); }, 1500);
+    }
+  }, [childrenLoaded]); // `childrenLoaded` her değiştiğinde kontrol edilir
+
+  const handleModalChange = (status) => {
+    setActiveModal(status);  // Modal'ın durumunu güncelliyoruz
+    console.log("Modal durumu güncellendi:", status);
+  };
+  return (
+    <div className="container-fluid mt-3">
+      {isLoading && (
+        <div className="fixed-loader">
+          <Loader />
+        </div>
+      )}
+     <div style={{ display: isLoading ? 'none' : 'block' }}>
+      <div className="row mt-3">
+        <div className="col-12 d-flex flex-column">
+          <div className="card">
+            <div className="card-title-wrapper d-flex align-items-center justify-content-between">
+            <CardTitle app={app} objectId={"CUNYcG"} />
+              {/* <div className="card-title">
+                Toplam Emekli Protokol Karlılığı
+              </div> */}
+              <div className="detail-btn" onClick={() => handleShow("first")}>Detaylar</div>
+            </div>
+            <div className="row total-retired-row row-gap-3">
+              {/* onKPIChange tetiklendiğinde, setNetDurumKPI fonksiyonu çalışıyor ve parametre olarak HorizontalBarCard'dan  gönderilen kpiData'yı alıyor. */}
+              {/* <HorizontalBarCard app={app} objectId={'YbFJyFj'} onKPIChange={setNetDurumKPI}/>  */}
+
+              <div className="col-12 col-md-6 col-xl d-flex flex-column flex-grow-1">
+                <HorizontalBarCard app={app} objectId={'VNUL'} onKPIChange={setNetDurumKPI}/>
+              </div>
+              <div className="col-12 col-md-6 col-xl d-flex flex-column flex-grow-1">
+                <HorizontalBarCard app={app} objectId={'Ummqy'} onKPIChange={setNetDurumKPI}/>
+              </div>
+              <div className="col-12 col-md-6 col-xl d-flex flex-column flex-grow-1">
+                <HorizontalBarCard app={app} objectId={'nJktFKE'} onKPIChange={setNetDurumKPI}/>
+              </div>
+              <div className="col-12 col-md-6 col-xl d-flex flex-column">
+                <div className="salary-status-card">
+                  <MoneyBag />
+                  <div className="d-flex flex-column row-gap-2">
+                    <span className="title">{netDurumKpi.header}</span>
+                    <span className="kpi">{netDurumKpi.value}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <Modal show={activeModal === "first"} onHide={handleClose}>
+              <Modal.Header closeButton>
+                <div className="modal-title">TOPLAM PROTOKOL EMEKLİ KARLILIĞI DETAYI</div>
+              </Modal.Header>
+              <Modal.Body style={{paddingTop : "0px"}}>
+                <div className="retired-profit-table-wrapper">
+                <SecondCombinedTable app={app} objectIds={['nSxuwMa', 'bvHBAn']} tableName={'emeklibanka'}/>
+                </div>
+                <div className="low-high-table-wrapper mt-4">
+                  <SecondCombinedTable app={app} objectIds={['HSeFj', 'mPadNP']} tableName={'sube'}/> 
+
+                </div>
+              </Modal.Body>
+            </Modal>
+          </div>
+        </div>
+      </div>
+      <div className="row mt-3">
+        <div className="col-12 d-flex flex-column">
+          <div className="card">
+            <div className="card-title-wrapper d-flex align-items-center justify-content-between">
+            <CardTitle app={app} objectId={'NwfpDpA'} />
+              {/* <div className="card-title">
+                Bölgenin En Yüksek Promosyon Giderine Sahip 10 Maaş Firması
+              </div> */}
+              {/* <div className="detail-btn" onClick={() => handleShow("second")}>Detaylar</div> */}
+            </div>
+            <div className="top-salary-table-wrapper">
+            <TableChart app={app} objectId={"KmuLhs"} tableName={"Emeklilik"} onLoaded={() => handleChildLoaded('child1')} modalChange={handleModalChange}/>
+            </div>
+            <Modal show={activeModal === "second"} onHide={handleClose}>
+              <Modal.Header closeButton>
+                <div className="modal-title">Bölgenin En Yüksek Promosyon Giderine Sahip 10 Maaş Firması</div>
+              </Modal.Header>
+              <Modal.Body>
+                <div className="row row-gap-3 mt-3">
+                  <div className="col-12 col-xl-4 d-flex flex-row flex-lg-column gap-3">
+                    <div className="card">
+                      {/* <div className="card-title">Protokol Detay</div> */}
+                      <CardTitle app={app} objectId={'JbENH'} />
+                    <TableChart app={app} objectId={'JbENH'} onLoaded={() => handleChildLoaded('child2')}/>                 
+                    </div>
+                    <div className="card">
+                    {/* <div className="card-title">Diğer Detay</div> */}
+                      <CardTitle app={app} objectId={'zmRCc'}/>
+                      <TableChart app={app} objectId={'zmRCc'}/>            
+                    </div>
+                  </div>
+                  <div className="col-12 col-xl-8 d-flex flex-column row-gap-3">
+                    <div className="card">
+                      <div className="card-title-wrapper d-flex align-items-center justify-content-between">
+                        {/* <div className="card-title">
+                          Ortalama Ürün Adedi
+                        </div> */}
+                        <CardTitle app={app} objectId={'MBJu'} />
+                         <LineChartLegend legendText={['Bölge', 'Ortalama']}/>
+                      </div>
+                      <div className="card-content">
+                        <div>
+                        <MultiLineChart app={app} objectId={"MBJu"} />
+                        </div>
+                      </div>
+                    </div>
+                    <div className="card">
+                      <div className="card-title-wrapper d-flex align-items-center justify-content-between">
+                        <CardTitle app={app} objectId={'PzaVeV'} />
+                         <LineChartLegend legendText={['Bölge', 'Ortalama']}/>
+                        {/* <div className="card-title">
+                          12 Aylık Net Durum
+                        </div> */}                   
+                      </div>
+                      <div className="card-content">
+                        <div><MultiLineChart app={app} objectId={"PzaVeV"} /></div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </Modal.Body>
+            </Modal>
+          </div>
+        </div>
+      </div>
+      </div>
+    </div>
+  )
+}
