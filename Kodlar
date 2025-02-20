@@ -1,15 +1,1 @@
-  <th 
-              scope="col" 
-              key={index} 
-              className="text-center" 
-              onClick={tableName === "Emeklilik" ? () => handleHeaderClick(header) : null}
-              style={tableName === "Emeklilik" ? { cursor: 'pointer' } : {}}
-            >
-              {header}
-            </th>
-
-
-  const handleHeaderClick = (header) => {
-    setClickedHeader(header); // Tıklanan başlığı kaydet
-    alert(`Tıklanan başlık: ${header}`); // Tıklanan başlık ile bir işlem yapabilirsiniz
-  };
+  const handleShow = (modal) => setActiveModal(modal);
