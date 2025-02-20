@@ -1,14 +1,5 @@
-            <TableChart app={app} objectId={"KmuLhs"} tableName={"Emeklilik"} onLoaded={() => handleChildLoaded('child1')} modalChange={modalStatus}/>
- const handleRowClick = (cellText) => {
-    console.log(`Tıklanan başlık: ${cellText}`);
-    
-    app.field("PROTOKOL_NUMARASI").selectValues([Number(cellText)]).then(() => {
-      console.log(`parametresi seçil: ${cellText}`);
-
-      console.log(`parametresi seçil: ${Number(cellText)}`);
-      console.log(app.selectionState().selections)
-      modalChange(true);
-
-    })
-
+  const [modalStatus, setModalStatus] = useState(false);
+  const handleModalChange = (status) => {
+    setModalStatus(status);  // Modal'ın durumunu güncelliyoruz
+    console.log("Modal durumu güncellendi:", status);
   };
