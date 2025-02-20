@@ -1,26 +1,209 @@
- useEffect(() => {
-    async function loadSelections() {
-        if (app) {
-            const selections = app.selectionState().selections;
+  const drawLineChart = () => {
+        if (data.length === 0) return;
+        const svg = d3.select(svgRef.current);
+        svg.selectAll('*').remove();
 
-            // Seçimlerin yüklenmesini bekle (tembel yükleme kontrolü)
-            while (selections.length === 0) {
-                console.log("Seçimler yükleniyor...");
-                await new Promise(resolve => setTimeout(resolve, 500));  // 500ms bekle
-            }
+        const margin = { top: 20, right: 20, bottom: 20, left: 10 };
+        const width = svgSize.width - margin.left - margin.right;
+        const height = svgSize.height - margin.top - margin.bottom;
+        svg
+            .attr("width", svgSize.width)
+            .attr("height", svgSize.height);
 
-            // Seçimler yüklenince işleme başla
-            selections.forEach(selection => {
-                // console.log("Seçim Nesnesi: ", selection);
-                if (selection.fieldName === "PROTOKOL_NUMARASI") {
-                    console.log("Seçilen Değer: ", selection.fieldName);
-                    app.field("PROTOKOL_NUMARASI").clear();
 
-                }
+        const g = svg.append('g').attr('transform', `translate(${margin.left}, ${margin.top})`);
 
-            });
+        // Tarih formatını uygun bir Date objesine dönüştüren parse fonksiyonu
+        const parseDate = d3.timeParse("%b-%y");  // "%b-%y" Jan-23 gibi formatları işlemek için
+
+        // Y ekseninin üst sınırını biraz genişletmek için maksimum değerin üzerine ekleme yapalım
+        // const maxValue = d3.max(data, d => Math.max(d.value1, d.value2));
+        // const yMax = Math.ceil(maxValue / 20) * 20 + 20;
+
+        // Y eksenindeki minimum ve maksimum değerleri hesaplıyoruz
+        const minValue = Math.min(...data.map(d => Math.min(d.value1, d.value2)));
+        const maxValue = Math.max(...data.map(d => Math.max(d.value1, d.value2)));
+
+
+        // Y eksenindeki minimum ve maksimum değeri hesaplıyoruz
+        // const yMin = Math.floor(minValue) <= 1 ? 0 : Math.floor(minValue);  // Küçük değere yuvarla
+        const yMin =  Math.floor(minValue) < 0 ? Math.floor(minValue) : Math.floor(minValue) <= 1 && Math.floor(minValue) > 0 ? 0 : Math.floor(minValue);       
+        const yMax = Math.ceil(maxValue);  // En büyük değeri yuvarla
+        
+        let difference = maxValue - minValue;      
+        if(yMax < 0 && yMin < 0) { // Eğer tüm değerler negatifse difference negatif yapılır.
+            if(difference > 0){
+                difference = -Math.abs(difference)
+            }       
         }
-    }
 
-    loadSelections();
-}, [app]);
+        // Eğer fark çok küçükse, yMin'i başlangıç olarak minValue'yu alıyoruz
+        const adjustedYMin = difference < 0 ? (yMin * 1.2) : difference > 0 && difference < 10 ? (yMin / 1.2) : 0;
+
+        if(objectId == "PzaVeV"){
+            console.log("difference : " + difference)
+            console.log("yMin : " + yMin)
+            console.log("yMax : " + yMax)
+            console.log("adjustedYMin : " + adjustedYMin)
+        }
+        const x = d3.scaleTime()
+            .domain(d3.extent(data, d => parseDate(translateMonthToEnglish(d.date))))  // Türkçe tarihleri İngilizce'ye çevirip parse ediyoruz
+            .range([15, width]);
+
+        const y = d3.scaleLinear()
+            .domain([adjustedYMin, yMax])
+            .nice()
+            .range([height, 0]);
+
+        const xAxis = d3.axisBottom(x)
+            .tickValues(   // Her bir tarih sadece bir kez görünsün
+                Array.from(new Set(data.map(d => {
+                    const translatedDate = translateMonthToEnglish(d.date);
+                    const parsedDate = parseDate(translatedDate);
+                    return parsedDate ? parsedDate.getTime() : null;  // null kontrolü ekleniyor
+                })))
+                    .filter(d => d !== null)  // null değerleri atıyoruz
+                    .map(d => new Date(d))  // Set içerisindeki tarihleri tekrar Date objelerine dönüştürüyoruz
+            )
+            // .tickFormat(d3.timeFormat("%b %y"))
+            .tickFormat(d => translateMonthToTurkish(d3.timeFormat("%b %y")(d)))  // Ayları Türkçe'ye çeviriyoruz
+            .tickSize(0);
+
+        const yAxis = d3.axisLeft(y)
+            //.tickValues([Math.floor(yMax / 2)])  // Y ekseninde sadece ortadaki değeri göstereceğiz
+            .tickValues(0)
+            .tickSize(-width)  // Bu, Y eksenindeki çizgiyi yatay olarak çizecek
+            .tickFormat(d3.format('d'));
+
+
+
+        g.append('g')
+            .attr('class', 'x-axis')
+            .attr('transform', `translate(0, ${height})`)
+            .call(xAxis)
+            .selectAll('.domain')
+            .remove();
+            
+            g.selectAll('.x-axis .tick text')           
+            .attr('dy', '1em');    // x eksenindeki text'ler biraz daha aşağıya kayar
+
+        g.append('g')
+            .attr('class', 'y-axis')
+            .call(yAxis)
+            .selectAll('.domain')
+            .remove();
+        
+        //Grafiğin tam ortasından geçen yatay çizgi
+        g.append("line")
+            .attr("x1", 0)
+            .attr("x2", width)
+            .attr("y1", height/2)
+            .attr("y2", height/2)
+            .attr("stroke", "rgb(211, 211, 211)")
+            .attr("stroke-width", 1);
+
+        // Y eksenindeki metinleri gizlemek için
+        g.selectAll('.y-axis .tick text')
+            .style('display', 'none');
+
+        g.selectAll('.y-axis .tick line')
+            .style('stroke', '#d3d3d3')
+            .style('stroke-width', 1);
+
+        // X eksenini yatay olarak genişletmek için yeni bir path ekleme
+        g.append('path')
+            .attr('class', 'x-axis-line')
+            .attr('d', `M0,${height} H${width}`)  // Bu, çizgiyi 0'dan width'e kadar uzatır
+            .attr('stroke', '#d3d3d3')
+            .attr('stroke-width', 1);
+
+        const line1 = d3.line()
+            .x(d => x(parseDate(translateMonthToEnglish(d.date))))  // Tarihleri parse ediyoruz
+            .y(d => y(d.value1));
+
+        const line2 = d3.line()
+            .x(d => x(parseDate(translateMonthToEnglish(d.date))))  // Tarihleri parse ediyoruz
+            .y(d => y(d.value2));
+
+        g.append('path')
+            .data([data])
+            .attr('class', 'line')
+            .attr('d', line1)
+            .attr('stroke', '#2b85c9')
+            .attr('fill', 'none')
+            .attr('stroke-width', 2);
+
+        g.append('path')
+            .data([data])
+            .attr('class', 'line')
+            .attr('d', line2)
+            .attr('stroke', '#7da246')
+            .attr('fill', 'none')
+            .attr('stroke-width', 2)
+            .attr('stroke-dasharray', '6')
+
+        g.selectAll('.circle1')
+            .data(data)
+            .enter()
+            .append('circle')
+            .attr('class', 'circle1')
+            .attr('cx', d => x(parseDate(translateMonthToEnglish(d.date))))
+            .attr('cy', d => y(d.value1))
+            .attr('r', 5)
+            .attr('fill', '#fff')  // İçi boş 
+            .attr('stroke', '#2b85c9')  // Kenarlık rengi mavi 
+            .attr('stroke-width', 1.5);
+
+        g.selectAll('.label1')
+            .data(data)
+            .enter()
+            .append('text')
+            .attr('class', 'label1')
+            .attr('x', d => x(parseDate(translateMonthToEnglish(d.date))))
+            // .attr('y', d => y(d.value1) - 10)
+            .attr('y', d => {
+                if (d.value1 == d.value2) {
+                    return y(d.value1) - 10;
+                }
+                //d.value1, d.value2 değerine göre circle üzerindeki text'lerin konum ayarlaması yapılır.
+                return d.value1 > d.value2 ? y(d.value1) - 10 : y(d.value1) + 20;
+            })
+            .attr('text-anchor', 'middle')
+            .style('fill', '#2b85c9')
+            .style('font-size', '10px')
+            .text(d => (d.value1Text));
+
+
+        g.selectAll('.circle2')
+            .data(data)
+            .enter()
+            .append('circle')
+            .attr('class', 'circle2')
+            .attr('cx', d => x(parseDate(translateMonthToEnglish(d.date))))
+            .attr('cy', d => y(d.value2))
+            .attr('r', 5)
+            .attr('fill', '#fff')  // İçi boş 
+            .attr('stroke', '#7da246')  // Kenarlık rengi yeşil 
+            .attr('stroke-width', 1.5);
+
+        g.selectAll('.label2')
+            .data(data)
+            .enter()
+            .append('text')
+            .attr('class', 'label2')
+            .attr('x', d => x(parseDate(translateMonthToEnglish(d.date))))
+            // .attr('y', d => y(d.value2) + 20)
+            .attr('y', d => {
+                //d.value1, d.value2 değerine göre circle üzerindeki text'lerin konum ayarlaması yapılır.
+                return d.value2 > d.value1 ? y(d.value2) - 10 : y(d.value2) + 20;
+            })
+            .attr('text-anchor', 'middle')
+            .style('fill', '#7da246')
+            .style('font-size', '10px')
+            .text(d => (d.value2Text));
+
+
+
+        
+      
+    };
