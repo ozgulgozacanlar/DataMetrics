@@ -1,25 +1,15 @@
-   <table className="modal-table table-bordered">
-          <thead>
-            <tr>
-              {/* headers array'ini map ile döndürüp <th> öğelerine dönüştürüyoruz */}
-              {tableHeaderData && tableHeaderData.map((header, index) => (
-                <th scope="col" key={index} className="text-center">
-                  {header}
-                </th>
-              ))}
-            </tr>
-          </thead>
-          <tbody>
-            {tableDataArray && tableDataArray.map((row, rowIndex) => (
-              <tr key={rowIndex}>
-                {row.map((cell, cellIndex) => {
-                  return (
-                    <td key={cellIndex} className="text-center">
-                      <span>{formatDecimalNumber(cell)}</span>
-                    </td>
-                  );
-                })}
-              </tr>
-            ))}
-          </tbody>
-        </table> 
+  <th 
+              scope="col" 
+              key={index} 
+              className="text-center" 
+              onClick={tableName === "Emeklilik" ? () => handleHeaderClick(header) : null}
+              style={tableName === "Emeklilik" ? { cursor: 'pointer' } : {}}
+            >
+              {header}
+            </th>
+
+
+  const handleHeaderClick = (header) => {
+    setClickedHeader(header); // Tıklanan başlığı kaydet
+    alert(`Tıklanan başlık: ${header}`); // Tıklanan başlık ile bir işlem yapabilirsiniz
+  };
