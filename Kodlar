@@ -1,22 +1,54 @@
-  useEffect(() => {
-    dispatch(setName("npl-karlilik-npl-detay"));
-    if (!app) {
-      openApp(import.meta.env.VITE_APP_APP1)
-        .then((_app) => {
-          setApp(_app);
-          fetchTableData(_app, "CpJhSq", "first");
-          fetchTableData(_app, "PSTaQC", "second");
-          fetchTableData(_app, "ZjppbhC", "third");
-         
-          
+export function getObjectData(app, objectId) {
+  return new Promise((resolve, reject) => {
+    getObjectModel(app, objectId).then((_model) => {
+      const qWidth = _model.layout.qHyperCube.qSize.qcx;
+      const totalRows = _model.layout.qHyperCube.qSize.qcy; // Toplam satır sayısı
+      const maxRowsPerFetch = Math.floor(10000 / qWidth);
+      let qTop = 0;
+      const fetchedData = [];
+
+      function fetchChunk() {
+        const qHeight = Math.min(maxRowsPerFetch, totalRows - qTop);
+
+        _model
+          .getHyperCubeData('/qHyperCubeDef', [
+            {
+              qTop,
+              qLeft: 0,
+              qWidth,
+              qHeight,
+            },
+          ])
+          .then((_data) => {
+            fetchedData.push(..._data[0].qMatrix); // Gelen veriyi birleştir
+            qTop += qHeight; // Bir sonraki başlangıç noktasını ayarla
+
+            if (qTop < totalRows) {
+              // Eğer tüm veri alınmadıysa, tekrar çağır
+              fetchChunk();
+            } else {
+              // Tüm veri alındığında çözümle
+              resolve(fetchedData);
+            }
+          })
+          .catch(reject);
+      }
+
+      fetchChunk();
+    }).catch(reject);
+  });
+}
+
+
+ getObjectData(app, 'jpmS')
+        .then((data) => {
+          setData(data);
         })
         .catch((error) => {
-          console.error('Uygulama başlatma hatası:', error);
+          //*** warning start ***
+          setModalText("Qlik object bilgisi alınırken hata oluştu!");
+          setShowWarningModal(true);
+          setTimeout(() => { setLoading(false); }, 25);
+          //*** warning end ***
+          console.error('Home : Sol Menü Tablo verisi alma hatası:', error);
         });
-    } else {
-      console.log("asdkljasdl")
-      app.variable.get('vRegionName').then(function(model){
-        console.log(model)
-      })
-    }
-  }, [app])
