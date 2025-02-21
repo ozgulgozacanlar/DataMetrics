@@ -1,54 +1,24 @@
-export function getObjectData(app, objectId) {
-  return new Promise((resolve, reject) => {
-    getObjectModel(app, objectId).then((_model) => {
-      const qWidth = _model.layout.qHyperCube.qSize.qcx;
-      const totalRows = _model.layout.qHyperCube.qSize.qcy; // Toplam satır sayısı
-      const maxRowsPerFetch = Math.floor(10000 / qWidth);
-      let qTop = 0;
-      const fetchedData = [];
+    getObjectData(app, objectId).then((response) => {
+                    if (!response) {
+                        console.error('HorizontalBarChartwithVal Component : response verisi boş veya tanımsız.');
+                        return;
+                    }
+                    const incomingData = response.map(item => ({
+                        value: item[0].qNum,
+                        name: item[1].qText
+                    }));
+                    setData(incomingData)
+                    setTimeout(() => { onLoaded(); }, 250);
+                }).catch((error) => {
+                    console.error('HorizontalBarChartwithVal Component : getObjectData() methodu veri alınırken hata oluştu:', error);
+                });
+                getObjectData(app, "NvMRCHa").then((response) => {
+                    if (!response) {
+                        console.error('HorizontalBarChartwithVal Component : response verisi boş veya tanımsız.');
+                        return;
+                    }
 
-      function fetchChunk() {
-        const qHeight = Math.min(maxRowsPerFetch, totalRows - qTop);
-
-        _model
-          .getHyperCubeData('/qHyperCubeDef', [
-            {
-              qTop,
-              qLeft: 0,
-              qWidth,
-              qHeight,
-            },
-          ])
-          .then((_data) => {
-            fetchedData.push(..._data[0].qMatrix); // Gelen veriyi birleştir
-            qTop += qHeight; // Bir sonraki başlangıç noktasını ayarla
-
-            if (qTop < totalRows) {
-              // Eğer tüm veri alınmadıysa, tekrar çağır
-              fetchChunk();
-            } else {
-              // Tüm veri alındığında çözümle
-              resolve(fetchedData);
-            }
-          })
-          .catch(reject);
-      }
-
-      fetchChunk();
-    }).catch(reject);
-  });
-}
-
-
- getObjectData(app, 'jpmS')
-        .then((data) => {
-          setData(data);
-        })
-        .catch((error) => {
-          //*** warning start ***
-          setModalText("Qlik object bilgisi alınırken hata oluştu!");
-          setShowWarningModal(true);
-          setTimeout(() => { setLoading(false); }, 25);
-          //*** warning end ***
-          console.error('Home : Sol Menü Tablo verisi alma hatası:', error);
-        });
+                  console.log(response)
+                }).catch((error) => {
+                    console.error('HorizontalBarChartwithVal Component : getObjectData() methodu veri alınırken hata oluştu:', error);
+                });
