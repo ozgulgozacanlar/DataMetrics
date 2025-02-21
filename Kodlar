@@ -1,41 +1,22 @@
-const getBase = (value) => {
-    return value.toString().length;  // Sayının basamağını belirliyoruz
-};
-
-const getThreshold = (base) => {
-    // Basamağa göre eşik değerini belirle
-    if (base === 4) return 1000;
-    if (base === 3) return 100;
-    if (base === 2) return 10;
-    return 1;  // Eğer daha küçük basamaklıysa, eşik değeri 1 kabul edebiliriz
-};
-
-const isDifferenceSmall = (value1, value2) => {
-    // İki sayının basamağını karşılaştır
-    const base1 = getBase(value1);
-    const base2 = getBase(value2);
-    
-    // Basamağı daha büyük olanı seç
-    const maxBase = Math.max(base1, base2);
-
-    // İki sayının farkını hesapla
-    const difference = Math.abs(value1 - value2);
-
-    // Basamağa göre eşik değerini al
-    const threshold = getThreshold(maxBase);
-
-    // Farkı, basamağı büyük olan sayının basamağına böl ve eşik değeriyle karşılaştır
-    const normalizedDifference = difference / threshold;
-
-    // Eğer fark, eşik değerinden küçükse, fark küçük kabul edilir
-    return normalizedDifference < 1;
-};
-
-const value1 = 4808;
-const value2 = 4211;
-
-const value3 = 100;
-const value4 = 75;
-
-console.log(isDifferenceSmall(value1, value2));  // true
-console.log(isDifferenceSmall(value3, value4));  // true
+  useEffect(() => {
+    dispatch(setName("npl-karlilik-npl-detay"));
+    if (!app) {
+      openApp(import.meta.env.VITE_APP_APP1)
+        .then((_app) => {
+          setApp(_app);
+          fetchTableData(_app, "CpJhSq", "first");
+          fetchTableData(_app, "PSTaQC", "second");
+          fetchTableData(_app, "ZjppbhC", "third");
+         
+          
+        })
+        .catch((error) => {
+          console.error('Uygulama başlatma hatası:', error);
+        });
+    } else {
+      console.log("asdkljasdl")
+      app.variable.get('vRegionName').then(function(model){
+        console.log(model)
+      })
+    }
+  }, [app])
