@@ -1,41 +1,5 @@
-export function formatDecimalNumber(number) {
-  //  console.log("Orijinal Değer:", number);
-  
-  if(!number.includes(",")){
-     formatDecimalTwoDigitNumber(number);
+  if (data.length != 0) {
+    if(data[0][0].qText === '-') {
+    return <NoDataCard width="90%" height="60px"/>
+   }
   }
-  // Eğer number bir string ise, virgülleri temizle
-  const cleanedNumber = number.replace(/,/g, '');
-
-  // Temizlenmiş değeri sayıya dönüştür ve geçerliliğini kontrol et
-  const parsedNumber = parseFloat(cleanedNumber);
-
-  // Eğer parsedNumber geçerli bir sayı değilse (yani text varsa ) ve ya % işareti içeriyorsa işlem yapılmadan number'in kendisi döndürülür.
-  if (isNaN(parsedNumber) || number.includes("%")) {
-    console.error("Geçersiz sayı veya yüzde işareti var veya metin:", number);
-    return number; 
-  }
-
-  // console.log("Geçerli sayı:", parsedNumber);
-
-  // Sayıyı tam kısım (integer) ve ondalıklı kısmına ayır
-  const [integerPart, decimalPart] = cleanedNumber.split('.');
-  // Tam kısmı 3 haneli gruplara ayırarak formatla
-  const formattedIntegerPart = new Intl.NumberFormat('de-DE').format(integerPart);
-
-  // Ondalık kısmı virgül ile birleştirerek sonucu döndür
-  const formattedNumber = decimalPart ? `${formattedIntegerPart},${decimalPart}` : formattedIntegerPart;
-
-   console.log("Formatlanmış sayı:", formattedNumber);
-
-  return formattedNumber;
-}
-export function formatDecimalTwoDigitNumber(number) {
-  
-  const cleanedNumber = number.replace(/,/g, '');
-
-   const [integerPart, decimalPart] = cleanedNumber.split('.');
-   let formattedDecimalPart = decimalPart ? decimalPart[0] : '';
-   console.log(decimalPart ? `${integerPart},${formattedDecimalPart}` : integerPart)
-   return decimalPart ? `${integerPart},${formattedDecimalPart}` : integerPart;
-}
