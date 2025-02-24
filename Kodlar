@@ -1,8 +1,8 @@
 export function formatDecimalNumber(number) {
-  // console.log("Orijinal Değer:", number);
-
+  //  console.log("Orijinal Değer:", number);
+  
   if(!number.includes(",")){
-    return number;
+     formatDecimalTwoDigitNumber(number);
   }
   // Eğer number bir string ise, virgülleri temizle
   const cleanedNumber = number.replace(/,/g, '');
@@ -20,13 +20,22 @@ export function formatDecimalNumber(number) {
 
   // Sayıyı tam kısım (integer) ve ondalıklı kısmına ayır
   const [integerPart, decimalPart] = cleanedNumber.split('.');
-
   // Tam kısmı 3 haneli gruplara ayırarak formatla
   const formattedIntegerPart = new Intl.NumberFormat('de-DE').format(integerPart);
 
   // Ondalık kısmı virgül ile birleştirerek sonucu döndür
   const formattedNumber = decimalPart ? `${formattedIntegerPart},${decimalPart}` : formattedIntegerPart;
-  // console.log("Formatlanmış sayı:", formattedNumber);
+
+   console.log("Formatlanmış sayı:", formattedNumber);
 
   return formattedNumber;
+}
+export function formatDecimalTwoDigitNumber(number) {
+  
+  const cleanedNumber = number.replace(/,/g, '');
+
+   const [integerPart, decimalPart] = cleanedNumber.split('.');
+   let formattedDecimalPart = decimalPart ? decimalPart[0] : '';
+   console.log(decimalPart ? `${integerPart},${formattedDecimalPart}` : integerPart)
+   return decimalPart ? `${integerPart},${formattedDecimalPart}` : integerPart;
 }
