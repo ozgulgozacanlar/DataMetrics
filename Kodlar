@@ -1,30 +1,32 @@
- useEffect(() => {
-        if (svgSize.width > 0 && svgSize.height > 0 ) {
-            setTimeout(() => {
-                drawHorizontalBarChartwithVal();
+export function formatDecimalNumber(number) {
+  // console.log("Orijinal Değer:", number);
 
-            }, 100);
-        }
-      }, [graphicName,data, svgSize]);
+  if(!number.includes(",")){
+    return number;
+  }
+  // Eğer number bir string ise, virgülleri temizle
+  const cleanedNumber = number.replace(/,/g, '');
 
-  const updateDimensions = () => {
-        if (chartContainerRef.current) {
-          setSvgSize({
-            width: chartContainerRef.current.offsetWidth, // div'in genişliği
-            height: chartContainerRef.current.offsetHeight, // div'in yüksekliği
-          });
-        }
-      };
-    
-      // Responsive tasarım için boyutları günceller
-      useEffect(() => {
-        setTimeout(() => {
-            updateDimensions(); // İlk boyutlandırmayı yap
-            window.addEventListener('resize', updateDimensions); // Pencere boyutu değiştiğinde boyutları güncelle
-        
-            return () => {
-              window.removeEventListener('resize', updateDimensions); // Temizleme işlemi
-            };
-        }, 100);
-      
-      }, [isVisible]);
+  // Temizlenmiş değeri sayıya dönüştür ve geçerliliğini kontrol et
+  const parsedNumber = parseFloat(cleanedNumber);
+
+  // Eğer parsedNumber geçerli bir sayı değilse (yani text varsa ) ve ya % işareti içeriyorsa işlem yapılmadan number'in kendisi döndürülür.
+  if (isNaN(parsedNumber) || number.includes("%")) {
+    console.error("Geçersiz sayı veya yüzde işareti var veya metin:", number);
+    return number; 
+  }
+
+  // console.log("Geçerli sayı:", parsedNumber);
+
+  // Sayıyı tam kısım (integer) ve ondalıklı kısmına ayır
+  const [integerPart, decimalPart] = cleanedNumber.split('.');
+
+  // Tam kısmı 3 haneli gruplara ayırarak formatla
+  const formattedIntegerPart = new Intl.NumberFormat('de-DE').format(integerPart);
+
+  // Ondalık kısmı virgül ile birleştirerek sonucu döndür
+  const formattedNumber = decimalPart ? `${formattedIntegerPart},${decimalPart}` : formattedIntegerPart;
+  // console.log("Formatlanmış sayı:", formattedNumber);
+
+  return formattedNumber;
+}
