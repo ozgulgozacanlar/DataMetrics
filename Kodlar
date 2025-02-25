@@ -1,4 +1,6 @@
-const tickCount = Math.max(5, Math.floor((yMax - yMin) / 200));  // Y eksenindeki adım büyüklüğü
-const step = Math.round((yMax - yMin) / tickCount / 10) * 10; // Adım büyüklüğünü yuvarla
 
-const yTicks = d3.range(yMin, yMax, step);  // Y eksenindeki tam sayılarla oluşan tick aralığı
+      const tickCount = Math.max(5, Math.floor((yMax - yMin) / (yMax - yMin) * 6));
+
+      // Dinamik tick aralıkları
+      const yTicks = d3.range(yMin, yMax, (yMax - yMin) / tickCount);
+      console.log(yTicks)
