@@ -1,5 +1,15 @@
-  if (data.length != 0) {
-    if(data[0][0].qText === '-') {
-    return <NoDataCard width="90%" height="60px"/>
-   }
-  }
+  const renderQlikObject = (objectId) => {
+    var arr = [];
+    if (app) {
+        getObjectData(app, objectId)
+            .then((response) => {
+                console.log(response[0][0].qText)
+        
+            })
+    }
+}
+
+            <IconKpiColumn icon={<Chemistry />} kpi="%94.56" title="Technical Sufficiency" />
+                    <IconKpiColumn icon={<Dumbell />} kpi="%94.56" title="Technical Strength" />
+                    <IconKpiColumn icon={<Comment />} kpi="%94.56" title="Last Run Check" />
+                    <IconKpiColumn icon={<Computer />} kpi="%94.56" title="Consectuive Errors" />
