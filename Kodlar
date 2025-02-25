@@ -1,11 +1,4 @@
-// Dinamik olarak tick sayısını artırmaya çalışın
-const tickCount = Math.max(5, Math.floor((yMax - yMin) / (yMax - yMin) * 10));
+const tickCount = Math.max(5, Math.floor((yMax - yMin) / 200));  // Y eksenindeki adım büyüklüğü
+const step = Math.round((yMax - yMin) / tickCount / 10) * 10; // Adım büyüklüğünü yuvarla
 
-// Dinamik tick aralıkları
-const yTicks = d3.range(yMin, yMax, (yMax - yMin) / tickCount);
-
-// Y ekseni çizimi
-const yAxisGroup = svg.append("g")
-  .attr("class", "y-axis")
-  .attr("transform", `translate(${margin.left},0)`)
-  .call(d3.axisLeft(yScale).tickValues(yTicks)); 
+const yTicks = d3.range(yMin, yMax, step);  // Y eksenindeki tam sayılarla oluşan tick aralığı
