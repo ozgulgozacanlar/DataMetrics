@@ -1,6 +1,20 @@
+const getRoundedValue = (value) => {
+  const digits = Math.floor(Math.log10(Math.abs(value))); // Sayının basamağını hesapla
+  const roundTo = Math.pow(10, digits);  // Yuvarlama birimi (10^n)
 
-      const tickCount = Math.max(5, Math.floor((yMax - yMin) / (yMax - yMin) * 6));
+  if (value < roundTo) {
+    return Math.floor(value / roundTo) * roundTo; // İlk değeri aşağı yuvarla
+  } else {
+    return Math.ceil(value / roundTo) * roundTo; // Diğerlerini yukarı yuvarla
+  }
+};
 
-      // Dinamik tick aralıkları
-      const yTicks = d3.range(yMin, yMax, (yMax - yMin) / tickCount);
-      console.log(yTicks)
+const customRoundedTicks = yTicks.map((tick, index) => {
+  if (index === 0) {
+    // İlk değeri aşağı yuvarla
+    return getRoundedValue(tick);
+  } else {
+    // Diğer değerleri yukarı yuvarla
+    return getRoundedValue(tick);
+  }
+});
