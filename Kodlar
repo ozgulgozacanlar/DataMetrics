@@ -1,20 +1,28 @@
-const getNumDigits = (value) => Math.floor(Math.log10(Math.abs(value))) + 1;
 
-// Basamağa göre yuvarlama katını belirle
-const getRoundTo = (numDigits) => Math.pow(10, numDigits - 1);
+      const yMax = maxValueRounded +  maxSubstractValue 
+      const yMin = minValueRounded - minSubstractValue
+      console.log(Math.floor(yMin / (roundTo )) * roundTo)
+      
+      const xScale = d3.scalePoint()
+        .domain(lineData.map(d => d.date))
+        .range([margin.left, width]);
 
-// Min değeri için yuvarlama işlemi
-const minDigits = getNumDigits(minItem.value);
-const minRoundTo = getRoundTo(minDigits);
-let roundedMin = Math.floor(minItem.value / minRoundTo) * minRoundTo;
+      const yScale = d3.scaleLinear()
+        .domain([yMin, yMax]) // Y eksenini 0'dan başlat
+        .nice()
+        .range([height, 0]);
 
-// Max değeri için yuvarlama işlemi
-const maxDigits = getNumDigits(maxItem.value);
-const maxRoundTo = getRoundTo(maxDigits);
-let roundedMax = Math.floor(maxItem.value / maxRoundTo) * maxRoundTo;
+      // Arka plan grid çizgileri (Yatay çizgiler)
+      const yTicks = yScale.ticks(5); // Daha az tick oluştur
 
-console.log('Original Min Value:', minItem.value);
-console.log('Rounded Min Value (to nearest power of 10 based on digits):', roundedMin);
-
-console.log('Original Max Value:', maxItem.value);
-console.log('Rounded Max Value (to nearest power of 10 based on digits):', roundedMax);
+      svg.append("g")
+        .attr("class", "grid")
+        .attr("transform", `translate(${margin.left},0)`)
+        .call(
+          d3.axisLeft(yScale)
+            .tickValues(yTicks) // Belirli aralıklarda çizgi oluştur
+            .tickSize(-width + margin.right)
+            .tickFormat("")
+        )
+        .selectAll("line")
+        .attr("stroke", "lightgray"); // Grid çizgilerini gri yap
