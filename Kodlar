@@ -1,10 +1,7 @@
-const xAxisGroup = svg.append("g")
-  .attr("class", "x-axis") // Burada .x-axis sınıfını ekliyoruz
-  .attr("transform", `translate(0,${height})`)
-  .call(xAxis)
-  .selectAll('.domain')
-  .remove();
+const numDigits = Math.floor(Math.log10(Math.abs(minItem.value))) + 1;
 
-// X eksenindeki tick'lerin line'larını kırmızı yap
-xAxisGroup.selectAll('.tick line')           
-  .attr("stroke", "red");
+// Basamağa göre yuvarlama katını belirle
+const roundTo = Math.pow(10, numDigits - 1);  // Eğer 2 basamaksaysa 10, 3 basamaksaysa 100, 4 basamaksaysa 1000 vb.
+
+// Min değeri en yakın yuvarlama katına yuvarla
+let roundedMin = Math.floor(minItem.value / roundTo) * roundTo;
