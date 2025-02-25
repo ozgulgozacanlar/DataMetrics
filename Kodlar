@@ -1,12 +1,10 @@
-    const xAxis = d3.axisBottom(xScale);
+const xAxisGroup = svg.append("g")
+  .attr("class", "x-axis") // Burada .x-axis sınıfını ekliyoruz
+  .attr("transform", `translate(0,${height})`)
+  .call(xAxis)
+  .selectAll('.domain')
+  .remove();
 
-      const yAxis = d3.axisLeft(yScale);
-
-      svg.append("g")
-        .attr("transform", `translate(0,${height})`)
-        .call(xAxis)
-        .selectAll('.domain')
-        .remove();
-            
-      svg.selectAll('.x-axis .tick line')           
-      .attr("stroke", "red")
+// X eksenindeki tick'lerin line'larını kırmızı yap
+xAxisGroup.selectAll('.tick line')           
+  .attr("stroke", "red");
