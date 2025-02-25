@@ -1,20 +1,16 @@
 const getRoundedValue = (value) => {
-  const digits = Math.floor(Math.log10(Math.abs(value))); // Sayının basamağını hesapla
-  const roundTo = Math.pow(10, digits);  // Yuvarlama birimi (10^n)
+  let roundTo;
 
-  if (value < roundTo) {
-    return Math.floor(value / roundTo) * roundTo; // İlk değeri aşağı yuvarla
+  if (value < 100) {
+    roundTo = 10;  // 100'den küçük ise 10'a yuvarla
+  } else if (value < 1000) {
+    roundTo = 100;  // 1000'den küçük ise 100'e yuvarla
+  } else if (value < 10000) {
+    roundTo = 1000;  // 10000'den küçük ise 1000'e yuvarla
   } else {
-    return Math.ceil(value / roundTo) * roundTo; // Diğerlerini yukarı yuvarla
+    roundTo = 10000;  // Büyükse 10000'e yuvarla
   }
+
+  // Değeri, belirlenen "roundTo" değerine göre yuvarla
+  return Math.round(value / roundTo) * roundTo;
 };
-
-const customRoundedTicks = yTicks.map((tick, index) => {
-  if (index === 0) {
-    // İlk değeri aşağı yuvarla
-    return getRoundedValue(tick);
-  } else {
-    // Diğer değerleri yukarı yuvarla
-    return getRoundedValue(tick);
-  }
-});
