@@ -1,28 +1,146 @@
+  const drawLineChart = () => {
+    if (lineData) {
+      // const width = 600;
+      // const height = 250;
+      const margin = { top: 20, right: 20, bottom: 50, left: 20 };
+      const width = windowSize.width - margin.left - margin.right;
+      const height = windowSize.height - margin.top - margin.bottom;
+
+      const svg = d3.select(svgRef.current)
+        .attr("viewBox", `0 0 ${width} ${height}`)
+        .attr("preserveAspectRatio", "xMidYMid meet")
+        .style("overflow", "visible");
+
+
+      svg.selectAll("*").remove(); // Önceki çizimleri temizle
+
+      const minValue = d3.min(lineData, d => d.value);
+      const maxValue = d3.max(lineData, d => d.value);
+
+      const roundTo = 10; // Yuvarlama işlemi 10'un katlarına göre olacak
+      const minValueRounded = Math.floor(minValue / (roundTo )) * roundTo; // Küçük değere yuvarla
+      const maxValueRounded = Math.ceil(maxValue / roundTo) * roundTo; //  Büyük değere yuvarla
+      
+      const minValueDigits = Math.floor(Math.log10(Math.abs(minValueRounded)) + 1) // Minimum değerin basamak sayısını bul
+      const maxValueDigits = Math.floor(Math.log10(Math.abs(maxValueRounded)) + 1)// Max değerin basamak sayısını bul
+
+       console.log("minValueRoundedk : " + minValueRounded)
+       console.log("maxValueRounded : " + maxValueRounded)
+
+      const minSubstractValue = Math.pow(roundTo, minValueDigits -1) // Basamak sayısına göre minValue'dan çıkaralacak değer
+      const maxSubstractValue = Math.pow(roundTo, maxValueDigits -1) // Basamak sayısına göre maxValue'a eklenecek değer
+           
+       console.log("minSubstractValue : " + minSubstractValue)
+       console.log("maxSubstractValue : " + maxSubstractValue)
 
       const yMax = maxValueRounded +  maxSubstractValue 
       const yMin = minValueRounded - minSubstractValue
       console.log(Math.floor(yMin / (roundTo )) * roundTo)
-      
+
       const xScale = d3.scalePoint()
         .domain(lineData.map(d => d.date))
         .range([margin.left, width]);
 
       const yScale = d3.scaleLinear()
-        .domain([yMin, yMax]) // Y eksenini 0'dan başlat
-        .nice()
+        .domain([yMin, yMax]) 
         .range([height, 0]);
 
       // Arka plan grid çizgileri (Yatay çizgiler)
       const yTicks = yScale.ticks(5); // Daha az tick oluştur
 
-      svg.append("g")
-        .attr("class", "grid")
+      // svg.append("g")
+      //   .attr("class", "grid")
+      //   .attr("transform", `translate(${margin.left},0)`)
+      //   .call(
+      //     d3.axisLeft(yScale)
+      //       .tickValues(yTicks) // Belirli aralıklarda çizgi oluştur
+      //       .tickSize(-width + margin.right)
+      //       .tickFormat("")
+      //   )
+      //   .selectAll("line")
+      //   .attr("stroke", "lightgray"); // Grid çizgilerini gri yap
+
+      // Siyah kenar çizgilerini kaldır
+      svg.selectAll(".domain").remove();
+
+      // Kesik çizgi oluştur
+      const line = d3.line()
+        .x(d => xScale(d.date))
+        .y(d => yScale(d.value))
+        .curve(d3.curveMonotoneX);
+
+      svg.append("path")
+        .datum(lineData)
+        .attr("fill", "none")
+        .attr("stroke", graphColor)
+        .attr("stroke-width", 2)
+        .attr("stroke-dasharray", "5,5") // Kesik çizgi
+        .attr("d", line);
+
+      // Çemberleri ekle
+      const points = svg.selectAll(".point")
+        .data(lineData)
+        .enter()
+        .append("g")
+        .attr("class", "point")
+        .attr("transform", d => `translate(${xScale(d.date)},${yScale(d.value)})`)
+        .on("click", (event, d) => {
+          handleLinePointClick(d.dateText, filterArr);
+          setTimeout(() => {
+            onPointClick();
+          }, 125);
+        });
+
+      points.append("circle")
+        .attr("r", 6)
+        .attr("fill", graphColor);
+
+      points.append("circle")
+        .attr("r", 3)
+        .attr("fill", "white");
+
+      points.append("text")
+        .attr("y", -10)
+        .attr("text-anchor", "middle")
+        .attr("font-size", "10px")
+        .attr("fill", "#666666")
+        .attr("font-weight",600)
+        .text(d => d.value.toFixed(1));
+
+      // X ve Y eksenlerini ekle
+      const xAxis = d3.axisBottom(xScale);
+
+      const yAxis = d3.axisLeft(yScale);
+
+      const xAxisGroup = svg.append("g")
+      .attr("class", "x-axis")
+      .attr("transform", `translate(0,${height})`)
+      .call(xAxis)
+      
+      //x ekseni domain çizgisini siler     
+      xAxisGroup.selectAll('.domain').remove();     
+      //x ekseni tick çizgilerini siler     
+      xAxisGroup.selectAll('.tick line').remove();            
+  
+      //x ekseni text özellikleri
+      xAxisGroup.selectAll('.tick text')
+      .style('fill', '#666666') 
+      .attr("transform","rotate(-35 5 15)")
+      
+      const tickCount = Math.max(5, Math.floor((yMax - yMin) / 10));  // Tick sayısını dinamik olarak hesaplıyoruz
+
+      const yAxisGroup = svg.append("g")
+        .attr("class", "y-axis") 
         .attr("transform", `translate(${margin.left},0)`)
-        .call(
-          d3.axisLeft(yScale)
-            .tickValues(yTicks) // Belirli aralıklarda çizgi oluştur
-            .tickSize(-width + margin.right)
-            .tickFormat("")
-        )
-        .selectAll("line")
-        .attr("stroke", "lightgray"); // Grid çizgilerini gri yap
+        .call(d3.axisLeft(yScale).ticks(tickCount)); 
+
+   
+     
+      yAxisGroup.selectAll('.tick text')
+       .style('fill', '#666666') 
+      // Y eksenindeki dikey siyah çizgileri kaldır
+      yAxisGroup.selectAll("line").remove();
+      yAxisGroup.select(".domain").remove();
+      yAxisGroup.selectAll("path").remove();
+    }
+  }
