@@ -1,15 +1,39 @@
+import { useState, useEffect, useRef } from 'react';
+
+const YourComponent = () => {
+  const svgRef = useRef(null);
+  const divRef = useRef(null);
+  const [windowSize, setWindowSize] = useState({
+    width: window.innerWidth,
+    height: window.innerHeight
+  });
+
+  // Yeniden boyutlandırma olayını dinleyin
+  useEffect(() => {
+    const handleResize = () => {
+      setWindowSize({
+        width: window.innerWidth,
+        height: window.innerHeight
+      });
+    };
+
+    // Resize event listener'ı ekleyin
+    window.addEventListener('resize', handleResize);
+
+    // Component unmount olduğunda event listener'ı kaldırın
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
   const drawHorizontalBarChart = () => {
     if (!barData || barData.length === 0) return;
 
-
     const marginLeft = barData.length > 2 ? 140 : 110;
-    //const marginLeft = 150;
-
     const margin = { top: 20, right: 60, bottom: 20, left: marginLeft };
-    const innerWidth = width.current - margin.left - margin.right;
-    const innerHeight = height.current - margin.top - margin.bottom;
+    
+    // Responsive olarak width ve height'ı güncelle
+    const innerWidth = windowSize.width - margin.left - margin.right;
+    const innerHeight = windowSize.height - margin.top - margin.bottom;
 
-    // En büyük değeri bul (eğer tüm değerler 100'den küçükse, 100'ü baz al)
     const maxValue = Math.max(100, d3.max(barData, d => d.value));
 
     const xScale = d3.scaleLinear()
@@ -24,7 +48,7 @@
     const svg = d3.select(svgRef.current)
       .attr("width", "100%")
       .attr("height", "100%")
-      .attr("viewBox", `0 0 ${width.current} ${height.current}`)
+      .attr("viewBox", `0 0 ${windowSize.width} ${windowSize.height}`)
       .attr("preserveAspectRatio", "xMidYMid meet");
 
     svg.selectAll("*").remove();
@@ -32,6 +56,7 @@
     const g = svg.append("g")
       .attr("transform", `translate(${margin.left},${margin.top})`);
 
+    // Arka plan çubukları
     g.selectAll(".background-bar")
       .data(barData)
       .enter()
@@ -39,18 +64,19 @@
       .attr("class", "background-bar")
       .attr("x", 0)
       .attr("y", d => yScale(d.name))
-      .attr("width", xScale(maxValue)) // Sabit genişlikte arkaplan
+      .attr("width", xScale(maxValue)) 
       .attr("height", yScale.bandwidth() / 3)
       .attr("fill", "lightgray")
       .attr("rx", 12)
       .attr("ry", 12)
       .on("click", (event, d) => {
-        handleBarPointClick(d.name,filterArr);
+        handleBarPointClick(d.name, filterArr);
         setTimeout(() => {
           onBarPointClick();
         }, 125);
       });
 
+    // Değer çubukları
     g.selectAll(".value-bar")
       .data(barData)
       .enter()
@@ -58,7 +84,7 @@
       .attr("class", "value-bar")
       .attr("x", 0)
       .attr("y", d => yScale(d.name))
-      .attr("width", d => xScale(d.value)) // Normalleştirilmiş genişlik
+      .attr("width", d => xScale(d.value))
       .attr("height", yScale.bandwidth() / 3)
       .attr("fill", graphColor)
       .attr("rx", 12)
@@ -68,17 +94,17 @@
         setTimeout(() => {
           onBarPointClick();
         }, 125);
-        
       });
 
+    // Y-axis etiketleri
     g.selectAll("text")
       .data(barData)
       .enter()
       .append("text")
       .attr("x", d => xScale(maxValue) + 15)
       .attr("y", (d, i) => {    
-        return yScale(d.name) + yScale.bandwidth() /  5
-      }) // Çubuk sayısına göre kaydırma      
+        return yScale(d.name) + yScale.bandwidth() / 5;
+      })
       .attr("alignment-baseline", "middle")
       .text(d => type === 'percentage' ? `${d.value.toFixed(0)}%` : `${d.value.toFixed(0)}`);
 
@@ -86,7 +112,7 @@
     g.append("g")
       .call(yAxis)
       .selectAll("text")
-      .attr("transform", "translate(-5," + (barData.length === 1 ? -55 : barData.length === 2 ? -40 : barData.length === 3 ? -20 : -15) + ")") // Y-axis kaydırma
+      .attr("transform", "translate(-5," + (barData.length === 1 ? -55 : barData.length === 2 ? -40 : barData.length === 3 ? -20 : -15) + ")")
       .style('text-anchor', 'end')
       .text(d => d.length > 25 ? d.slice(0, 20) + "..." : d);
 
@@ -99,4 +125,11 @@
       height.current = divRef.current.offsetHeight;
     }
     drawHorizontalBarChart();
-  }, [customKey, app, barData]);
+  }, [windowSize, customKey, app, barData]); // Resize olayını izleyin
+
+  return (
+    <div ref={divRef}>
+      <svg ref={svgRef}></svg>
+    </div>
+  );
+}
