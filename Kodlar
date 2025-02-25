@@ -1,7 +1,20 @@
-const numDigits = Math.floor(Math.log10(Math.abs(minItem.value))) + 1;
+const getNumDigits = (value) => Math.floor(Math.log10(Math.abs(value))) + 1;
 
 // Basamağa göre yuvarlama katını belirle
-const roundTo = Math.pow(10, numDigits - 1);  // Eğer 2 basamaksaysa 10, 3 basamaksaysa 100, 4 basamaksaysa 1000 vb.
+const getRoundTo = (numDigits) => Math.pow(10, numDigits - 1);
 
-// Min değeri en yakın yuvarlama katına yuvarla
-let roundedMin = Math.floor(minItem.value / roundTo) * roundTo;
+// Min değeri için yuvarlama işlemi
+const minDigits = getNumDigits(minItem.value);
+const minRoundTo = getRoundTo(minDigits);
+let roundedMin = Math.floor(minItem.value / minRoundTo) * minRoundTo;
+
+// Max değeri için yuvarlama işlemi
+const maxDigits = getNumDigits(maxItem.value);
+const maxRoundTo = getRoundTo(maxDigits);
+let roundedMax = Math.floor(maxItem.value / maxRoundTo) * maxRoundTo;
+
+console.log('Original Min Value:', minItem.value);
+console.log('Rounded Min Value (to nearest power of 10 based on digits):', roundedMin);
+
+console.log('Original Max Value:', maxItem.value);
+console.log('Rounded Max Value (to nearest power of 10 based on digits):', roundedMax);
