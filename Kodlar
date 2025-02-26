@@ -1,16 +1,16 @@
-const getRoundedValue = (value) => {
-  let roundTo;
-
-  if (value < 100) {
-    roundTo = 10;  // 100'den küçük ise 10'a yuvarla
-  } else if (value < 1000) {
-    roundTo = 100;  // 1000'den küçük ise 100'e yuvarla
-  } else if (value < 10000) {
-    roundTo = 1000;  // 10000'den küçük ise 1000'e yuvarla
-  } else {
-    roundTo = 10000;  // Büyükse 10000'e yuvarla
-  }
-
-  // Değeri, belirlenen "roundTo" değerine göre yuvarla
-  return Math.round(value / roundTo) * roundTo;
-};
+     // Dinamik tick aralıkları
+      const yTicks = d3.range(yMin, yMax, (yMax - yMin) / tickCount);
+      console.log(yTicks)
+      const customRoundedTicks = yTicks.map((tick, index) => {
+        if (index === 0) {
+          // İlk değeri aşağı yuvarla
+          return getMinRoundedValue(tick);
+        } else {
+          // Diğer değerleri yukarı yuvarla
+          return getMaxRoundedValue(tick);
+        }
+      });
+      console.log(customRoundedTicks)
+      const a = yTicks.map(getRoundedValue);
+      console.log(a)
+      const yAxis = d3.axisLeft(yScale).tickValues(yTicks).tickSize(-width + margin.right)
