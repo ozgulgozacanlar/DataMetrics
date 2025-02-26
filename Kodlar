@@ -1,9 +1,8 @@
-// Orta kısımlardaki tick'leri eşit aralıklarla ayarlayalım
-// Yalnızca ilk ve son değeri manuel olarak ekleyip, aradaki değerleri otomatik olarak bırakıyoruz.
-const tickStep = (lastTick - firstTick) / (tickCount - 1); // Aralık hesaplama
-const autoTicks = d3.range(firstTick + tickStep, lastTick, tickStep);  // Eşit aralıklarla tick'ler oluşturma
+const tickInterval = 10;
 
-// Tüm tick'leri birleştirelim
-const customTicks = [firstTick, ...autoTicks, lastTick];
+// Y ekseninin minimum ve maksimum değerlerini belirleyelim
+const yMin = Math.floor(d3.min(data));  // Verilerin en küçük değeri
+const yMax = Math.ceil(d3.max(data));  // Verilerin en büyük değeri
 
-console.log(customTicks);
+// Sabit aralıklarla tick değerlerini oluşturuyoruz
+const yTicks = d3.range(yMin, yMax, tickInterval);
