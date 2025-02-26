@@ -1,5 +1,1 @@
-{
-    "date": "-",
-    "value": 0,
-    "dateText": "-"
-}
+lineData.some(item => item.value === 0 || isNaN(item.value) || item.value === "-" || item.date === "-")
