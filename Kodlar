@@ -1,2 +1,5 @@
-  const drawLineChart = () => {
-    if (lineData === null) return;
+{
+    "date": "-",
+    "value": 0,
+    "dateText": "-"
+}
