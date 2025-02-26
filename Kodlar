@@ -1,21 +1,255 @@
+import { useEffect, useState } from 'react';
+import { openApp, } from '@/util/qlikConnection';
+import { Chemistry, Comment, Computer, DetailsIcon, Dumbell } from '@/assets/svg';
+import { Link } from "react-router-dom";
+import { IconKpiColumn, Loader, PageMainButton, CardTitle, HorizontalBarChartSec, LineChart } from '@/components';
+import '../assets/css/data-governance.css';
 
-      const tickCount = Math.max(5, Math.floor((yMax - yMin) / (yMax - yMin) * 5));
-      // Dinamik tick aralıkları
-      const yTicks = d3.range(yMin, yMax, (yMax - yMin) / tickCount);
-      console.log(yTicks)
+export default function DataGovernance() {
 
-      const firstTick = getMinRoundedValue(yTicks[0]);
-      console.log(firstTick)
-      const lastTick = getMaxRoundedValue(yTicks[yTicks.length - 1]);
-      console.log(lastTick)
+  const [app, setApp] = useState();
+  const [rndKey, setClickedRndKey] = useState(Math.random());
+  
+  const [isLoading, setLoading] = useState(true);
+  const [childrenLoaded, setChildrenLoaded] = useState({
+    child1: false
+   
+   
+  });
+  useEffect(() => {
+    if (!app) {
+      openApp(import.meta.env.VITE_APP_APP1)
+        .then((_app) => {
+          _app.clearAll(true).then(() => {
+            setApp(_app);
+          });        
+        })
+        .catch((error) => {
+          console.error('Uygulama başlatma hatası:', error);
+        });
+    }
+  }, [app]);
+  
+  // component  load olma durumu burada kontrol ediliyor. Eğer component load olmuşsa childrenLoaded parametresi true olarak duzenleniyor.
+  const handleChildLoaded = (key) => {
+    console.log(key)
+    if(app && (!Object.values(childrenLoaded).every(value => value === true))){
+      setChildrenLoaded((prev) => ({
+        ...prev,
+        [key]: true,
+      }));
+    }else{
+      return;
+    }
+  };
+  useEffect(() => { 
+    // `childrenLoaded`'taki tüm öğeler `true` olduğunda `isLoading`'i `false` yap
+    const allLoaded = Object.values(childrenLoaded).every(value => value === true) ? true : false;
+    if (allLoaded) {
+       // Bütün childs yüklendiğinde loader'ı kaldır.
+       // Timeout olmadığında componentlerden hızlı cevap geldiğinde loader olmadan açılıyordu.
+      setTimeout(() => { setLoading(false); }, 1000); 
+    }
+  }, [childrenLoaded]); // `childrenLoaded` her değiştiğinde kontrol edilir
 
-      // Orta kısımlardaki tick'leri eşit aralıklarla ayarlayalım
-      // Yalnızca ilk ve son değeri manuel olarak ekleyip, aradaki değerleri otomatik olarak bırakıyoruz.
-      const tickStep = (lastTick - firstTick) / (tickCount - 1); // Aralık hesaplama
-      const autoTicks = d3.range(firstTick + tickStep, lastTick, tickStep);  // Eşit aralıklarla tick'ler oluşturma
+  const handleBarClick =() => {
+    setClickedRndKey(Math.random());
+  };
+  const handleLineClick = () => {
+    setClickedRndKey(Math.random());
+  };
+  return (
+    <>
+      {isLoading ? (
+        <div className="fixed-loader">
+          <Loader />
+        </div>
+      ) : (
+        <>
+          <div className="d-flex justify-content-end mt-3">
+            <Link className="d-flex text-decoration-none" to="/data-governance-details">
+              <PageMainButton icon={<DetailsIcon />} title="Detaylar" />
+            </Link>
+          </div>
+          <div className="row mt-3 row-gap-3">
+            <div className="col-12 col-xl-4 d-flex flex-column">
+              <div className="card">
+                {/* <div className="card-title">120 - DQ Score</div> */}
+                <CardTitle app={app} objectId={'pKduCm'}/>
+                <div className="card-content">
+                  <div className="d-flex align-items-stretch justify-content-between gap-3">               
+                    <IconKpiColumn icon={<Chemistry />} app={app} objectId = "amEZTyB" />
+                    <IconKpiColumn icon={<Dumbell />} app={app} objectId = "SdzuNG" />
+                    <IconKpiColumn icon={<Comment />} app={app} objectId = "dhYBJ" />
+                    <IconKpiColumn icon={<Computer />} app={app} objectId = "HENzpFs" />
+                  </div>
+                  <div className="progressbar-row-wrapper data-governance">
+                    <HorizontalBarChartSec customKey={rndKey} objectId='pKduCm' type="percentage" app={app} graphColor={"#004480"} onBarPointClick={handleBarClick} onLoaded={() => handleChildLoaded('child1')}/>
 
-      // Tüm tick'leri birleştirelim
-      const customTicks = [firstTick, ...autoTicks, lastTick];
-      // const customTicks = [firstTick, ...yTicks.slice(1,yTicks.length-1), lastTick];
+                    {/* <div className="horizontal-progressbar-row">
+                      <span className="title">AI Factory</span>
+                      <div className="d-flex align-items-center flex-grow-1 gap-3">
+                        <div className="horizontal-progressbar-wrapper">
+                          <div className="bar" style={{ width: '95%' }}>&nbsp;</div>
+                        </div>
+                        <span className="value">%95,7</span>
+                      </div>
+                    </div>
+                    <div className="horizontal-progressbar-row">
+                      <span className="title">Veri Ambarı MIS & İş Zekası</span>
+                      <div className="d-flex align-items-center flex-grow-1 gap-3">
+                        <div className="horizontal-progressbar-wrapper">
+                          <div className="bar" style={{ width: '91%' }}>&nbsp;</div>
+                        </div>
+                        <span className="value">%91,2</span>
+                      </div>
+                    </div>
+                    <div className="horizontal-progressbar-row">
+                      <span className="title">Kurumsal Veri ve Risk</span>
+                      <div className="d-flex align-items-center flex-grow-1 gap-3">
+                        <div className="horizontal-progressbar-wrapper">
+                          <div className="bar" style={{ width: '80%' }}>&nbsp;</div>
+                        </div>
+                        <span className="value">%80,1</span>
+                      </div>
+                    </div>
+                    <div className="horizontal-progressbar-row">
+                      <span className="title">Veri Ambarı</span>
+                      <div className="d-flex align-items-center flex-grow-1 gap-3">
+                        <div className="horizontal-progressbar-wrapper">
+                          <div className="bar" style={{ width: '62%' }}>&nbsp;</div>
+                        </div>
+                        <span className="value">%62,4</span>
+                      </div>
+                    </div> */}
+                  </div>
+                  <div className="d-flex flex-column mt-3">
+                    <div className="card-title">Trend Analizi</div>
+                    <div><LineChart customKey={rndKey*2} objectId='WJHEU' app={app} graphColor={"#7ca444"} onPointClick={handleLineClick} /></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div className="col-12 col-xl-4 d-flex flex-column">
+              <div className="card">
+                {/* <div className="card-title">121 - Veri Envanteri Skorları Current - Historical</div> */}
+                <CardTitle app={app} objectId={'FrnUmKt'}/>
+                <div className="card-content">
+                  <div className="progressbar-row-wrapper green grey-bg flex-grow-1 justify-content-around">
+                    <HorizontalBarChartSec customKey={rndKey} objectId='FrnUmKt' type="percentage" app={app} graphColor={"#7ca444"} onBarPointClick={handleBarClick} />
 
-      console.log(customTicks);
+                    {/* <div className="horizontal-progressbar-row">
+                      <span className="title">AI Factory</span>
+                      <div className="d-flex align-items-center flex-grow-1 gap-3">
+                        <div className="horizontal-progressbar-wrapper">
+                          <div className="bar" style={{ width: '95%' }}>&nbsp;</div>
+                        </div>
+                        <span className="value">%95,7</span>
+                      </div>
+                    </div>
+                    <div className="horizontal-progressbar-row">
+                      <span className="title">Veri Ambarı MIS & İş Zekası</span>
+                      <div className="d-flex align-items-center flex-grow-1 gap-3">
+                        <div className="horizontal-progressbar-wrapper">
+                          <div className="bar" style={{ width: '91%' }}>&nbsp;</div>
+                        </div>
+                        <span className="value">%91,2</span>
+                      </div>
+                    </div>
+                    <div className="horizontal-progressbar-row">
+                      <span className="title">Kurumsal Veri ve Risk</span>
+                      <div className="d-flex align-items-center flex-grow-1 gap-3">
+                        <div className="horizontal-progressbar-wrapper">
+                          <div className="bar" style={{ width: '80%' }}>&nbsp;</div>
+                        </div>
+                        <span className="value">%80,1</span>
+                      </div>
+                    </div>
+                    <div className="horizontal-progressbar-row">
+                      <span className="title">Veri Yönetişimi</span>
+                      <div className="d-flex align-items-center flex-grow-1 gap-3">
+                        <div className="horizontal-progressbar-wrapper">
+                          <div className="bar" style={{ width: '50%' }}>&nbsp;</div>
+                        </div>
+                        <span className="value">%50,1</span>
+                      </div>
+                    </div> */}
+                  </div>
+                  <div className="d-flex flex-column mt-3">
+                    <div className="card-title">Trend Analizi</div>
+                    <div>
+                      <div><LineChart customKey={rndKey*3} objectId='UtAVKs' app={app} graphColor={"#004480"} onPointClick={handleLineClick} /></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div className="col-12 col-xl-4 d-flex flex-column">
+              <div className="card">
+                {/* <div className="card-title">122 - İş Birimlerine Açılan STG Tablo Adedi</div> */}
+                <CardTitle app={app} objectId={'wbJdjz'}/>
+                <div className="card-content">
+                  <div className="progressbar-row-wrapper flex-grow-1 justify-content-around">
+                    <HorizontalBarChartSec customKey={rndKey} objectId='wbJdjz' type="percentage" app={app} graphColor={"#004480"} onBarPointClick={handleBarClick} />
+
+                    {/* <div className="horizontal-progressbar-row">
+                      <span className="title">AI Factory</span>
+                      <div className="d-flex align-items-center flex-grow-1 gap-3">
+                        <div className="horizontal-progressbar-wrapper">
+                          <div className="bar" style={{ width: '95%' }}>&nbsp;</div>
+                        </div>
+                        <span className="value">432</span>
+                      </div>
+                    </div>
+                    <div className="horizontal-progressbar-row">
+                      <span className="title">Veri Ambarı MIS & İş Zekası</span>
+                      <div className="d-flex align-items-center flex-grow-1 gap-3">
+                        <div className="horizontal-progressbar-wrapper">
+                          <div className="bar" style={{ width: '70%' }}>&nbsp;</div>
+                        </div>
+                        <span className="value">250</span>
+                      </div>
+                    </div>
+                    <div className="horizontal-progressbar-row">
+                      <span className="title">Kurumsal Veri ve Risk</span>
+                      <div className="d-flex align-items-center flex-grow-1 gap-3">
+                        <div className="horizontal-progressbar-wrapper">
+                          <div className="bar" style={{ width: '40%' }}>&nbsp;</div>
+                        </div>
+                        <span className="value">67</span>
+                      </div>
+                    </div>
+                    <div className="horizontal-progressbar-row">
+                      <span className="title">Veri Ambarı</span>
+                      <div className="d-flex align-items-center flex-grow-1 gap-3">
+                        <div className="horizontal-progressbar-wrapper">
+                          <div className="bar" style={{ width: '20%' }}>&nbsp;</div>
+                        </div>
+                        <span className="value">42</span>
+                      </div>
+                    </div>
+                    <div className="horizontal-progressbar-row">
+                      <span className="title">Diğer Ekipler</span>
+                      <div className="d-flex align-items-center flex-grow-1 gap-3">
+                        <div className="horizontal-progressbar-wrapper">
+                          <div className="bar" style={{ width: '14%' }}>&nbsp;</div>
+                        </div>
+                        <span className="value">28</span>
+                      </div>
+                    </div> */}
+                  </div>
+                  <div className="d-flex flex-column mt-3">
+                    <div className="card-title">STG Tablo Trendi</div>
+                    <div>
+                    <div><LineChart customKey={rndKey*4} objectId='NxVmZ' app={app} graphColor={"#7ca444"} onPointClick={handleLineClick} /></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </>
+      )}
+    </>
+  );
+}
