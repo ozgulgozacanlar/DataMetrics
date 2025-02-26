@@ -1,16 +1,6 @@
-     // Dinamik tick aralıkları
-      const yTicks = d3.range(yMin, yMax, (yMax - yMin) / tickCount);
-      console.log(yTicks)
-      const customRoundedTicks = yTicks.map((tick, index) => {
-        if (index === 0) {
-          // İlk değeri aşağı yuvarla
-          return getMinRoundedValue(tick);
-        } else {
-          // Diğer değerleri yukarı yuvarla
-          return getMaxRoundedValue(tick);
-        }
-      });
-      console.log(customRoundedTicks)
-      const a = yTicks.map(getRoundedValue);
-      console.log(a)
-      const yAxis = d3.axisLeft(yScale).tickValues(yTicks).tickSize(-width + margin.right)
+// İlk ve son tick'leri özel olarak yuvarlayalım
+const firstTick = getMinRoundedValue(yTicks[0]);
+const lastTick = getMaxRoundedValue(yTicks[yTicks.length - 1]);
+
+// Ortadaki değerleri varsayılan olarak bırakmak için, yalnızca ilk ve son değerleri alalım
+const customTicks = [firstTick, ...yTicks.slice(1, yTicks.length - 1), lastTick];
