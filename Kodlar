@@ -1,16 +1,21 @@
-const firstTick = getMinRoundedValue(yTicks[0]);
-console.log(firstTick)
-const lastTick = getMaxRoundedValue(yTicks[yTicks.length - 1]);
-console.log(lastTick)
 
-// Orta kısımlardaki tick'leri eşit aralıklarla ayarlayalım
-// Yalnızca ilk ve son değeri manuel olarak ekleyip, aradaki değerleri otomatik olarak bırakıyoruz.
-const tickStep = (lastTick - firstTick) / (tickCount - 1); // Aralık hesaplama
-const autoTicks = d3.range(firstTick + tickStep, lastTick, tickStep);  // Eşit aralıklarla tick'ler oluşturma
+      const tickCount = Math.max(5, Math.floor((yMax - yMin) / (yMax - yMin) * 5));
+      // Dinamik tick aralıkları
+      const yTicks = d3.range(yMin, yMax, (yMax - yMin) / tickCount);
+      console.log(yTicks)
 
-// Tüm tick'leri birleştirelim
-const customTicks = [firstTick, ...autoTicks, lastTick];
+      const firstTick = getMinRoundedValue(yTicks[0]);
+      console.log(firstTick)
+      const lastTick = getMaxRoundedValue(yTicks[yTicks.length - 1]);
+      console.log(lastTick)
 
-console.log(customTicks);
+      // Orta kısımlardaki tick'leri eşit aralıklarla ayarlayalım
+      // Yalnızca ilk ve son değeri manuel olarak ekleyip, aradaki değerleri otomatik olarak bırakıyoruz.
+      const tickStep = (lastTick - firstTick) / (tickCount - 1); // Aralık hesaplama
+      const autoTicks = d3.range(firstTick + tickStep, lastTick, tickStep);  // Eşit aralıklarla tick'ler oluşturma
 
-      const yAxis = d3.axisLeft(yScale).tickValues(customTicks).tickSize(-width + margin.right)
+      // Tüm tick'leri birleştirelim
+      const customTicks = [firstTick, ...autoTicks, lastTick];
+      // const customTicks = [firstTick, ...yTicks.slice(1,yTicks.length-1), lastTick];
+
+      console.log(customTicks);
