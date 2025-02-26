@@ -1,6 +1,9 @@
-// İlk ve son tick'leri özel olarak yuvarlayalım
-const firstTick = getMinRoundedValue(yTicks[0]);
-const lastTick = getMaxRoundedValue(yTicks[yTicks.length - 1]);
+// Orta kısımlardaki tick'leri eşit aralıklarla ayarlayalım
+// Yalnızca ilk ve son değeri manuel olarak ekleyip, aradaki değerleri otomatik olarak bırakıyoruz.
+const tickStep = (lastTick - firstTick) / (tickCount - 1); // Aralık hesaplama
+const autoTicks = d3.range(firstTick + tickStep, lastTick, tickStep);  // Eşit aralıklarla tick'ler oluşturma
 
-// Ortadaki değerleri varsayılan olarak bırakmak için, yalnızca ilk ve son değerleri alalım
-const customTicks = [firstTick, ...yTicks.slice(1, yTicks.length - 1), lastTick];
+// Tüm tick'leri birleştirelim
+const customTicks = [firstTick, ...autoTicks, lastTick];
+
+console.log(customTicks);
