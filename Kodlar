@@ -1,115 +1,24 @@
-import { useEffect, useState } from 'react';
-import { Link } from "react-router-dom";
-import { openApp } from '@/util/qlikConnection';
-import { DetailTable, PageMainButton, Loader } from '@/components';
-import { BackIcon } from '@/assets/svg';
 
-export default function DataGovernanceDetails() {
+export default function DetailTable({ app, objectId, onLoaded, filterChange }) {
 
-  const [app, setApp] = useState();
-  const [objectId, setObjectId] = useState("MgYzdjP");
-  const [randomKey, setRandomKey] = useState(Math.random());
-  const [selectedOption, setSelectedOption] = useState('firstTable');
-  const [isLoading, setLoading] = useState(true);
-  const [childrenLoaded, setChildrenLoaded] = useState({
-    child1: false
-  });
 
-  useEffect(() => {
-    if (!app) {
-      openApp(import.meta.env.VITE_APP_APP1)
-        .then((_app) => {
-          _app.clearAll().then(() => {
-            setApp(_app);
-          })       
+  const [tableHeaderData, setTableHeaderData] = useState(null);
+  const [tableDataArray, setTableDataArray] = useState(null);
+  const [combinedTableData, setCombinedTableData] = useState(null);
+  const [loading, setLoading] = useState(false);
 
-        })
-        .catch((error) => {
-          console.error('Uygulama başlatma hatası:', error);
-        });
-    }
-
-  }, [app])
-
-  const handleTabClick = (selectedTab) => {
-    setSelectedOption(selectedTab);
-  };
-  useEffect(() => {
-    setRandomKey(Math.random());
-
-    if (selectedOption === 'firstTable') {
-      setObjectId('MgYzdjP');
-    } else {
-      setObjectId('esKa');
-    }
-  }, [selectedOption]);
-  // component  load olma durumu burada kontrol ediliyor. Eğer component load olmuşsa childrenLoaded parametresi true olarak duzenleniyor.
-  const handleChildLoaded = (key) => {
-    if (app && (!Object.values(childrenLoaded).every(value => value === true))) {
-      setChildrenLoaded((prev) => ({
-        ...prev,
-        [key]: true,
-      }));
-    } else {
-      return;
-    }
+  const colorArray = ["GREEN", "RED", "YELLOW", "BLUE"];
+  const colorMap = {
+    GREEN: "#28a745",  // Yeşil
+    RED: "#dc3545",    // Kırmızı
+    YELLOW: "#ffc107", // Sarı
+    BLUE: "#007bff",   // Mavi
   };
 
-  useEffect(() => {
-    // `childrenLoaded`'taki tüm öğeler `true` olduğunda `isLoading`'i `false` yap
-    const allLoaded = Object.values(childrenLoaded).every(value => value === true) ? true : false;
-    if (allLoaded) {
-      // Bütün childs yüklendiğinde loader'ı kaldır.
-      // Timeout olmadığında componentlerden hızlı cevap geldiğinde loader olmadan açılıyordu.
-      setTimeout(() => { setLoading(false); }, 1500);
-    }
-  }, [childrenLoaded]); // `childrenLoaded` her değiştiğinde kontrol edilir
-
-  return (
-    <> 
-    {isLoading && (
-          <div className="fixed-loader">
-            <Loader />
-          </div>
-        )}
-        <div style={{ display: isLoading ? 'none' : 'block' }}>
-          <div className="d-flex mt-3" >
-            <Link className="d-flex text-decoration-none" to="/data-governance">
-              <PageMainButton icon={<BackIcon />} title="Geri" />
-            </Link>
-          </div>
-          <div className="row mt-3 row-gap-3">
-            <div className="col-12 d-flex flex-column">
-              <div className="card p-0">
-                <div className="card-title-wrapper d-flex align-items-center justify-content-between p-3">
-                  <div className="card-title">120 - DQ Score</div>
-                  <div className="tab-options">
-                    <span
-                      className={`tab-option ${selectedOption === 'firstTable' ? 'active' : ''}`}
-                      onClick={() => handleTabClick('firstTable')}
-                    >
-                      Data Governance
-                    </span>
-                    <span
-                      className={`tab-option ${selectedOption === 'secondTable' ? 'active' : ''}`}
-                      onClick={() => handleTabClick('secondTable')}
-                    >
-                      İş Biriminde Açılan STG Tablolar
-                    </span>
-                  </div>
-                </div>
-                <div className='table-container'>
-                  <DetailTable app={app} objectId={objectId} filterChange={randomKey} onLoaded={() => handleChildLoaded('child1')}/>
-                </div>  
-                {/* <DetailTable /> */}
-              </div>
-            </div>
-          </div>
-      </div>
-    </>
-  );
-}
-   getObjectData(app, objectId).then((response) => {
+  const renderQlikTableObject = (objectId) => {
+    if (app) {
+      setLoading(true);
+      getObjectData(app, objectId).then((response) => {
         if (!response) {
           console.error('TableChart Component : response verisi boş veya tanımsız.');
           return;
@@ -119,5 +28,91 @@ export default function DataGovernanceDetails() {
         });
         setTableDataArray(tableDatas);
         if (onLoaded) { 
-          setTimeout(() => { onLoaded(); }, 250); 
+          setTimeout(() => { 
+            onLoaded();
+            setLoading(false);
+           }, 250); 
         }
+        else{
+          setTimeout(() => {          
+            setLoading(false);
+           }, 250);
+        }
+
+      }).catch((error) => {
+        console.error('TableChart Component : getObjectData() methodu veri alınırken hata oluştu:', error);
+      });
+      //Tablo header bilgileri alınıyor
+      app.getObject(objectId).then((model) => {
+        if (!model) {
+          console.error('TableChart Component : model verisi boş veya tanımsız.');
+          return;
+        }
+        // `qDimensionInfo` ve `qMeasureInfo` öğelerinin `qFallbackTitle` değerlerini alıp birleştiriyoruz.
+        const dimensionTitles = model.layout.qHyperCube.qDimensionInfo.map(item => item.qFallbackTitle);
+        const measureTitles = model.layout.qHyperCube.qMeasureInfo.map(item => item.qFallbackTitle);
+
+        // `qDimensionInfo` öğelerini ilk sıraya, `qMeasureInfo` öğelerini sonra ekliyoruz.
+        let combinedTitles = [...dimensionTitles, ...measureTitles];
+        setTableHeaderData(combinedTitles);
+
+      }).catch((error) => {
+        console.error('TableChart Component : getObject() methodu veri alınırken hata oluştu:', error);
+      });
+
+      setCombinedTableData({header : tableHeaderData , datas : tableDataArray })
+    
+    } else {
+      // console.error('Qlik Sense app is not loaded yet');
+    }
+  }
+  useEffect(() => {
+    renderQlikTableObject(objectId);
+  }, [app, objectId, filterChange]);
+  useEffect(() => {
+    console.log(combinedTableData)
+  }, [tableHeaderData,tableDataArray]);
+  return (
+    <>
+      {loading ? (
+        <div className="table-loader"><Loader /></div>
+      ) : (
+        <table className="detail-table">
+          <thead>
+            <tr>
+              {tableHeaderData && tableHeaderData.map((header, index) => (
+                <th scope="col" key={index}>
+                  {header}
+                </th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {tableDataArray && tableDataArray.map((row, rowIndex) => (
+              <tr key={rowIndex}>
+                {row.map((cell, cellIndex) => {
+                  // Renk array'inde herhangi birini içeriyor mu diye kontrol et
+                  const containsColor = colorArray.find(color => cell.includes(color));
+
+                  return (
+                    <td key={cellIndex}>
+
+                      {/* Eğer hücre renklerden birini içeriyorsa, yuvarlak point ekle */}
+                      {containsColor ? (
+                        <span
+                          className="point"
+                          style={{ backgroundColor: colorMap[containsColor] }} // İlgili rengi buradan alıyoruz
+                        ></span>
+                      ) : (
+                        capitalizeFirstLetter(truncateText(cell))
+                      )}
+                    </td>
+                  );
+                })}
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      )}
+    </>
+  );
