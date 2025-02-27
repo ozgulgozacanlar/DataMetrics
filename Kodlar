@@ -1,118 +1,36 @@
-
-export default function DetailTable({ app, objectId, onLoaded, filterChange }) {
-
-
-  const [tableHeaderData, setTableHeaderData] = useState(null);
-  const [tableDataArray, setTableDataArray] = useState(null);
-  const [combinedTableData, setCombinedTableData] = useState(null);
-  const [loading, setLoading] = useState(false);
-
-  const colorArray = ["GREEN", "RED", "YELLOW", "BLUE"];
-  const colorMap = {
-    GREEN: "#28a745",  // Yeşil
-    RED: "#dc3545",    // Kırmızı
-    YELLOW: "#ffc107", // Sarı
-    BLUE: "#007bff",   // Mavi
-  };
-
-  const renderQlikTableObject = (objectId) => {
-    if (app) {
-      setLoading(true);
-      getObjectData(app, objectId).then((response) => {
-        if (!response) {
-          console.error('TableChart Component : response verisi boş veya tanımsız.');
-          return;
-        }
-        const tableDatas = response.map(item => {
-          return item.map(innerItem => innerItem.qText);  // innerItem içindeki qText değerini alıyoruz
-        });
-        setTableDataArray(tableDatas);
-        if (onLoaded) { 
-          setTimeout(() => { 
-            onLoaded();
-            setLoading(false);
-           }, 250); 
-        }
-        else{
-          setTimeout(() => {          
-            setLoading(false);
-           }, 250);
-        }
-
-      }).catch((error) => {
-        console.error('TableChart Component : getObjectData() methodu veri alınırken hata oluştu:', error);
-      });
-      //Tablo header bilgileri alınıyor
-      app.getObject(objectId).then((model) => {
-        if (!model) {
-          console.error('TableChart Component : model verisi boş veya tanımsız.');
-          return;
-        }
-        // `qDimensionInfo` ve `qMeasureInfo` öğelerinin `qFallbackTitle` değerlerini alıp birleştiriyoruz.
-        const dimensionTitles = model.layout.qHyperCube.qDimensionInfo.map(item => item.qFallbackTitle);
-        const measureTitles = model.layout.qHyperCube.qMeasureInfo.map(item => item.qFallbackTitle);
-
-        // `qDimensionInfo` öğelerini ilk sıraya, `qMeasureInfo` öğelerini sonra ekliyoruz.
-        let combinedTitles = [...dimensionTitles, ...measureTitles];
-        setTableHeaderData(combinedTitles);
-
-      }).catch((error) => {
-        console.error('TableChart Component : getObject() methodu veri alınırken hata oluştu:', error);
-      });
-
-      setCombinedTableData({header : tableHeaderData , datas : tableDataArray })
-    
-    } else {
-      // console.error('Qlik Sense app is not loaded yet');
-    }
-  }
-  useEffect(() => {
-    renderQlikTableObject(objectId);
-  }, [app, objectId, filterChange]);
-  useEffect(() => {
-    console.log(combinedTableData)
-  }, [tableHeaderData,tableDataArray]);
-  return (
-    <>
-      {loading ? (
-        <div className="table-loader"><Loader /></div>
-      ) : (
-        <table className="detail-table">
-          <thead>
-            <tr>
-              {tableHeaderData && tableHeaderData.map((header, index) => (
-                <th scope="col" key={index}>
-                  {header}
-                </th>
-              ))}
-            </tr>
-          </thead>
-          <tbody>
-            {tableDataArray && tableDataArray.map((row, rowIndex) => (
-              <tr key={rowIndex}>
-                {row.map((cell, cellIndex) => {
-                  // Renk array'inde herhangi birini içeriyor mu diye kontrol et
-                  const containsColor = colorArray.find(color => cell.includes(color));
-
-                  return (
-                    <td key={cellIndex}>
-
-                      {/* Eğer hücre renklerden birini içeriyorsa, yuvarlak point ekle */}
-                      {containsColor ? (
-                        <span
-                          className="point"
-                          style={{ backgroundColor: colorMap[containsColor] }} // İlgili rengi buradan alıyoruz
-                        ></span>
-                      ) : (
-                        capitalizeFirstLetter(truncateText(cell))
-                      )}
-                    </td>
-                  );
-                })}
+ combinedTableData && (
+          <table className="detail-table">
+            <thead>
+              <tr>
+                {combinedTableData.header && combinedTableData.header.map((header, index) => (
+                  <th scope="col" key={index}>
+                    {header}
+                  </th>
+                ))}
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {combinedTableData.datas && combinedTableData.datas.map((row, rowIndex) => (
+                <tr key={rowIndex}>
+                  {row.map((cell, cellIndex) => {
+                    const containsColor = colorArray.find(color => cell.includes(color));
+
+                    return (
+                      <td key={cellIndex}>
+                        {containsColor ? (
+                          <span
+                            className="point"
+                            style={{ backgroundColor: colorMap[containsColor] }}
+                          ></span>
+                        ) : (
+                          capitalizeFirstLetter(truncateText(cell))
+                        )}
+                      </td>
+                    );
+                  })}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )
       )}
-    </>
-  );
