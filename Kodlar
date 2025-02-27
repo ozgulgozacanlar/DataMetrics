@@ -1,4 +1,3 @@
-// Tarihleri dönüştürüp sıralamak için fonksiyon
 const convertAndSortByDate = (tableDatas) => {
   const dateRegex = /^\d{2}\/\d{2}\/\d{4}$/; // "dd/mm/yyyy" formatına uyan regex
 
@@ -7,21 +6,23 @@ const convertAndSortByDate = (tableDatas) => {
     return row.map(cell => {
       // Tarih formatını tanıma
       if (dateRegex.test(cell)) {
-        // Tarih formatını yyyy-mm-dd'ye çevir ve Date nesnesine dönüştür
-        return new Date(cell.split('/').reverse().join('/'));
+        // Tarih formatını yyyy-mm-dd'ye çevir (Date nesnesine çevirmiyoruz, orijinal formatta bırakıyoruz)
+        const dateParts = cell.split('/');
+        return { original: cell, dateObj: new Date(dateParts[2], dateParts[1] - 1, dateParts[0]) }; // Date objesi oluşturuyoruz
       }
-      return cell;  // Tarih değilse olduğu gibi bırak
+      return { original: cell };  // Tarih değilse olduğu gibi bırak
     });
   });
 
   // Verileri tarihe göre sıralama (eski tarihten yeni tarihe)
   const sortedTableData = convertedTableData.sort((a, b) => {
-    // Eğer ilk hücre tarihse sıralama yap
-    if (a[0] instanceof Date && b[0] instanceof Date) {
-      return a[0] - b[0];  // Eski tarihten yeni tarihe sıralama
+    // Eğer tarihler varsa, sıralama yap
+    if (a[0].dateObj instanceof Date && b[0].dateObj instanceof Date) {
+      return a[0].dateObj - b[0].dateObj;  // Eski tarihten yeni tarihe sıralama
     }
     return 0;  // Eğer tarih değilse sıralama yapma
   });
 
-  return sortedTableData; // Sıralanmış ve dönüştürülmüş veriyi geri döndür
+  // Sıralı verileri orijinal tarih formatında geri döndür
+  return sortedTableData.map(row => row.map(cell => cell.original));
 };
