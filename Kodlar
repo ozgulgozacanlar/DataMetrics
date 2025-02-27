@@ -1,36 +1,20 @@
- combinedTableData && (
-          <table className="detail-table">
-            <thead>
-              <tr>
-                {combinedTableData.header && combinedTableData.header.map((header, index) => (
-                  <th scope="col" key={index}>
-                    {header}
-                  </th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {combinedTableData.datas && combinedTableData.datas.map((row, rowIndex) => (
-                <tr key={rowIndex}>
-                  {row.map((cell, cellIndex) => {
-                    const containsColor = colorArray.find(color => cell.includes(color));
+// Tarih formatını tanıyıp sıralama işlemi
+const sortedTableData = tableDatas.map(row => {
+  return row.map(cell => {
+    // Tarih formatını tanıma (örneğin "26/02/2025" formatı)
+    const dateRegex = /^\d{2}\/\d{2}\/\d{4}$/; // "dd/mm/yyyy" formatına uyan regex
+    if (dateRegex.test(cell)) {
+      return new Date(cell.split('/').reverse().join('/')); // Tarih formatını yyyy-mm-dd'ye çevir
+    }
+    return cell;  // Tarih değilse olduğu gibi bırak
+  });
+});
 
-                    return (
-                      <td key={cellIndex}>
-                        {containsColor ? (
-                          <span
-                            className="point"
-                            style={{ backgroundColor: colorMap[containsColor] }}
-                          ></span>
-                        ) : (
-                          capitalizeFirstLetter(truncateText(cell))
-                        )}
-                      </td>
-                    );
-                  })}
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        )
-      )}
+// Şimdi verileri tarihe göre sıralama yapalım
+const sortedTable = sortedTableData.sort((a, b) => {
+  // Eğer ilk hücre tarihse sıralama yapacağız
+  if (a[0] instanceof Date && b[0] instanceof Date) {
+    return a[0] - b[0]; // Eski tarihten yeni tarihe sıralama
+  }
+  return 0; // Eğer tarih değilse sıralama yapma
+});
