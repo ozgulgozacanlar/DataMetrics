@@ -1,20 +1,22 @@
-// Tarih formatını tanıyıp sıralama işlemi
-const sortedTableData = tableDatas.map(row => {
-  return row.map(cell => {
-    // Tarih formatını tanıma (örneğin "26/02/2025" formatı)
-    const dateRegex = /^\d{2}\/\d{2}\/\d{4}$/; // "dd/mm/yyyy" formatına uyan regex
-    if (dateRegex.test(cell)) {
-      return new Date(cell.split('/').reverse().join('/')); // Tarih formatını yyyy-mm-dd'ye çevir
-    }
-    return cell;  // Tarih değilse olduğu gibi bırak
+  const convertedTableData = tableDatas.map(row => {
+    return row.map(cell => {
+      // Tarih formatını tanıma
+      if (dateRegex.test(cell)) {
+        // Tarih formatını yyyy-mm-dd'ye çevir ve Date nesnesine dönüştür
+        return new Date(cell.split('/').reverse().join('/'));
+      }
+      return cell;  // Tarih değilse olduğu gibi bırak
+    });
   });
-});
 
-// Şimdi verileri tarihe göre sıralama yapalım
-const sortedTable = sortedTableData.sort((a, b) => {
-  // Eğer ilk hücre tarihse sıralama yapacağız
-  if (a[0] instanceof Date && b[0] instanceof Date) {
-    return a[0] - b[0]; // Eski tarihten yeni tarihe sıralama
-  }
-  return 0; // Eğer tarih değilse sıralama yapma
-});
+  // Verileri tarihe göre sıralama (eski tarihten yeni tarihe)
+  const sortedTableData = convertedTableData.sort((a, b) => {
+    // Eğer ilk hücre tarihse sıralama yap
+    if (a[0] instanceof Date && b[0] instanceof Date) {
+      return a[0] - b[0];  // Eski tarihten yeni tarihe sıralama
+    }
+    return 0;  // Eğer tarih değilse sıralama yapma
+  });
+
+  return sortedTableData; // Sıralanmış ve dönüştürülmüş veriyi geri döndür
+};
