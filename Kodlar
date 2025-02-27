@@ -1,20 +1,42 @@
- <table className="detail-table">
-        <thead>
-          <tr>
-            {tableHeaderData && tableHeaderData.map((header, index) => (
-              <th scope="col" key={index}>
-                {header}
-              </th>
-            ))}
-          </tr>
-        </thead>
-        <tbody>
-          {tableDataArray && tableDataArray.map((row, rowIndex) => (
-            <tr key={rowIndex}>
-              {row.map((cell, cellIndex) => (
-                <td key={cellIndex}>{capitalizeFirstLetter(truncateText(cell))}</td>
-              ))}
-            </tr>
-          ))}
-        </tbody>
-      </table>
+<table className="detail-table">
+  <thead>
+    <tr>
+      {tableHeaderData && tableHeaderData.map((header, index) => (
+        <th scope="col" key={index}>
+          {header}
+        </th>
+      ))}
+    </tr>
+  </thead>
+  <tbody>
+    {tableDataArray && tableDataArray.map((row, rowIndex) => (
+      <tr key={rowIndex}>
+        {row.map((cell, cellIndex) => {
+          const header = tableHeaderData[cellIndex]; // Bu, ilgili hücrenin başlığını alır.
+          const isScoringLogicColumn = header === "Scoring Logic"; // "Scoring Logic" başlığını kontrol et
+
+          const isTextExcluded = !cell.includes("ÖNERİLİP GİRİLEN");
+
+          return (
+            <td key={cellIndex}>
+              {capitalizeFirstLetter(truncateText(cell))}
+
+              {/* "Scoring Logic" sütunundaysa ve "ÖNERİLİP GİRİLEN" yoksa yuvarlak işaret ekle */}
+              {isScoringLogicColumn && isTextExcluded && cellIndex < row.length - 1 && (
+                <span className="point"></span>
+              )}
+            </td>
+          );
+        })}
+      </tr>
+    ))}
+  </tbody>
+</table>
+.point {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  background-color: #3498db; /* Renk seçebilirsiniz */
+  border-radius: 50%;
+  margin-left: 5px;
+}
