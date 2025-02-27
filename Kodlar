@@ -40,3 +40,36 @@
   border-radius: 50%;
   margin-left: 5px;
 }
+
+const colorArray = ["GREEN", "RED", "YELLOW", "BLUE"];
+const colorMap = {
+  GREEN: "#28a745",  // Yeşil
+  RED: "#dc3545",    // Kırmızı
+  YELLOW: "#ffc107", // Sarı
+  BLUE: "#007bff",   // Mavi
+};
+
+ <tbody>
+    {tableDataArray && tableDataArray.map((row, rowIndex) => (
+      <tr key={rowIndex}>
+        {row.map((cell, cellIndex) => {
+          // Renk array'inde herhangi birini içeriyor mu diye kontrol et
+          const containsColor = colorArray.find(color => cell.includes(color));
+
+          return (
+            <td key={cellIndex}>
+              {capitalizeFirstLetter(truncateText(cell))}
+
+              {/* Eğer hücre renklerden birini içeriyorsa, yuvarlak point ekle */}
+              {containsColor && (
+                <span 
+                  className="point" 
+                  style={{ backgroundColor: colorMap[containsColor] }} // İlgili rengi buradan alıyoruz
+                ></span>
+              )}
+            </td>
+          );
+        })}
+      </tr>
+    ))}
+  </tbody>
