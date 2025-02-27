@@ -1,3 +1,8 @@
+// Tarihleri dönüştürüp sıralamak için fonksiyon
+const convertAndSortByDate = (tableDatas) => {
+  const dateRegex = /^\d{2}\/\d{2}\/\d{4}$/; // "dd/mm/yyyy" formatına uyan regex
+
+  // Her bir satırdaki hücreleri kontrol et ve tarih ise Date nesnesine dönüştür
   const convertedTableData = tableDatas.map(row => {
     return row.map(cell => {
       // Tarih formatını tanıma
