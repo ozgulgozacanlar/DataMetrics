@@ -1,28 +1,41 @@
-const convertAndSortByDate = (tableDatas) => {
-  const dateRegex = /^\d{2}\/\d{2}\/\d{4}$/; // "dd/mm/yyyy" formatına uyan regex
+export function getObjectBigData(app, objectId) {
 
-  // Her bir satırdaki hücreleri kontrol et ve tarih ise Date nesnesine dönüştür
-  const convertedTableData = tableDatas.map(row => {
-    return row.map(cell => {
-      // Tarih formatını tanıma
-      if (dateRegex.test(cell)) {
-        // Tarih formatını yyyy-mm-dd'ye çevir (Date nesnesine çevirmiyoruz, orijinal formatta bırakıyoruz)
-        const dateParts = cell.split('/');
-        return { original: cell, dateObj: new Date(dateParts[2], dateParts[1] - 1, dateParts[0]) }; // Date objesi oluşturuyoruz
+  return new Promise((resolve, reject) => {
+    getObjectModel(app, objectId).then((_model) => {
+      const qWidth = _model.layout.qHyperCube.qSize.qcx;
+      const totalRows = _model.layout.qHyperCube.qSize.qcy; // Toplam satır sayısı
+      const maxRowsPerFetch = Math.floor(10000 / qWidth);
+      let qTop = 0;
+      const fetchedData = [];
+
+      function fetchChunk() {
+        const qHeight = Math.min(maxRowsPerFetch, totalRows - qTop);
+
+        _model
+          .getHyperCubeData('/qHyperCubeDef', [
+            {
+              qTop,
+              qLeft: 0,
+              qWidth,
+              qHeight,
+            },
+          ])
+          .then((_data) => {
+            fetchedData.push(..._data[0].qMatrix); // Gelen veriyi birleştir
+            qTop += qHeight; // Bir sonraki başlangıç noktasını ayarla
+
+            if (qTop < totalRows) {
+              // Eğer tüm veri alınmadıysa, tekrar çağır
+              fetchChunk();
+            } else {
+              // Tüm veri alındığında çözümle
+              resolve(fetchedData);
+            }
+          })
+          .catch(reject);
       }
-      return { original: cell };  // Tarih değilse olduğu gibi bırak
-    });
-  });
 
-  // Verileri tarihe göre sıralama (eski tarihten yeni tarihe)
-  const sortedTableData = convertedTableData.sort((a, b) => {
-    // Eğer tarihler varsa, sıralama yap
-    if (a[0].dateObj instanceof Date && b[0].dateObj instanceof Date) {
-      return a[0].dateObj - b[0].dateObj;  // Eski tarihten yeni tarihe sıralama
-    }
-    return 0;  // Eğer tarih değilse sıralama yapma
+      fetchChunk();
+    }).catch(reject);
   });
-
-  // Sıralı verileri orijinal tarih formatında geri döndür
-  return sortedTableData.map(row => row.map(cell => cell.original));
-};
+}
