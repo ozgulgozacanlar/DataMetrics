@@ -1,40 +1,6 @@
-export function getObjectBigData(app, objectId) {
-  return new Promise((resolve, reject) => {
-    getObjectModel(app, objectId).then((_model) => {
-      const qWidth = _model.layout.qHyperCube.qSize.qcx;
-      const totalRows = _model.layout.qHyperCube.qSize.qcy; // Toplam satır sayısı
-      const maxRowsPerFetch = Math.floor(10000 / qWidth);
-      let qTop = 0;
-      const fetchedData = [];
 
-      function fetchChunk() {
-        const qHeight = Math.min(maxRowsPerFetch, totalRows - qTop);
+			let parsedSelectedDate = date.split('.');
 
-        _model
-          .getHyperCubeData('/qHyperCubeDef', [
-            {
-              qTop,
-              qLeft: 0,
-              qWidth,
-              qHeight,
-            },
-          ])
-          .then((_data) => {
-            fetchedData.push(..._data[0].qMatrix); // Gelen veriyi birleştir
-            qTop += qHeight; // Bir sonraki başlangıç noktasını ayarla
-
-            if (qTop < totalRows) {
-              // Eğer tüm veri alınmadıysa, UI'yi güncelleyip tekrar çağır
-              setTimeout(fetchChunk, 0); // UI'yi bloklamamak için bir sonraki işlemde devam et
-            } else {
-              // Tüm veri alındığında çözümle
-              resolve(fetchedData);
-            }
-          })
-          .catch(reject);
-      }
-
-      fetchChunk();
-    }).catch(reject);
-  });
-}
+			var d = new Date(parsedSelectedDate[2] + "-" + parsedSelectedDate[1] + "-" + parsedSelectedDate[0] + "T00:00:00.000Z");	// tarih oluşturmak için "2019-08-15T00:00:00.000Z" gibi bir string oluşturuyoruz
+			let numericDate = Math.round(d.getTime() / 86400000 + 25569);	// qlik sense numeric date format	
+			resolve(numericDate);
