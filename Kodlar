@@ -1,42 +1,22 @@
-
-export default function QlikObject({ app, objectId, elementId, filterChange }) {
-    const [isLoading, setIsLoading] = useState(true);
-
-    useEffect(() => {
-        function renderQlikObject(objectId, elementId) {
-            if (app) {
-                setIsLoading(true);
-                app.getObject(elementId, objectId).then(() => {
-                  
-                        setTimeout(() => {
-                            setIsLoading(false);
-                        }, 250);
-                    
-                }).catch((error) => {
-                    console.error('Error loading Qlik object:', error);
-                    setIsLoading(true);  // Eğer hata olursa, isLoaded durumunu false yap
-
-                });
-            }
-        }
-
-        renderQlikObject(objectId, elementId);
-    }, [app, objectId, elementId, filterChange]); // app, qlikId veya elementId değiştiğinde çağır
-
-    return (     
-       <div id={elementId} className="qvobject" style={{ display: isLoading ? 'none' : 'flex' }}></div>           
-    )
-}
-
-function formatDate(dateString) {
-  // Verilen tarihi Date objesine dönüştür
-  const dateObj = new Date(dateString);
-
-  // Gün, ay, yıl değerlerini al
-  const day = String(dateObj.getDate()).padStart(2, '0');
-  const month = String(dateObj.getMonth() + 1).padStart(2, '0'); // Aylar 0'dan başlar
-  const year = dateObj.getFullYear();
-
-  // Formatı "dd/mm/yyyy" şeklinde oluştur
-  return `${day}/${month}/${year}`;
-}
+        <FilterComboBox app={app} filterItem={"RECORD_DATE_DG_DETAIL"} onChange={handleClickFilterCombobox} headerTitle={"Record Date"} />
+ const handleClickFilterCombobox = (selectedValue,filterItem) => {
+ 
+    if(filterItem == "RECORD_DATE_DG_DETAIL" || filterItem == "RECORD_DATE_122_DETAIL"){
+      selectedValue = getFilterDateNumber(selectedValue);
+      console.log(selectedValue)
+    }
+    app.field(filterItem).selectValues([selectedValue]);
+    // console.log(app.selectionState().selections); 
+    setTimeout(() => {
+      setRandomKey(Math.random());     
+    }, 50);
+  };
+  const handleClearAll = () => {
+    setLoading(true);
+    app.clearAll(true).then(() => {
+      setApp(app);
+      setTimeout(() => {
+        setLoading(false);
+      }, 100);
+    });
+  }
