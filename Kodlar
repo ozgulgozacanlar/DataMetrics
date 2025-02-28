@@ -1,25 +1,17 @@
-import { useEffect, useState } from 'react';
-import { Link } from "react-router-dom";
-import { openApp } from '@/util/qlikConnection';
-import { DetailTable, PageMainButton, Loader, CardTitle, QlikObject, FilterComboBox } from '@/components';
-import { BackIcon, ClearFilterIcon } from '@/assets/svg';
-import { getFilterDateNumber } from '@/util/helper';
-import '../../assets/css/qlik-table.css';
+import { useState, useEffect } from 'react';
+import FilterComboBox from './FilterComboBox';  // Import et
+import { getFilterDateNumber } from './utils';  // Örnek bir import
+import './DataGovernanceDetails.css';
 
 export default function DataGovernanceDetails() {
-
   const [app, setApp] = useState();
   const [objectId, setObjectId] = useState("MgYzdjP");
   const [randomKey, setRandomKey] = useState(Math.random());
   const [selectedOption, setSelectedOption] = useState('firstTable');
-  const [selectedGroupId, setSelectedGroupId] = useState('group1'); 
-
-  // =DATE(RECORD_DATE_122_DETAIL,'DD/MM/YYYY')
-
+  const [selectedGroupId, setSelectedGroupId] = useState('group1');
   const [isLoading, setLoading] = useState(true);
-  const [childrenLoaded, setChildrenLoaded] = useState({
-    child1: false
-  });
+  const [childrenLoaded, setChildrenLoaded] = useState({ child1: false });
+  const [resetFilters, setResetFilters] = useState(false);  // Yeni state
 
   useEffect(() => {
     if (!app) {
@@ -27,214 +19,89 @@ export default function DataGovernanceDetails() {
         .then((_app) => {
           _app.clearAll().then(() => {
             setApp(_app);
-
-			    //   console.log(getFilterDateNumber('27/02/2025'));
-          //     _app.field("RECORD_DATE_DG_DETAIL").selectValues([getFilterDateNumber('27/02/2025')]).then(() => {
-          //     console.log("filtre uygulandı")
-          //     console.log(_app.selectionState().selections);
-
-          //     setApp(_app);
-          // }).catch((error) => {
-          //     console.error('UnitName alanına filtre uygulama hatası:', error);
-          // });
-           
-          })       
-
+          });
         })
         .catch((error) => {
           console.error('Uygulama başlatma hatası:', error);
         });
     }
-    else{
-          
-    }
+  }, [app]);
 
-  }, [app])
-
-  const handleClickBack = (selectedTab,groupId) => {
-    setSelectedOption(selectedTab);
-    setSelectedGroupId(groupId)
-  };
-  useEffect(() => {
-    if (selectedOption === 'firstTable') {
-      setObjectId('MgYzdjP');
-      
-    } else {
-      setObjectId('esKa');
-    }
-    setTimeout(() => {
-      setRandomKey(Math.random());     
-    }, 50);
-  }, [selectedOption]);
-  // component  load olma durumu burada kontrol ediliyor. Eğer component load olmuşsa childrenLoaded parametresi true olarak duzenleniyor.
-  const handleChildLoaded = (key) => {
-    if (app && (!Object.values(childrenLoaded).every(value => value === true))) {
-      setChildrenLoaded((prev) => ({
-        ...prev,
-        [key]: true,
-      }));
-    } else {
-      return;
-    }
-  }; 
-
-  useEffect(() => {
-    // `childrenLoaded`'taki tüm öğeler `true` olduğunda `isLoading`'i `false` yap
-    const allLoaded = Object.values(childrenLoaded).every(value => value === true) ? true : false;
-    if (allLoaded) {
-      // Bütün childs yüklendiğinde loader'ı kaldır.
-      // Timeout olmadığında componentlerden hızlı cevap geldiğinde loader olmadan açılıyordu.
-      setTimeout(() => { setLoading(false); }, 1000);
-    }
-  }, [childrenLoaded]); // `childrenLoaded` her değiştiğinde kontrol edilir
-  
-  const handleClickFilterCombobox = (selectedValue,filterItem) => {
- 
-    if(filterItem == "RECORD_DATE_DG_DETAIL" || filterItem == "RECORD_DATE_122_DETAIL"){
-      selectedValue = getFilterDateNumber(selectedValue);
-    }
-    app.field(filterItem).selectValues([selectedValue]);
-    // console.log(app.selectionState().selections); 
-    setTimeout(() => {
-      setRandomKey(Math.random());     
-    }, 50);
-  };
   const handleClearAll = () => {
     setLoading(true);
     app.clearAll(true).then(() => {
-      setApp(app);
+      setApp(app);  // app'i güncelle
+      setResetFilters(true);  // FilterComboBox'ı sıfırla
       setTimeout(() => {
         setLoading(false);
       }, 100);
     });
-  }
-  return (
-    <> 
-    {isLoading && (
-          <div className="fixed-loader">
-            <Loader />
-          </div>
-        )}
-        <div style={{ display: isLoading ? 'none' : 'block' }}>
-          <div className="d-flex justify-content-end mt-3">
-            <div className="page-main-button" onClick={handleClickBack}><BackIcon /> Geri</div>
-            <div className="nav-button me-2" onClick={() => handleClearAll()}><ClearFilterIcon /></div>
-      
-         </div>
-            {/* İlk tablo için filtre objeleri */}
-          {selectedGroupId === "group1" && (
-            <div className="combobox-wrapper">
-              <FilterComboBox app={app} filterItem={"RECORD_DATE_DG_DETAIL"} onChange={handleClickFilterCombobox} headerTitle={"Record Date"}/>
-              <FilterComboBox app={app} filterItem={"BUSINESS_LINE_DG_DETAIL"} onChange={handleClickFilterCombobox} headerTitle={"Business Line"} />
-              <FilterComboBox app={app} filterItem={"UNIT_NAME_DG_DETAIL"} onChange={handleClickFilterCombobox} headerTitle={"Unit Name"} />
-              <FilterComboBox app={app} filterItem={"TEAM_NAME_DG_DETAIL"} onChange={handleClickFilterCombobox} headerTitle={"Team Name"} />
-              <FilterComboBox app={app} filterItem={"METRIC_ID_DG_DETAIL"} onChange={handleClickFilterCombobox} headerTitle={"Metric Id"} />
-              <FilterComboBox app={app} filterItem={"OBJECT_SCORE_DG_DETAIL"} onChange={handleClickFilterCombobox} headerTitle={"Object Score"} />
-            </div>
-          )}
-          {/* İkinci tablo için filtre objeleri */}
-          {selectedGroupId === "group2" && (
-            <div className="combobox-wrapper">
-              <FilterComboBox app={app} filterItem={"RECORD_DATE_122_DETAIL"} onChange={handleClickFilterCombobox} headerTitle={"Record Date"} />
-              <FilterComboBox app={app} filterItem={"BUSINESS_LINE_122_DETAIL"} onChange={handleClickFilterCombobox} headerTitle={"Business Line"} />
-              <FilterComboBox app={app} filterItem={"UNIT_NAME_122_DETAIL"} onChange={handleClickFilterCombobox} headerTitle={"Unit Name"} />
-              <FilterComboBox app={app} filterItem={"TEAM_NAME_122_DETAIL"} onChange={handleClickFilterCombobox} headerTitle={"Team Name"} />
-              {/* <FilterComboBox app={app} filterItem={"=LAST_EXEC_PCK_RESPONSIBLE_122_DETAIL"} onChange={handleClickFilterCombobox} headerTitle={"Job Name"} /> */}
-            </div>
-          )}
-          <div className="row mt-3 row-gap-3">
-            <div className="col-12 d-flex flex-column">
-              <div className="card p-0">
-                <div className="card-title-wrapper d-flex align-items-center justify-content-between p-3">
-                  {/* <div className="card-title">120 - DQ Score</div> */}
-                  <CardTitle app={app} objectId={objectId} />
-                  <div className="tab-options">
-                    <span
-                      className={`tab-option ${selectedOption === 'firstTable' ? 'active' : ''}`}
-                      onClick={() => handleTabClick('firstTable' , 'group1')}
-                    >
-                      Data Governance
-                    </span>
-                    <span
-                      className={`tab-option ${selectedOption === 'secondTable' ? 'active' : ''}`}
-                      onClick={() => handleTabClick('secondTable','group2')}
-                    >
-                      İş Biriminde Açılan STG Tablolar
-                    </span>
-                  </div>
-                </div>
-                <div className='table-container'>
-                  <QlikObject objectId={objectId} app={app} elementId={`qlik-object-data-govenance-table-${objectId}`} filterChange={randomKey} onLoaded={() => handleChildLoaded('child1')}/>
+  };
 
-                </div>
-                {/* <div className='table-container'>
-                  <DetailTable app={app} objectId={objectId} filterChange={randomKey} onLoaded={() => handleChildLoaded('child1')}/>
-                </div>    */}
-              </div>
-            </div>
+  // Tab seçim değişikliklerini işlemek
+  useEffect(() => {
+    if (selectedOption === 'firstTable') {
+      setObjectId('MgYzdjP');
+    } else {
+      setObjectId('esKa');
+    }
+    setTimeout(() => {
+      setRandomKey(Math.random());
+    }, 50);
+  }, [selectedOption]);
+
+  const handleClickBack = (selectedTab, groupId) => {
+    setSelectedOption(selectedTab);
+    setSelectedGroupId(groupId);
+  };
+
+  return (
+    <>
+      {isLoading && (
+        <div className="fixed-loader">
+          <Loader />
+        </div>
+      )}
+      <div style={{ display: isLoading ? 'none' : 'block' }}>
+        <div className="d-flex justify-content-end mt-3">
+          <div className="page-main-button" onClick={handleClickBack}>
+            <BackIcon /> Geri
           </div>
+          <div className="nav-button me-2" onClick={() => handleClearAll()}>
+            <ClearFilterIcon />
+          </div>
+        </div>
+        
+        {/* Filtreleme objeleri */}
+        <div className="combobox-wrapper">
+          <FilterComboBox
+            app={app}
+            filterItem="RECORD_DATE_DG_DETAIL"
+            onChange={handleClickFilterCombobox}
+            headerTitle="Record Date"
+            resetFilters={resetFilters}  // resetFilters'ı props olarak geç
+          />
+          <FilterComboBox
+            app={app}
+            filterItem="BUSINESS_LINE_DG_DETAIL"
+            onChange={handleClickFilterCombobox}
+            headerTitle="Business Line"
+            resetFilters={resetFilters}  // resetFilters'ı props olarak geç
+          />
+          {/* Diğer FilterComboBox bileşenleri */}
+        </div>
+
+        {/* Tablo ve diğer içerikler */}
+        <div className="table-container">
+          <QlikObject
+            objectId={objectId}
+            app={app}
+            elementId={`qlik-object-data-govenance-table-${objectId}`}
+            filterChange={randomKey}
+            onLoaded={() => handleChildLoaded('child1')}
+          />
+        </div>
       </div>
     </>
   );
 }
-import { useState, useEffect } from 'react';
-import { getFilterList } from '@/util/qlikConnection';
-import './FilterComboBox.css';
-
-export default function FilterComboBox({ app, filterItem, onChange, headerTitle, groupId }) {
-  const [selectedValue, setSelectedValue] = useState('');
-  const [options, setOptions] = useState([]);
-
-  useEffect(() => {
-    if (filterItem) {
-      getFilterList(app, filterItem).then((items) => {
-        setOptions(items);
-      });
-    }
-  }, [app, filterItem]);
-
-  useEffect(() => {
-    const selectedOption = options.find((option) => option.qState === 'S');
-    console.log(selectedOption)
-    if (selectedOption) {
-      setSelectedValue(selectedOption.text);
-    }
-  }, [options]);
-
-  const handleChange = (event) => {
-    const newValue = event.target.value;
-    setSelectedValue(newValue);
-    onChange(newValue,filterItem,groupId);
-  };
-
-  const truncateText = (text, maxLength = 30) => {
-    return text.length > maxLength ? text.slice(0, maxLength) + '...' : text;
-  };
-
-  return (
-    options != null ? (
-      <div className="combobox-container">
-        <select
-          value={selectedValue}
-          onChange={handleChange}
-          className="combobox"
-        >
-          <option value="" disabled>{headerTitle}</option> {/* "Seçiniz" seçeneğini ekledik */}
-          {options.map((option, index) => (
-            <option
-              key={index}
-              value={option.text}
-              className="combobox-option"
-              title={option.text} // Full text as a tooltip
-            >
-              {truncateText(option.text)}
-            </option>
-          ))}
-        </select>
-      </div>
-    ) : (
-      <></>
-    )
-  );
-}
-
