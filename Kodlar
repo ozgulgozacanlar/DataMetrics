@@ -1,1 +1,29 @@
-elementId={`qlik-object-data-govenance-table` + }
+
+export default function QlikObject({ app, objectId, elementId, filterChange }) {
+    const [isLoading, setIsLoading] = useState(true);
+
+    useEffect(() => {
+        function renderQlikObject(objectId, elementId) {
+            if (app) {
+                setIsLoading(true);
+                app.getObject(elementId, objectId).then(() => {
+                  
+                        setTimeout(() => {
+                            setIsLoading(false);
+                        }, 250);
+                    
+                }).catch((error) => {
+                    console.error('Error loading Qlik object:', error);
+                    setIsLoading(true);  // Eğer hata olursa, isLoaded durumunu false yap
+
+                });
+            }
+        }
+
+        renderQlikObject(objectId, elementId);
+    }, [app, objectId, elementId, filterChange]); // app, qlikId veya elementId değiştiğinde çağır
+
+    return (     
+       <div id={elementId} className="qvobject" style={{ display: isLoading ? 'none' : 'flex' }}></div>           
+    )
+}
