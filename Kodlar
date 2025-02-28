@@ -27,3 +27,16 @@ export default function QlikObject({ app, objectId, elementId, filterChange }) {
        <div id={elementId} className="qvobject" style={{ display: isLoading ? 'none' : 'flex' }}></div>           
     )
 }
+
+function formatDate(dateString) {
+  // Verilen tarihi Date objesine dönüştür
+  const dateObj = new Date(dateString);
+
+  // Gün, ay, yıl değerlerini al
+  const day = String(dateObj.getDate()).padStart(2, '0');
+  const month = String(dateObj.getMonth() + 1).padStart(2, '0'); // Aylar 0'dan başlar
+  const year = dateObj.getFullYear();
+
+  // Formatı "dd/mm/yyyy" şeklinde oluştur
+  return `${day}/${month}/${year}`;
+}
