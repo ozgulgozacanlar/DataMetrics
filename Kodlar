@@ -1,6 +1,1 @@
-
-			let parsedSelectedDate = date.split('.');
-
-			var d = new Date(parsedSelectedDate[2] + "-" + parsedSelectedDate[1] + "-" + parsedSelectedDate[0] + "T00:00:00.000Z");	// tarih oluşturmak için "2019-08-15T00:00:00.000Z" gibi bir string oluşturuyoruz
-			let numericDate = Math.round(d.getTime() / 86400000 + 25569);	// qlik sense numeric date format	
-			resolve(numericDate);
+elementId={`qlik-object-data-govenance-table` + }
