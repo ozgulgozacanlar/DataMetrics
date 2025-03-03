@@ -1,3 +1,66 @@
-  .qv-st .qv-st-value .qv-st-value-overflow span::first-letter{
-    text-transform: uppercase !important;
-  }
+    <div className="row mt-3 row-gap-3">
+          <div className="col-12 d-flex flex-column">
+            <div className="card p-0">
+              <div className="card-title-wrapper d-flex align-items-center justify-content-between p-3">
+                <CardTitle app={app} objectId={objectId} />
+                <ComboBox
+                  app={app}
+                  onChange={handleClickCombobox}
+                  objectIds={[
+                    { objectId: "ZdNQJG", groupId: "group1" },
+                    { objectId: "RxDRP", groupId: "group2" },
+                    { objectId: "CphNY", groupId: "group3" },
+                    { objectId: "GucCnh", groupId: "group4" }
+                  ]}
+                />
+              </div>
+              <div className='table-container'>
+                {/* <DetailTable app={app} objectId={objectId} filterChange={randomKey} /> */}
+                <QlikObject objectId={objectId} app={app} elementId={`qlik-object-pipeline-health-table-${objectId}`} filterChange={randomKey}/>
+
+              </div>
+            </div>
+          </div>
+        </div>
+
+export default function QlikObject({ app, objectId, elementId, filterChange, onLoaded }) {
+    const [isLoading, setIsLoading] = useState(true);
+
+    useEffect(() => {
+        function renderQlikObject(objectId, elementId) {
+            if (app) {
+                setIsLoading(true);
+                app.getObject(elementId, objectId).then(() => {
+                    if (onLoaded) {
+                        setTimeout(() => {
+                            onLoaded();
+                            setIsLoading(false);
+                        }, 2000);
+                    }
+                    else {
+                        setTimeout(() => {
+                            setIsLoading(false);
+                        }, 2000);
+                    }
+                }).catch((error) => {
+                    console.error('Error loading Qlik object:', error);
+                    setIsLoading(true);  // Eğer hata olursa, isLoaded durumunu false yap
+
+                });
+            }
+        }
+
+        renderQlikObject(objectId, elementId);
+    }, [app, objectId, elementId, filterChange, onLoaded]); // app, qlikId veya elementId değiştiğinde çağır
+
+    return (
+        <>
+            {isLoading && (
+                <div className="fixed-loader">
+                    <Loader />
+                </div>
+            )}
+            <div id={elementId} className="qvobject" style={{ visibility: isLoading ? 'hidden' : 'visible' }}></div>
+        </>
+    )
+}
