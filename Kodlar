@@ -1,18 +1,15 @@
-    useEffect(() => {
-        // Qlik object render edildikten sonra metni düzenleyelim
-        const interval = setInterval(() => {
-            const qlikObject = document.querySelector(`#${elementId}`);
-            if (qlikObject) {
-                const elements = qlikObject.querySelectorAll('.qv-st-value-overflow span');
-                elements.forEach((span) => {
-                    span.textContent = span.textContent
-                        .split(' ')
-                        .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
-                        .join(' ');
-                });
-            }
-        }, 500);
-
-        // Clear interval when component unmounts
-        return () => clearInterval(interval);
-    }, [elementId]);
+  const options = reply.qListObject.qDataPages[0].qMatrix.map((value) => {
+              if(value[0].qState !== "X") {  //Seçilemez olan option'ları almıyoruz
+             
+                const optionValue = value[0].qText;
+                return {
+                  value: optionValue,
+                  text: optionValue,
+                  selected: value[0].qState === "S"
+                };
+              }
+             
+            });
+  
+            // Resolve the promise with the options
+            resolve(options);
