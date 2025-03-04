@@ -1,1 +1,5 @@
-style={{ width: `${row[row.length - 1]}%` }}
+style={{
+  width: `${row[row.length - 1]
+    .replace(/%\s*/, '')          // % işaretini ve boşluğu sil
+    .replace(/\([^)]*\)/, '')}`    // (xxx) içindeki tüm ifadeyi (parantez dahil) sil
+}}
