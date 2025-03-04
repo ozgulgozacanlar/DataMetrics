@@ -26,3 +26,6 @@
     )
   );
 }
+
+const isValidDate = !isNaN(new Date(option.text).getTime()) && !/^\d+$/.test(option.text);
+
