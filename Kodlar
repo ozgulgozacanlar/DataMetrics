@@ -1,1 +1,15 @@
-   .text(d => d.valueText);
+.text(d => {
+  // Eğer d.valueText içinde % varsa, önce % işaretini kaldırıp sayıya çeviriyoruz
+  let value = d.valueText.replace('%', '').trim();
+  
+  // String'i sayıya çeviriyoruz
+  let numValue = parseFloat(value);
+  
+  // Sayıya çevrilemiyorsa, default bir değer döndürüyoruz (örneğin 0)
+  if (isNaN(numValue)) {
+    numValue = 0;
+  }
+  
+  // Sayıyı bir ondalıklı şekilde formatlıyoruz
+  return numValue.toFixed(1);
+});
