@@ -1,198 +1,25 @@
-import React, { useEffect, useRef, useState } from "react";
-import * as d3 from "d3";
-import { getObjectData } from '@/util/qlikConnection';
-import { NoDataCard } from '@/components';
-
-const HorizontalBarChartSec = ({ customKey, app, objectId, type, graphColor, onBarPointClick, onLoaded }) => {
-  const svgRef = useRef(null);
-  const divRef = useRef(null);
-  const [barData, setBarData] = useState(null);
-  const [nullDataControl, setNullDataControl] = useState(false);
-  const page = window.location.hash;
-  // const width = useRef(0);
-  // const height = useRef(0);
-  var filterArr = ["UnitName", "Team Name", "Main Category","Metric Name"];
-  const [windowSize, setWindowSize] = useState({
-    width: window.innerWidth,
-    height: window.innerHeight
-  });
-
-  useEffect(() => {
-    var arr = [];
-    function renderQlikObject(objectId) {
-      if (app) {
-        getObjectData(app, objectId)
-          .then((response) => {
-            console.log(response)
-            if (!response) {
-              console.error('HorizontalBarChartSec Component : response verisi boş veya tanımsız.');
-              return;
-            }
-            //Eğer dizi tamamen boşsa ve ya tüm değerleri "-" ise "veri bulunmadı" component'i dönecek.
-            const allDataControl = response.every(item => item[0].qText === "-") // Array içinde data olmadığında ve ya tüm datalar "-" gelirse veri bulunmadı yazılacak.
-            console.log(allDataControl)
-            if (allDataControl) {
-                setNullDataControl(true)
-            }
-            for (let i = 0; i < response.length; i++) {
-              var obj = { name: '', value: 0 };
-              for (let j = 0; j < response[i].length; j++) {
-                obj.name = response[i][0].qText;
-                obj.value = page.includes('usage-capacity') ? response[i][1].qNum * 100 : response[i][1].qNum; 
-              }          
-              arr.push(obj);
-            }
-            setBarData(arr);
-            if(onLoaded){ setTimeout(() => { onLoaded(); }, 250)};
-          });
-      }
-    }
-    renderQlikObject(objectId);
-  }, [customKey, app, objectId]);
-
-  const drawHorizontalBarChart = () => {
-    if (!barData || barData.length === 0 || barData.some(item => isNaN(item.value) || item.value === "-" || item.name === "-")) return;
-
-    const marginLeft = barData.length > 2 ? 130 : 110;
-    //const marginLeft = 150;
-    const margin = { top: 20, right: 60, bottom: 20, left: marginLeft };
-    // const innerWidth = width.current - margin.left - margin.right;
-    // const innerHeight = height.current - margin.top - margin.bottom;
-    const innerWidth = windowSize.width - margin.left - margin.right;
-    const innerHeight = windowSize.height - margin.top - margin.bottom;
-    // En büyük değeri bul (eğer tüm değerler 100'den küçükse, 100'ü baz al)
-    const maxValue = Math.max(100, d3.max(barData, d => d.value));
-
-    const xScale = d3.scaleLinear()
-      .domain([0, maxValue])
-      .range([0, innerWidth]);
-
-    const yScale = d3.scaleBand()
-      .domain(barData.map(d => d.name))
-      .range([0, innerHeight])
-      .padding(0.2);
-
-    const svg = d3.select(svgRef.current)
-      .attr("width", "100%")
-      .attr("height", "100%")
-      .attr("viewBox", `0 0 ${windowSize.width} ${windowSize.height}`)
-      .attr("preserveAspectRatio", "xMidYMid meet");
-
-    svg.selectAll("*").remove();
-
-    const g = svg.append("g")
-      .attr("transform", `translate(${margin.left},${margin.top})`);
-
-    g.selectAll(".background-bar")
-      .data(barData)
-      .enter()
-      .append("rect")
-      .attr("class", "background-bar")
-      .attr("x", 0)
-      .attr("y", d => yScale(d.name))
-      .attr("width", xScale(maxValue)) // Sabit genişlikte arkaplan
-      .attr("height", yScale.bandwidth() / 3)
-      .attr("fill", "lightgray")
-      .attr("rx", 12)
-      .attr("ry", 12)
-      .on("click", (event, d) => {
-        handleBarClick(d.name,filterArr);
-        setTimeout(() => {
-          onBarPointClick();
-        }, 125);
-      });
-
-    g.selectAll(".value-bar")
-      .data(barData)
-      .enter()
-      .append("rect")
-      .attr("class", "value-bar")
-      .attr("x", 0)
-      .attr("y", d => yScale(d.name))
-      .attr("width", d => xScale(d.value))
-      .attr("height", yScale.bandwidth() / 3)
-      .attr("fill", graphColor)
-      .attr("rx", 12)
-      .attr("ry", 12)
-      .on("click", (event, d) => {
-        handleBarClick(d.name, filterArr);
-        setTimeout(() => {
-          onBarPointClick();
-        }, 125);
-        
-      });
-
-    g.selectAll("text")
-      .data(barData)
-      .enter()
-      .append("text")
-      .attr("x", d => xScale(maxValue) + 15)
-      .attr("y", (d, i) => {    
-        return yScale(d.name) + yScale.bandwidth() /  5
-      }) // Çubuk sayısına göre kaydırma      
-      .attr("alignment-baseline", "middle")
-      .text(d => type === 'percentage' ? `${d != undefined ? d.value.toFixed(0): ''}%` : `${d != undefined ? d.value.toFixed(0): ''}`)
-      .attr("font-size" ,13)
-      const yTranslateValue = marginLeft !== 140 ? 30 : -5;
-
-    const yAxis = d3.axisLeft(yScale).tickSize(0);
-    g.append("g")
-      .call(yAxis)
-      .selectAll("text")
-      .attr("transform", "translate("+ yTranslateValue + "," + (barData.length === 1 ? -55 : barData.length === 2 ? -32 : barData.length === 3 ? -20 : barData.length === 4 ? -15 : -10) + ")") // Y-axis kaydırma
-      .style('text-anchor', 'start')
-      .attr("x", -130)
-      .text(d => d.length > 25 ? d.slice(0, 15) + "..." : d);
-
-    g.select(".domain").remove();
-  }
-  useEffect(() => {
-    if (windowSize.width > 0 && windowSize.height > 0) { 
-      drawHorizontalBarChart();
-    }
-  }, [customKey,barData,windowSize]);
-  
-  const updateDimensions = () => {
-    if (divRef.current) {
-      setWindowSize({
-        width: divRef.current.offsetWidth, // div'in genişliği
-        height: divRef.current.offsetHeight, // div'in yüksekliği
-      });     
-    }
-  };
-  // Yeniden boyutlandırma
-  useEffect(() => {  
-    updateDimensions();
-    window.addEventListener('resize', updateDimensions);
-    // Component unmount olduğunda event listener'ı kaldır
-    return () => window.removeEventListener('resize', updateDimensions);
-  }, [onLoaded]);
-
-  const handleBarClick = async (value, filterArr) => {  
-    for (let i = 0; i < filterArr.length; i++) {
-        const fieldName = filterArr[i];
-  
-        // Mevcut filtreleri kontrol et
-        const field = app.field(fieldName);
-        const layout = await field.getData();
-        const appliedFilters = layout.rows.filter(row => row.qState === 'S').map(row => row.qText);
-  
-        // Eğer bu alan zaten filtrelenmişse, bir sonraki indexi kontrol et
-        if (appliedFilters.length === 0) {
-            await field.selectValues([{ qText: value }]);
-            console.log(`Value selected successfully in ${fieldName}:`, value);
-            break; // İlk uygun alan seçildiğinde döngüden çık
-        }
-    }
-  };
-  if (nullDataControl) { 
-    return <NoDataCard width="90%" height="300px"/>       
-  } 
-  return (
-    <div ref={divRef} style={{ width: '100%', height: '300px' }}>
-      <svg ref={svgRef}></svg>
-    </div>
-  );
-};
-
-export default HorizontalBarChartSec;
+  const arcWidth = 22;
+        const radius = windowSize.width / 2 - arcWidth;
+        const angleScale = d3.scaleLinear().domain([0, 100]).range([-Math.PI / 2, Math.PI / 2]);
+        const arc = d3.arc()
+          .innerRadius(radius - arcWidth)
+          .outerRadius(radius)
+          .startAngle(angleScale(0))
+          .endAngle(angleScale(Math.min(gaugeValue, 100)));
+    
+        const backgroundArc = d3.arc()
+          .innerRadius(radius - arcWidth)
+          .outerRadius(radius)
+          .startAngle(angleScale(0))
+          .endAngle(angleScale(100));
+    
+        const g = svg.append("g").attr("transform", `translate(${windowSize.width / 2},${windowSize.height*1.2})`);
+        g.append("path").attr("d", backgroundArc()).attr("fill", "#ddd");
+        g.append("path").attr("d", arc()).attr("fill", graphColor);
+    
+        g.append("text")
+          .attr("x", -radius + 5)
+          .attr("y", 15)
+          .text("0")
+          .attr("font-weight", "bold")
+          .attr("font-size", "0.9srem");
