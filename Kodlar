@@ -1,15 +1,23 @@
-.text(d => {
-  // Eğer d.valueText içinde % varsa, önce % işaretini kaldırıp sayıya çeviriyoruz
-  let value = d.valueText.replace('%', '').trim();
-  
-  // String'i sayıya çeviriyoruz
-  let numValue = parseFloat(value);
-  
-  // Sayıya çevrilemiyorsa, default bir değer döndürüyoruz (örneğin 0)
-  if (isNaN(numValue)) {
-    numValue = 0;
-  }
-  
-  // Sayıyı bir ondalıklı şekilde formatlıyoruz
-  return numValue.toFixed(1);
-});
+   points.append("text")
+        .attr("y", -10)
+        .attr("text-anchor", "middle")
+        .attr("font-size", "10px")
+        .attr("fill", "#666666")
+        .attr("font-weight",600)
+        .style("cursor", "default")
+        .text(d => {
+          // Eğer d.valueText içinde % varsa, önce % işaretini kaldır
+          let hasPercent= d.valueText.includes('%')
+          let value = hasPercent ? d.valueText.replace('%', '').trim(): d.valueText;
+          
+          // String'i sayıya çeviriyoruz
+          let numValue = parseFloat(value);
+          
+          // Sayıya çevrilemiyorsa, default bir değer döndürüyoruz (örneğin 0)
+          if (isNaN(numValue)) {
+            return d.valueText;
+          }
+          
+          // Sayıyı bir ondalıklı şekilde formatlıyoruz
+          return hasPercent ? numValue.toFixed(1) + '%' : numValue.toFixed(1);
+        });
