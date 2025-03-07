@@ -1,7 +1,18 @@
-  <div className="d-flex justify-content-end mt-3">
-        <div className="page-main-button" onClick={handleClickBack}><BackIcon /> Geri</div>
-        <div className="nav-button me-2" onClick={() => handleClearAll()}><ClearFilterIcon /></div>
-        <Link className="d-flex text-decoration-none mt-2" to="/usage-capacity-details">
-          <PageMainButton icon={<DetailsIcon />} title="Detaylar" />
-        </Link>
-      </div>
+<div className="d-flex justify-content-between mt-3">
+  {/* Sol tarafa hizalanan buton */}
+  <div className="d-flex">
+    <div className="page-main-button" onClick={handleClickBack}>
+      <BackIcon /> Geri
+    </div>
+  </div>
+
+  {/* Sağ tarafa hizalanan butonlar */}
+  <div className="d-flex justify-content-end">
+    <div className="nav-button me-2" onClick={() => handleClearAll()}>
+      <ClearFilterIcon />
+    </div>
+    <Link className="d-flex text-decoration-none mt-2" to="/usage-capacity-details">
+      <PageMainButton icon={<DetailsIcon />} title="Detaylar" />
+    </Link>
+  </div>
+</div>
