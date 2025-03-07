@@ -1,23 +1,46 @@
-   points.append("text")
-        .attr("y", -10)
-        .attr("text-anchor", "middle")
-        .attr("font-size", "10px")
-        .attr("fill", "#666666")
-        .attr("font-weight",600)
-        .style("cursor", "default")
-        .text(d => {
-          // Eğer d.valueText içinde % varsa, önce % işaretini kaldır
-          let hasPercent= d.valueText.includes('%')
-          let value = hasPercent ? d.valueText.replace('%', '').trim(): d.valueText;
-          
-          // String'i sayıya çeviriyoruz
-          let numValue = parseFloat(value);
-          
-          // Sayıya çevrilemiyorsa, default bir değer döndürüyoruz (örneğin 0)
-          if (isNaN(numValue)) {
-            return d.valueText;
-          }
-          
-          // Sayıyı bir ondalıklı şekilde formatlıyoruz
-          return hasPercent ? numValue.toFixed(1) + '%' : numValue.toFixed(1);
-        });
+export default function FilterComboBox({ app, filterItem, onChange, headerTitle, resetFilters }) {
+  const [selectedValue, setSelectedValue] = useState('');
+  const [options, setOptions] = useState([]);
+
+  useEffect(() => {
+    if (filterItem) {
+      getFilterList(app, filterItem).then((items) => {
+        setOptions(items);
+      });
+    }
+  }, [app, filterItem, onChange]);
+  useEffect(() => {
+    console.log(resetFilters)
+    if (resetFilters) {
+      setSelectedValue("")
+    }
+  }, [resetFilters]);
+
+  const handleClearAll = () => {
+    app.clearAll(true).then(() => {
+      setRandomKey(Math.random()); 
+      setApp(app);
+      console.log("deneme")
+      setResetFilters(true);  // FilterComboBox'ı sıfırla
+    });
+  }
+  return (
+    <>
+      {isLoading && (
+          <div className="fixed-loader">
+            <Loader />
+          </div>
+        )}
+      <div style={{ display: isLoading ? 'none' : 'block' }}>
+        <div className="d-flex mt-3">
+          <Link className="d-flex text-decoration-none" to="/development-automation"><PageMainButton icon={<BackIcon />} title="Geri" /></Link>
+          <div className="nav-button me-2" onClick={() => handleClearAll()}><ClearFilterIcon /></div>
+        </div>
+        <div className="combobox-wrapper">
+            <FilterComboBox app={app} filterItem={"RECORD_DATE_DA_DETAIL"} onChange={handleClickFilterCombobox} headerTitle={"Record Date"} resetFilters={resetFilters} />
+            <FilterComboBox app={app} filterItem={"BUSINESS_LINE_DA_DETAIL"} onChange={handleClickFilterCombobox} headerTitle={"Business Line"} resetFilters={resetFilters} />
+            <FilterComboBox app={app} filterItem={"UNIT_NAME_DA_DETAIL"} onChange={handleClickFilterCombobox} headerTitle={"Unit Name"} resetFilters={resetFilters} />
+            <FilterComboBox app={app} filterItem={"TEAM_NAME_DA_DETAIL"} onChange={handleClickFilterCombobox} headerTitle={"Team Name"} resetFilters={resetFilters} />
+            <FilterComboBox app={app} filterItem={"METRIC_ID_DA_DETAIL"} onChange={handleClickFilterCombobox} headerTitle={"Metric Id"} resetFilters={resetFilters} />
+            <FilterComboBox app={app} filterItem={"SCORE_OBJECT_NAME_DA_DETAIL"} onChange={handleClickFilterCombobox} headerTitle={"Score Object Name"} resetFilters={resetFilters}  />
+        </div>
